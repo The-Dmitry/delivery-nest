@@ -1,3 +1,4 @@
+import { JwtService } from '@/jwt/jwt.service';
 import {
   BadRequestException,
   Injectable,
@@ -11,7 +12,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly jwt: JwtService,
+  ) {}
 
   async login({ email, password }: CreateLoginDto) {
     try {
@@ -25,7 +29,7 @@ export class AuthService {
       if (!isPasswordValid) {
         throw new NotFoundException('User not found');
       }
-      return 'User logged in successfully 123';
+      return this.jwt.generateToken(user.id);
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
@@ -46,7 +50,7 @@ export class AuthService {
         },
       });
       if (newUser) {
-        return 'User registered successfully';
+        return this.jwt.generateToken(newUser.id);
       }
     } catch (error) {
       if (

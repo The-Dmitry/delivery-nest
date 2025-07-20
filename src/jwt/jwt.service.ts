@@ -3,12 +3,12 @@ import {
   Injectable,
   InternalServerErrorException,
 } from '@nestjs/common';
+import { JwtService as NestJwtService } from '@nestjs/jwt';
 import {
-  JsonWebTokenError,
-  JwtService as NestJwtService,
-  NotBeforeError,
   TokenExpiredError,
-} from '@nestjs/jwt';
+  NotBeforeError,
+  JsonWebTokenError,
+} from 'jsonwebtoken';
 
 @Injectable()
 export class JwtService {
