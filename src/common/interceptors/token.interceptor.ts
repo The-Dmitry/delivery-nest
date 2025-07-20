@@ -16,8 +16,6 @@ export class TokenInterceptor<
 > implements NestInterceptor<T, T>
 {
   intercept(context: ExecutionContext, next: CallHandler): Observable<T> {
-    console.log('TokenInterceptor: intercepting request...');
-
     const ctx = context.switchToHttp();
     const response = ctx.getResponse<Response>();
 

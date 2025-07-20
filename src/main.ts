@@ -2,11 +2,13 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import * as cookieParser from 'cookie-parser';
+import { BaseInterceptor } from '@interceptors/base.interceptor';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.use(cookieParser());
   app.setGlobalPrefix('api');
+  app.useGlobalInterceptors(new BaseInterceptor());
   app.useGlobalPipes(
     new ValidationPipe({
       whitelist: true,

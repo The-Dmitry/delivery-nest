@@ -1,26 +1,32 @@
-// import {
-//   type CallHandler,
-//   type ExecutionContext,
-//   Injectable,
-//   type NestInterceptor,
-// } from '@nestjs/common';
-// import { Observable, tap, catchError, map } from 'rxjs';
+import {
+  Injectable,
+  NestInterceptor,
+  ExecutionContext,
+  CallHandler,
+} from '@nestjs/common';
+import { Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
 
-// @Injectable()
-// export class BaseInterceptor implements NestInterceptor {
-//   intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-//     const result = next.handle(
-//       map((data) => {
-//         console.log('Response data:', data);
-//         return data;
-//       }),
-//     );
-//     return next.handle().pipe(
-//       tap(() => console.log('Response is sent')),
-//       catchError((err) => {
-//         console.log('Error caught in interceptor:', err.message);
-//         throw err; // обязательно пробросить дальше, иначе фильтр не сработает
-//       }),
-//     );
-//   }
-// }
+interface ModifiedResponse<T> {
+  status: string;
+  data: T;
+}
+
+@Injectable()
+export class BaseInterceptor<T = unknown>
+  implements NestInterceptor<T, ModifiedResponse<T>>
+{
+  intercept(
+    context: ExecutionContext,
+    next: CallHandler<T>,
+  ): Observable<ModifiedResponse<T>> {
+    return next.handle().pipe(
+      map((data: T) => {
+        return {
+          status: 'success',
+          data,
+        };
+      }),
+    );
+  }
+}
