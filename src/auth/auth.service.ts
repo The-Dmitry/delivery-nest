@@ -49,9 +49,7 @@ export class AuthService {
           password: await hash(password),
         },
       });
-      if (newUser) {
-        return this.jwt.generateToken(newUser.id);
-      }
+      return this.jwt.generateToken(newUser.id);
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
@@ -61,5 +59,19 @@ export class AuthService {
       }
       throw error;
     }
+  }
+
+  async refresh(refreshToken: string) {
+    const id = this.jwt.verifyToken(refreshToken);
+    if (!id) {
+      throw new BadRequestException('Invalid refresh token');
+    }
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+    return this.jwt.generateToken(id);
   }
 }

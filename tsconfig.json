@@ -18,6 +18,8 @@
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
     "paths": {
+      "@interceptors/*": ["./src/common/interceptors/*"],
+      "@utils/*": ["./src/common/utils/*"],
       "@prisma/*": ["./src/prisma/*"],
       "@jwt/*": ["./src/jwt/*"],
       "@auth/*": ["./src/auth/*"],
