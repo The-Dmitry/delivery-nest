@@ -19,6 +19,7 @@
     "noFallthroughCasesInSwitch": false,
     "paths": {
       "@interceptors/*": ["./src/common/interceptors/*"],
+      "@filters/*": ["./src/common/filters/*"],
       "@utils/*": ["./src/common/utils/*"],
       "@prisma/*": ["./src/prisma/*"],
       "@jwt/*": ["./src/jwt/*"],
