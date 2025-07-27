@@ -1,4 +1,5 @@
 import { JwtService } from '@/jwt/jwt.service';
+import { JwtPayload } from '@jwt/models/models';
 import {
   BadRequestException,
   Injectable,
@@ -65,19 +66,15 @@ export class AuthService {
     return this.jwt.generateToken();
   }
 
-  async refresh(refreshToken: string) {
-    const { id, anonymous, tokenType } = this.jwt.verifyToken(refreshToken);
-    if (tokenType !== 'refresh') {
-      throw new BadRequestException('Invalid token type');
-    }
+  async refresh({ id, anonymous }: JwtPayload) {
     if (anonymous) {
-      // TODO: Extend the lifetime of an anonymous cart for a anonymous user on token refresh
       return this.jwt.generateToken(id, true);
     }
 
     const user = await this.prisma.user.findUnique({
       where: { id },
     });
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
