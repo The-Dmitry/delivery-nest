@@ -29,7 +29,7 @@ export class AuthService {
       if (!isPasswordValid) {
         throw new NotFoundException('User not found');
       }
-      return this.jwt.generateToken(user.id);
+      return this.jwt.generateToken(user.id, false);
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
@@ -49,7 +49,7 @@ export class AuthService {
           password: await hash(password),
         },
       });
-      return this.jwt.generateToken(newUser.id);
+      return this.jwt.generateToken(newUser.id, false);
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
@@ -61,11 +61,20 @@ export class AuthService {
     }
   }
 
+  anonymousLogin() {
+    return this.jwt.generateToken();
+  }
+
   async refresh(refreshToken: string) {
-    const id = this.jwt.verifyToken(refreshToken);
-    if (!id) {
-      throw new BadRequestException('Invalid refresh token');
+    const { id, anonymous, tokenType } = this.jwt.verifyToken(refreshToken);
+    if (tokenType !== 'refresh') {
+      throw new BadRequestException('Invalid token type');
     }
+    if (anonymous) {
+      // TODO: Extend the lifetime of an anonymous cart for a anonymous user on token refresh
+      return this.jwt.generateToken(id, true);
+    }
+
     const user = await this.prisma.user.findUnique({
       where: { id },
     });

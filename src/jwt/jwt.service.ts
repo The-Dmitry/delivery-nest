@@ -9,15 +9,19 @@ import {
   NotBeforeError,
   JsonWebTokenError,
 } from 'jsonwebtoken';
+import { JwtData, JwtPayload } from '@jwt/models/models';
 
 @Injectable()
 export class JwtService {
   constructor(private readonly NestJwtService: NestJwtService) {}
 
-  verifyToken(token: string): string {
+  verifyToken(token: string): JwtPayload {
     try {
-      const { userId } = this.NestJwtService.verify<{ userId: string }>(token);
-      return userId;
+      const payload = this.NestJwtService.verify<JwtPayload>(token);
+      if ('id' in payload && 'anonymous' in payload) {
+        return payload;
+      }
+      throw new JsonWebTokenError('');
     } catch (error) {
       if (error instanceof TokenExpiredError) {
         throw new BadRequestException('Token expired');
@@ -35,15 +39,19 @@ export class JwtService {
     }
   }
 
-  generateToken(userId: string) {
+  generateToken(id?: string, anonymous: boolean = true): JwtData {
+    id ??= crypto.randomUUID();
+
     const accessToken = this.NestJwtService.sign(
-      { userId },
-      { expiresIn: 300 },
+      { id, anonymous, tokenType: 'access' } satisfies JwtPayload,
+      { expiresIn: anonymous ? 300 : '1d' },
     );
+
     const refreshToken = this.NestJwtService.sign(
-      { userId },
+      { id, anonymous, tokenType: 'refresh' } satisfies JwtPayload,
       { expiresIn: '10d' },
     );
-    return { accessToken, refreshToken };
+
+    return { accessToken, refreshToken, anonymous };
   }
 }

@@ -3,7 +3,7 @@ import { CreateLoginDto } from '@auth/dto/login.dto';
 import { CreateRegistrationDto } from '@auth/dto/registration.dto';
 import { TokenInterceptor } from '@interceptors/token.interceptor';
 import { Body, Controller, Post, Req, UseInterceptors } from '@nestjs/common';
-import { Request } from 'express';
+import type { Request } from 'express';
 
 @UseInterceptors(TokenInterceptor)
 @Controller('auth')
@@ -18,6 +18,11 @@ export class AuthController {
   @Post('login')
   async login(@Body() dto: CreateLoginDto) {
     return await this.authService.login(dto);
+  }
+
+  @Post('anonymous')
+  anonymousLogin() {
+    return this.authService.anonymousLogin();
   }
 
   @Post('refresh')
