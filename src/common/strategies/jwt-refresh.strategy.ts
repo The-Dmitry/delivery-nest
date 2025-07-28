@@ -3,13 +3,14 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
+import { EnvService } from '@/env/env.service';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
   Strategy,
   'jwt-refresh',
 ) {
-  constructor() {
+  constructor(private readonly envService: EnvService) {
     super({
       jwtFromRequest: ExtractJwt.fromExtractors([
         (req: Request) =>
@@ -20,7 +21,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
             : null,
       ]),
       ignoreExpiration: false,
-      secretOrKey: process.env.JWT_SECRET || 'secret',
+      secretOrKey: envService.jwtSecret,
     });
   }
 
