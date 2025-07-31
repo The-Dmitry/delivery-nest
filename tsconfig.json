@@ -9,14 +9,24 @@
     "target": "ES2023",
     "sourceMap": true,
     "outDir": "./dist",
-    "baseUrl": "./",
+    "baseUrl": ".",
     "incremental": true,
     "skipLibCheck": true,
     "strictNullChecks": true,
     "forceConsistentCasingInFileNames": true,
     "noImplicitAny": false,
     "strictBindCallApply": false,
-    "noFallthroughCasesInSwitch": false
+    "noFallthroughCasesInSwitch": false,
+    "paths": {
+      "@interceptors/*": ["./src/common/interceptors/*"],
+      "@filters/*": ["./src/common/filters/*"],
+      "@utils/*": ["./src/common/utils/*"],
+      "@prisma/*": ["./src/prisma/*"],
+      "@env/*": ["./src/env/*"],
+      "@jwt/*": ["./src/jwt/*"],
+      "@auth/*": ["./src/auth/*"],
+      "@/*": ["./src/*"]
+    }
   },
   "watchOptions": {
     "watchFile": "dynamicPriorityPolling",
