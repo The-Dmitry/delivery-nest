@@ -10,10 +10,14 @@ import {
   JsonWebTokenError,
 } from 'jsonwebtoken';
 import { JwtData, JwtPayload } from '@jwt/models/models';
+import { EnvService } from '@env/env.service';
 
 @Injectable()
 export class JwtService {
-  constructor(private readonly NestJwtService: NestJwtService) {}
+  constructor(
+    private readonly NestJwtService: NestJwtService,
+    private readonly envService: EnvService,
+  ) {}
 
   verifyToken(token: string): JwtPayload {
     try {
@@ -41,10 +45,18 @@ export class JwtService {
 
   generateToken(id?: string, anonymous: boolean = true): JwtData {
     id ??= crypto.randomUUID();
+    const now = Math.floor(Date.now() / 1000);
+    const accessTokenExpiresIn = anonymous
+      ? this.envService.accessTokenExpiration
+      : 86400;
+
+    const accessTokenExpiresAt = new Date(
+      (now + accessTokenExpiresIn) * 1000,
+    ).toISOString();
 
     const accessToken = this.NestJwtService.sign(
       { id, anonymous, tokenType: 'access' } satisfies JwtPayload,
-      { expiresIn: anonymous ? 300 : '1d' },
+      { expiresIn: accessTokenExpiresIn },
     );
 
     const refreshToken = this.NestJwtService.sign(
@@ -52,6 +64,6 @@ export class JwtService {
       { expiresIn: '10d' },
     );
 
-    return { accessToken, refreshToken, anonymous };
+    return { accessToken, refreshToken, anonymous, accessTokenExpiresAt };
   }
 }

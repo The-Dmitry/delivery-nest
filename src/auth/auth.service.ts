@@ -1,9 +1,9 @@
 import { JwtService } from '@/jwt/jwt.service';
 import { JwtPayload } from '@jwt/models/models';
 import {
-  BadRequestException,
   Injectable,
   NotFoundException,
+  UnauthorizedException,
 } from '@nestjs/common';
 import { hash, verify } from 'argon2';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
@@ -19,27 +19,17 @@ export class AuthService {
   ) {}
 
   async login({ email, password }: CreateLoginDto) {
-    try {
-      const user = await this.prisma.user.findUnique({
-        where: { email },
-      });
-      if (!user) {
-        throw new NotFoundException('User not found');
-      }
-      const isPasswordValid = await verify(user.password, password);
-      if (!isPasswordValid) {
-        throw new NotFoundException('User not found');
-      }
-      return this.jwt.generateToken(user.id, false);
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2002'
-      ) {
-        throw new BadRequestException('Email already exists');
-      }
-      throw error;
+    const user = await this.prisma.user.findUnique({
+      where: { email },
+    });
+    if (!user) {
+      throw new NotFoundException('User not found');
     }
+    const isPasswordValid = await verify(user.password, password);
+    if (!isPasswordValid) {
+      throw new NotFoundException('User not found');
+    }
+    return this.jwt.generateToken(user.id, false);
   }
 
   async register({ email, password }: CreateRegistrationDto) {
@@ -56,7 +46,7 @@ export class AuthService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2002'
       ) {
-        throw new BadRequestException('Email already exists');
+        throw new UnauthorizedException('Email already exists');
       }
       throw error;
     }
@@ -78,6 +68,6 @@ export class AuthService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    return this.jwt.generateToken(id);
+    return this.jwt.generateToken(user.id);
   }
 }

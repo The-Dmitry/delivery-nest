@@ -24,4 +24,8 @@ export class EnvService {
   get databaseUrl(): string {
     return this.config.getOrThrow<string>('DATABASE_URL');
   }
+
+  get accessTokenExpiration(): number {
+    return this.config.getOrThrow<number>('ACCESS_TOKEN_EXPIRATION');
+  }
 }

@@ -2,6 +2,7 @@ export interface JwtData {
   accessToken: string;
   refreshToken: string;
   anonymous: boolean;
+  accessTokenExpiresAt: string;
 }
 
 export interface JwtPayload {

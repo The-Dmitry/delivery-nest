@@ -4,6 +4,7 @@ import { ValidationPipe } from '@nestjs/common/pipes/validation.pipe';
 import * as cookieParser from 'cookie-parser';
 import { BaseInterceptor } from '@interceptors/base.interceptor';
 import { BaseFilter } from '@filters/base.filter';
+import { setupSwagger } from '@utils/setupSwagger';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +19,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+  setupSwagger(app);
   await app.listen(process.env.PORT ?? 3000);
 }
 bootstrap();

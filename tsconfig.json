@@ -22,6 +22,7 @@
       "@filters/*": ["./src/common/filters/*"],
       "@utils/*": ["./src/common/utils/*"],
       "@prisma/*": ["./src/prisma/*"],
+      "@env/*": ["./src/env/*"],
       "@jwt/*": ["./src/jwt/*"],
       "@auth/*": ["./src/auth/*"],
       "@/*": ["./src/*"]
