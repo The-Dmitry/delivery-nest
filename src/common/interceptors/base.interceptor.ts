@@ -28,7 +28,7 @@ export class BaseInterceptor<T = unknown>
     return next.handle().pipe(
       map((data: T) => {
         return {
-          status: 'success',
+          status: 'ok',
           statusCode,
           data,
         };

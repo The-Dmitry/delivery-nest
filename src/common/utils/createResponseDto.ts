@@ -1,11 +1,11 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { Type } from '@nestjs/common';
 
-export function createResponseDto<T>(dto?: Type<T>) {
+export function createResponseDto<T>(dto?: Type<T> | [Type<T>]) {
   return {
     success(className: string, code: number = 200) {
       class SuccessResponseDto {
-        @ApiProperty({ example: 'success', description: 'Response status' })
+        @ApiProperty({ example: 'ok', description: 'Response status' })
         status: string;
 
         @ApiProperty({ example: code, description: 'HTTP status code' })
@@ -16,7 +16,7 @@ export function createResponseDto<T>(dto?: Type<T>) {
       }
 
       Object.defineProperty(SuccessResponseDto, 'name', {
-        value: `Success${className}Dto_${code}`,
+        value: `Success${className.charAt(0).toUpperCase()}${className.slice(1)}Dto_${code}`,
       });
 
       return SuccessResponseDto;
@@ -48,7 +48,7 @@ export function createResponseDto<T>(dto?: Type<T>) {
       }
 
       Object.defineProperty(ErrorResponseDto, 'name', {
-        value: `Error${className}Dto_${code}`,
+        value: `Error${className.charAt(0).toUpperCase()}${className.slice(1)}Dto_${code}`,
       });
 
       return ErrorResponseDto;

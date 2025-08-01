@@ -26,7 +26,7 @@ export class CategoryService {
         error.code === 'P2002'
       ) {
         throw new ConflictException(
-          `Category with name "${name}" already exists.`,
+          `Category with name '${name}' already exists.`,
         );
       }
       throw new BadRequestException(`Failed to create category: ${name}`);
