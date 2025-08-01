@@ -1,4 +1,5 @@
 import { JwtService } from '@/jwt/jwt.service';
+import type { AuthResponseDto } from '@auth/dto/response/auth-response.dto';
 import { JwtPayload } from '@jwt/models/models';
 import {
   Injectable,
@@ -18,7 +19,7 @@ export class AuthService {
     private readonly jwt: JwtService,
   ) {}
 
-  async login({ email, password }: CreateLoginDto) {
+  async login({ email, password }: CreateLoginDto): Promise<AuthResponseDto> {
     const user = await this.prisma.user.findUnique({
       where: { email },
     });
@@ -32,7 +33,10 @@ export class AuthService {
     return this.jwt.generateToken(user.id, false);
   }
 
-  async register({ email, password }: CreateRegistrationDto) {
+  async register({
+    email,
+    password,
+  }: CreateRegistrationDto): Promise<AuthResponseDto> {
     try {
       const newUser = await this.prisma.user.create({
         data: {
@@ -52,11 +56,11 @@ export class AuthService {
     }
   }
 
-  anonymousLogin() {
+  anonymousLogin(): AuthResponseDto {
     return this.jwt.generateToken();
   }
 
-  async refresh({ id, anonymous }: JwtPayload) {
+  async refresh({ id, anonymous }: JwtPayload): Promise<AuthResponseDto> {
     if (anonymous) {
       return this.jwt.generateToken(id, true);
     }

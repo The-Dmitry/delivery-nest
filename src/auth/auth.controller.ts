@@ -49,7 +49,7 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  async register(@Body() dto: CreateRegistrationDto) {
+  async register(@Body() dto: CreateRegistrationDto): Promise<AuthResponseDto> {
     return await this.authService.register(dto);
   }
 
@@ -75,7 +75,7 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.CREATED)
   @Post('login')
-  async login(@Body() dto: CreateLoginDto) {
+  async login(@Body() dto: CreateLoginDto): Promise<AuthResponseDto> {
     return await this.authService.login(dto);
   }
 
@@ -89,7 +89,7 @@ export class AuthController {
   })
   @HttpCode(HttpStatus.OK)
   @Post('anonymous')
-  anonymousLogin() {
+  anonymousLogin(): AuthResponseDto {
     return this.authService.anonymousLogin();
   }
 
@@ -106,7 +106,7 @@ export class AuthController {
     type: createResponseDto(AuthResponseDto).success('refresh', 201),
   })
   @Post('refresh')
-  async refresh(@TokenPayload() payload: JwtPayload) {
+  async refresh(@TokenPayload() payload: JwtPayload): Promise<AuthResponseDto> {
     return this.authService.refresh(payload);
   }
 }
