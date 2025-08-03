@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Category } from 'generated/prisma';
 
 export class ResponseCategoryDto implements Category {
@@ -26,3 +27,13 @@ export class ResponseCategoryDto implements Category {
   })
   updatedAt: Date;
 }
+
+export const CategoryDtoResponse = createResponseDto(
+  ResponseCategoryDto,
+  'Category',
+);
+
+export const AllCategoryDtoResponse = createResponseDto(
+  [ResponseCategoryDto],
+  'AllCategories',
+);

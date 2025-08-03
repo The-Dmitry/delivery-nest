@@ -20,12 +20,14 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
-import { createResponseDto } from '@utils/createResponseDto';
-import { ResponseCategoryDto } from '@/category/dto/response/response-category.dto';
+import {
+  AllCategoryDtoResponse,
+  CategoryDtoResponse,
+} from '@/category/dto/response/response-category.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: createResponseDto().error('categories', 400, 'Invalid request data'),
+  type: CategoryDtoResponse.error(),
 })
 @Controller('categories')
 export class CategoryController {
@@ -37,15 +39,11 @@ export class CategoryController {
   })
   @ApiCreatedResponse({
     description: 'Category created successfully',
-    type: createResponseDto(ResponseCategoryDto).success('categories', 201),
+    type: CategoryDtoResponse.success(),
   })
   @ApiConflictResponse({
     description: 'Category with the same name already exists',
-    type: createResponseDto().error(
-      'categories',
-      409,
-      'Category already exists',
-    ),
+    type: CategoryDtoResponse.error(),
   })
   @Post()
   async create(@Body() createCategoryDto: CreateCategoryDto) {
@@ -58,7 +56,7 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'List of categories retrieved successfully',
-    type: createResponseDto([ResponseCategoryDto]).success('category', 200),
+    type: AllCategoryDtoResponse.success(),
   })
   @Get()
   async findAll() {
@@ -71,11 +69,11 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category retrieved successfully',
-    type: createResponseDto(ResponseCategoryDto).success('category', 200),
+    type: CategoryDtoResponse.success(),
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: createResponseDto().error('category', 404, 'Category not found'),
+    type: CategoryDtoResponse.error(),
   })
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -88,22 +86,15 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category updated successfully',
-    type: createResponseDto(ResponseCategoryDto).success(
-      'category-update',
-      200,
-    ),
+    type: CategoryDtoResponse.success(),
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: createResponseDto().error('category', 404, 'Category not found'),
+    type: CategoryDtoResponse.error(),
   })
   @ApiConflictResponse({
     description: 'Category with the same name already exists',
-    type: createResponseDto().error(
-      'category-update',
-      409,
-      'Category with this name already exists',
-    ),
+    type: CategoryDtoResponse.error(),
   })
   @Patch(':id')
   async update(
@@ -119,15 +110,11 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category deleted successfully',
-    type: createResponseDto().success('category-delete', 200),
+    type: CategoryDtoResponse.success(),
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: createResponseDto().error(
-      'category-delete',
-      404,
-      'Category not found',
-    ),
+    type: CategoryDtoResponse.error(),
   })
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
