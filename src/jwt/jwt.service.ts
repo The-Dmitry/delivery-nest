@@ -9,8 +9,9 @@ import {
   NotBeforeError,
   JsonWebTokenError,
 } from 'jsonwebtoken';
-import { JwtData, JwtPayload } from '@jwt/models/models';
 import { EnvService } from '@env/env.service';
+import { AuthResponseDto } from '@auth/dto/response/auth-response.dto';
+import { JwtPayload } from '@jwt/models/models';
 
 @Injectable()
 export class JwtService {
@@ -43,7 +44,7 @@ export class JwtService {
     }
   }
 
-  generateToken(id?: string, anonymous: boolean = true): JwtData {
+  generateToken(id?: string, anonymous: boolean = true): AuthResponseDto {
     id ??= crypto.randomUUID();
     const now = Math.floor(Date.now() / 1000);
     const accessTokenExpiresIn = anonymous

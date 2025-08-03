@@ -1,7 +1,7 @@
-import { JwtData } from '@jwt/models/models';
 import { ApiProperty } from '@nestjs/swagger';
+import { createResponseDto } from '@utils/createResponseDto';
 
-export class AuthResponseDto implements JwtData {
+export class AuthResponseDto {
   @ApiProperty({
     example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
     description: 'Access token',
@@ -26,3 +26,5 @@ export class AuthResponseDto implements JwtData {
   })
   accessTokenExpiresAt: string;
 }
+
+export const AuthDtoResponse = createResponseDto(AuthResponseDto, 'Auth');

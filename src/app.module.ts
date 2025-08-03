@@ -6,6 +6,7 @@ import { PrismaModule } from 'src/prisma/prisma.module';
 import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { EnvModule } from './env/env.module';
+import { CategoryModule } from './category/category.module';
 
 @Module({
   imports: [
@@ -17,6 +18,7 @@ import { EnvModule } from './env/env.module';
       envFilePath: '.env',
     }),
     EnvModule,
+    CategoryModule,
   ],
   controllers: [AppController],
   providers: [AppService],

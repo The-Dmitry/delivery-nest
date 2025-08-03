@@ -3,7 +3,10 @@ import { JwtRefreshGuard } from '@/common/guards/jwt-refresh.guard';
 import { AuthService } from '@auth/auth.service';
 import { CreateLoginDto } from '@auth/dto/login.dto';
 import { CreateRegistrationDto } from '@auth/dto/registration.dto';
-import { AuthResponseDto } from '@auth/dto/response/auth-response.dto';
+import {
+  AuthDtoResponse,
+  AuthResponseDto,
+} from '@auth/dto/response/auth-response.dto';
 import { TokenInterceptor } from '@interceptors/token.interceptor';
 import { JwtPayload } from '@jwt/models/models';
 import {
@@ -28,7 +31,7 @@ import { createResponseDto } from '@utils/createResponseDto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: createResponseDto().error('auth', 400, 'Invalid request data'),
+  type: AuthDtoResponse.error(),
 })
 @UseInterceptors(TokenInterceptor)
 @Controller('auth')
@@ -41,15 +44,15 @@ export class AuthController {
   })
   @ApiCreatedResponse({
     description: 'User successfully registered',
-    type: createResponseDto(AuthResponseDto).success('register', 201),
+    type: createResponseDto,
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: createResponseDto().error('register', 404, 'User not found'),
+    type: AuthDtoResponse.error(),
   })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  async register(@Body() dto: CreateRegistrationDto) {
+  async register(@Body() dto: CreateRegistrationDto): Promise<AuthResponseDto> {
     return await this.authService.register(dto);
   }
 
@@ -59,23 +62,19 @@ export class AuthController {
   })
   @ApiCreatedResponse({
     description: 'User successfully logged in',
-    type: createResponseDto(AuthResponseDto).success('login', 201),
+    type: AuthDtoResponse.success(),
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: createResponseDto().error('login', 404, 'User not found'),
+    type: AuthDtoResponse.error(),
   })
   @ApiUnauthorizedResponse({
     description: 'Email already exists',
-    type: createResponseDto().error(
-      'login',
-      401,
-      'Incorrect email or password',
-    ),
+    type: AuthDtoResponse.error(),
   })
   @HttpCode(HttpStatus.CREATED)
   @Post('login')
-  async login(@Body() dto: CreateLoginDto) {
+  async login(@Body() dto: CreateLoginDto): Promise<AuthResponseDto> {
     return await this.authService.login(dto);
   }
 
@@ -85,11 +84,11 @@ export class AuthController {
   })
   @ApiOkResponse({
     description: 'Anonymous user successfully logged in',
-    type: createResponseDto(AuthResponseDto).success('anonymous', 200),
+    type: AuthDtoResponse.success(),
   })
   @HttpCode(HttpStatus.OK)
   @Post('anonymous')
-  anonymousLogin() {
+  anonymousLogin(): AuthResponseDto {
     return this.authService.anonymousLogin();
   }
 
@@ -103,10 +102,10 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @ApiCreatedResponse({
     description: 'Token successfully refreshed',
-    type: createResponseDto(AuthResponseDto).success('refresh', 201),
+    type: AuthDtoResponse.success(),
   })
   @Post('refresh')
-  async refresh(@TokenPayload() payload: JwtPayload) {
+  async refresh(@TokenPayload() payload: JwtPayload): Promise<AuthResponseDto> {
     return this.authService.refresh(payload);
   }
 }
