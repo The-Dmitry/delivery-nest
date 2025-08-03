@@ -21,7 +21,7 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import {
-  AllCategoryDtoResponse,
+  CategoryArrayDtoResponse,
   CategoryDtoResponse,
 } from '@/category/dto/response/response-category.dto';
 
@@ -56,7 +56,7 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'List of categories retrieved successfully',
-    type: AllCategoryDtoResponse.success(),
+    type: CategoryArrayDtoResponse.success(),
   })
   @Get()
   async findAll() {
