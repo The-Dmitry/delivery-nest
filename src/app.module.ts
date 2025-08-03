@@ -7,6 +7,7 @@ import { JwtModule } from './jwt/jwt.module';
 import { ConfigModule } from '@nestjs/config';
 import { EnvModule } from './env/env.module';
 import { CategoryModule } from './category/category.module';
+import { ProductsModule } from './products/products.module';
 
 @Module({
   imports: [
@@ -19,6 +20,7 @@ import { CategoryModule } from './category/category.module';
     }),
     EnvModule,
     CategoryModule,
+    ProductsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
