@@ -75,7 +75,7 @@ export class ProductsController {
   }
 
   @ApiOperation({
-    summary: 'Get products by category',
+    summary: 'Get products by category id',
     description: 'Get products by category',
   })
   @ApiOkResponse({
