@@ -33,7 +33,7 @@ export const CategoryDtoResponse = createResponseDto(
   'Category',
 );
 
-export const AllCategoryDtoResponse = createResponseDto(
+export const CategoryArrayDtoResponse = createResponseDto(
   [ResponseCategoryDto],
   'AllCategories',
 );
