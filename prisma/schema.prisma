@@ -47,6 +47,7 @@ model ProductVariant {
   name      String  
   description String?
   price     Decimal  
-  weight    Int?    
-  available Boolean  @default(true)
+  weight    Int?
+  size Int?
+  available Boolean  @default(false)
 }

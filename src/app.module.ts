@@ -8,6 +8,7 @@ import { ConfigModule } from '@nestjs/config';
 import { EnvModule } from './env/env.module';
 import { CategoryModule } from './category/category.module';
 import { ProductsModule } from './products/products.module';
+import { VariantsModule } from './variants/variants.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { ProductsModule } from './products/products.module';
     EnvModule,
     CategoryModule,
     ProductsModule,
+    VariantsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
