@@ -31,7 +31,7 @@ export class ProductsService {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
           throw new BadRequestException(
-            `Product with name "${name}" already exists.`,
+            `Product with name '${name}' already exists.`,
           );
         }
         if (error.code === 'P2025') {
@@ -57,7 +57,7 @@ export class ProductsService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException(`Product with id "${id}" not found.`);
+        throw new NotFoundException(`Product with id '${id}' not found.`);
       }
       throw new BadRequestException('Failed to find product.');
     }
@@ -75,7 +75,7 @@ export class ProductsService {
         error.code === 'P2025'
       ) {
         throw new NotFoundException(
-          `Product with id "${categoryId}" not found.`,
+          `Product with id '${categoryId}' not found.`,
         );
       }
       throw new BadRequestException('Failed to find product.');
@@ -97,7 +97,7 @@ export class ProductsService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException(`Product with id "${id}" not found.`);
+        throw new NotFoundException(`Product with id '${id}' not found.`);
       }
       throw new BadRequestException('Failed to update product.');
     }
@@ -111,7 +111,7 @@ export class ProductsService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundException(`Product with id "${id}" not found.`);
+        throw new NotFoundException(`Product with id '${id}' not found.`);
       }
       throw new BadRequestException('Failed to delete product.');
     }
