@@ -3,7 +3,9 @@ import { IsDecimal, IsNumber, IsString } from 'class-validator';
 import { ProductVariant } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
 
-export class CreateVariantDto implements Omit<ProductVariant, 'id'> {
+export class CreateVariantDto
+  implements Omit<ProductVariant, 'id' | 'available'>
+{
   @ApiProperty({
     example: 'Pizza',
     description: 'Name of the variant',
@@ -27,29 +29,23 @@ export class CreateVariantDto implements Omit<ProductVariant, 'id'> {
   productId: string;
 
   @ApiProperty({
-    example: '30 cm',
+    example: 30,
     description: 'Size of the variant',
   })
   @IsNumber()
   size: number | null;
 
   @ApiProperty({
-    example: '300',
+    example: 300,
     description: 'Weight of the variant in grams',
   })
   @IsNumber()
   weight: number | null;
 
   @ApiProperty({
-    example: '10.99',
+    example: '"10.99"',
     description: 'Price of the variant',
   })
   @IsDecimal()
   price: Decimal;
-
-  @ApiProperty({
-    example: true,
-    description: 'Indicates if the variant is available or not',
-  })
-  available: boolean;
 }

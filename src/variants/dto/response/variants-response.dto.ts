@@ -1,53 +1,31 @@
-// import { ApiProperty } from "@nestjs/swagger";
-// import { ProductVariant } from "generated/prisma";
-// import { Decimal } from "generated/prisma/runtime/library";
+import { CreateVariantDto } from '@/variants/dto/create-variant.dto';
+import { ApiProperty } from '@nestjs/swagger';
+import { createResponseDto } from '@utils/createResponseDto';
+import { ProductVariant } from 'generated/prisma';
 
-// export class CreateVariantDto implements Omit<ProductVariant, 'id'> {
-//   @ApiProperty({
-//     example: "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-//     description: "Unique identifier of the variant",
-//   })
-//   id: string;
+export class VariantResponseDto
+  extends CreateVariantDto
+  implements ProductVariant
+{
+  @ApiProperty({
+    example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
+    description: 'Unique identifier of the variant',
+  })
+  id: string;
 
-//   @ApiProperty({
-//     example: "Pizza",
-//     description: "Name of the variant",
-//   })
-//   name: string;
+  @ApiProperty({
+    example: true,
+    description: 'Indicates if the variant is available or not',
+  })
+  available: boolean;
+}
 
-//   @ApiProperty({
-//     example: "Description of the variant",
-//     description: "Description of the variant",
-//   })
-//   description: string | null;
+export const VariantDtoResponse = createResponseDto(
+  VariantResponseDto,
+  'Variant',
+);
 
-//   @ApiProperty({
-//     example: "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-//     description: "Unique identifier of the product to which the variant belongs",
-//   })
-//   productId: string;
-
-//   @ApiProperty({
-//     example: "30 cm",
-//     description: "Size of the variant",
-//   })
-//   size: number | null;
-
-//   @ApiProperty({
-//     example: "1 kg",
-//     description: "Weight of the variant",
-//   })
-//   weight: number | null;
-
-//   @ApiProperty({
-//     example: "10.99",
-//     description: "Price of the variant",
-//   })
-//   price: Decimal;
-
-//   @ApiProperty({
-//     example: true,
-//     description: "Indicates if the variant is available or not",
-//   })
-//   available: boolean;
-// }
+export const VariantsArrayDtoResponse = createResponseDto(
+  [VariantResponseDto],
+  'VariantsArray',
+);
