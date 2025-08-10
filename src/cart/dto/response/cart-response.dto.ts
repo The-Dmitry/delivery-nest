@@ -1,5 +1,6 @@
 import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Cart } from 'generated/prisma';
 
 export class CartResponseDto implements Cart {
@@ -40,3 +41,5 @@ export class CartResponseDto implements Cart {
   })
   items: CartItemResponseDto[];
 }
+
+export const CartDtoResponse = createResponseDto(CartResponseDto, 'Cart');

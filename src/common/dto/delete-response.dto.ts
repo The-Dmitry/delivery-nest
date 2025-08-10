@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { createResponseDto } from '@utils/createResponseDto';
 
 export class DeleteResponseDto {
   @ApiProperty({
@@ -13,3 +14,8 @@ export class DeleteResponseDto {
   })
   deletedId: string;
 }
+
+export const DeleteDtoResponse = createResponseDto(
+  DeleteResponseDto,
+  'Delete',
+).success();
