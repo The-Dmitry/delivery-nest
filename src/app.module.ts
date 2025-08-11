@@ -9,6 +9,7 @@ import { EnvModule } from './env/env.module';
 import { CategoryModule } from './category/category.module';
 import { ProductsModule } from './products/products.module';
 import { VariantsModule } from './variants/variants.module';
+import { CartModule } from './cart/cart.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { VariantsModule } from './variants/variants.module';
     CategoryModule,
     ProductsModule,
     VariantsModule,
+    CartModule,
   ],
   controllers: [AppController],
   providers: [AppService],
