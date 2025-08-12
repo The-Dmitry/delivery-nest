@@ -21,8 +21,14 @@ import {
 } from '@nestjs/swagger';
 import {
   ProductDtoResponse,
+  ProductResponseDto,
   ProductsArrayDtoResponse,
 } from '@/products/dto/response/product-response.dto';
+import {
+  DeleteDtoResponse,
+  DeleteResponseDto,
+} from '@/common/dto/delete-response.dto';
+import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -37,9 +43,12 @@ export class ProductsController {
     description: 'Product created',
     type: ProductDtoResponse.success(),
   })
+  @SerializeResponse(ProductResponseDto)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createProductDto: CreateProductDto) {
+  async create(
+    @Body() createProductDto: CreateProductDto,
+  ): Promise<ProductResponseDto> {
     return await this.productsService.create(createProductDto);
   }
 
@@ -51,9 +60,10 @@ export class ProductsController {
     description: 'Products found',
     type: ProductsArrayDtoResponse.success(),
   })
+  @SerializeResponse(ProductResponseDto)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll() {
+  async findAll(): Promise<ProductResponseDto[]> {
     return await this.productsService.findAll();
   }
 
@@ -69,8 +79,9 @@ export class ProductsController {
     description: 'Product not found',
     type: ProductDtoResponse.error(),
   })
+  @SerializeResponse(ProductResponseDto)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string): Promise<ProductResponseDto> {
     return await this.productsService.findOne(id);
   }
 
@@ -86,9 +97,12 @@ export class ProductsController {
     description: 'Category not found',
     type: ProductDtoResponse.error(),
   })
+  @SerializeResponse(ProductResponseDto)
   @Get('category/:id')
-  async findByCategory(@Param('id') id: string) {
-    return await this.productsService.findByCategory(id);
+  async findAllByCategory(
+    @Param('id') id: string,
+  ): Promise<ProductResponseDto[]> {
+    return await this.productsService.findAllByCategory(id);
   }
 
   @ApiOperation({
@@ -103,12 +117,13 @@ export class ProductsController {
     description: 'Product not found',
     type: ProductDtoResponse.error(),
   })
+  @SerializeResponse(ProductResponseDto)
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateProductDto: UpdateProductDto,
-  ) {
+  ): Promise<ProductResponseDto> {
     return await this.productsService.update(id, updateProductDto);
   }
 
@@ -118,15 +133,16 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Product deleted',
-    type: ProductDtoResponse.success(),
+    type: DeleteDtoResponse,
   })
   @ApiNotFoundResponse({
     description: 'Product not found',
     type: ProductDtoResponse.error(),
   })
   @HttpCode(HttpStatus.OK)
+  @SerializeResponse(DeleteResponseDto)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
-    return await this.productsService.remove(id);
+  async delete(@Param('id') id: string): Promise<DeleteResponseDto> {
+    return await this.productsService.delete(id);
   }
 }

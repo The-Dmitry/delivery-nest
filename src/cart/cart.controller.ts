@@ -28,7 +28,6 @@ import {
   ApiBadRequestResponse,
   ApiBearerAuth,
   ApiCreatedResponse,
-  ApiNoContentResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
@@ -101,11 +100,11 @@ export class CartController {
     summary: 'Delete item from cart',
     description: 'Delete item from cart of the authenticated user',
   })
-  @ApiNoContentResponse({
+  @ApiOkResponse({
     description: 'Item deleted from cart',
     type: DeleteResponseDto,
   })
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @Delete('item/:id')
   async deleteCartItem(
     @TokenPayload() payload: JwtPayload,
@@ -118,11 +117,11 @@ export class CartController {
     summary: 'Delete cart',
     description: 'Delete cart of the authenticated user',
   })
-  @ApiNoContentResponse({
+  @ApiOkResponse({
     description: 'Cart deleted',
     type: DeleteResponseDto,
   })
-  @HttpCode(HttpStatus.NO_CONTENT)
+  @HttpCode(HttpStatus.OK)
   @Delete()
   async deleteCart(
     @TokenPayload() payload: JwtPayload,

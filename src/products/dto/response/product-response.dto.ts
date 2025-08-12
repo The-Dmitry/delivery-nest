@@ -1,9 +1,10 @@
-import { CreateProductDto } from '@/products/dto/create-product.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
+import { Expose } from 'class-transformer';
+import { IsNotEmpty, IsString } from 'class-validator';
 import { Product } from 'generated/prisma';
 
-export class ProductResponseDto extends CreateProductDto implements Product {
+export class ProductResponseDto implements Product {
   @ApiProperty({
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description: 'Unique identifier of the product',
@@ -11,22 +12,62 @@ export class ProductResponseDto extends CreateProductDto implements Product {
   id: string;
 
   @ApiProperty({
+    example: 'Pizza',
+    description: 'Name of the product',
+  })
+  @IsString()
+  @IsNotEmpty()
+  name: string;
+
+  @ApiProperty({
+    name: 'category_id',
+    example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
+    description:
+      'Unique identifier of the category to which the product belongs',
+  })
+  @Expose({ name: 'category_id', toPlainOnly: true })
+  @IsString()
+  @IsNotEmpty()
+  categoryId: string;
+
+  @ApiProperty({
+    example: 'Description of the product',
+    description: 'Description of the product',
+  })
+  @IsString()
+  description: string | null;
+
+  @ApiProperty({
+    example: [
+      'https://example.com/image.jpg',
+      'https://example.com/image2.jpg',
+    ],
+    description: 'Image URL of the product',
+  })
+  @IsString({ each: true })
+  images: string[];
+
+  @ApiProperty({
+    name: 'created_at',
+    example: '2023-10-01T12:00:00Z',
+    description: 'The date and time when the product was created',
+  })
+  @Expose({ name: 'created_at', toPlainOnly: true })
+  createdAt: Date;
+
+  @ApiProperty({
+    name: 'updated_at',
+    example: '2023-10-01T12:00:00Z',
+    description: 'The date and time when the product was last updated',
+  })
+  @Expose({ name: 'updated_at', toPlainOnly: true })
+  updatedAt: Date;
+
+  @ApiProperty({
     example: true,
     description: 'Indicates if the product is active or not',
   })
   active: boolean;
-
-  @ApiProperty({
-    example: '2023-10-01T12:00:00Z',
-    description: 'The date and time when the product was created',
-  })
-  createdAt: Date;
-
-  @ApiProperty({
-    example: '2023-10-01T12:00:00Z',
-    description: 'The date and time when the product was last updated',
-  })
-  updatedAt: Date;
 }
 
 export const ProductDtoResponse = createResponseDto(

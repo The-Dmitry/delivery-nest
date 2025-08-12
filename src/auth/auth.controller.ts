@@ -1,3 +1,4 @@
+import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { JwtRefreshGuard } from '@/common/guards/jwt-refresh.guard';
 import { AuthService } from '@auth/auth.service';
@@ -27,12 +28,12 @@ import {
   ApiOperation,
   ApiUnauthorizedResponse,
 } from '@nestjs/swagger';
-import { createResponseDto } from '@utils/createResponseDto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: AuthDtoResponse.error(),
 })
+@SerializeResponse(AuthResponseDto)
 @UseInterceptors(TokenInterceptor)
 @Controller('auth')
 export class AuthController {
@@ -44,7 +45,7 @@ export class AuthController {
   })
   @ApiCreatedResponse({
     description: 'User successfully registered',
-    type: createResponseDto,
+    type: AuthDtoResponse.success(),
   })
   @ApiNotFoundResponse({
     description: 'User not found',
@@ -60,7 +61,7 @@ export class AuthController {
     summary: 'User login',
     description: 'Logs in a user with email and password',
   })
-  @ApiCreatedResponse({
+  @ApiOkResponse({
     description: 'User successfully logged in',
     type: AuthDtoResponse.success(),
   })
@@ -72,7 +73,7 @@ export class AuthController {
     description: 'Email already exists',
     type: AuthDtoResponse.error(),
   })
-  @HttpCode(HttpStatus.CREATED)
+  @HttpCode(HttpStatus.OK)
   @Post('login')
   async login(@Body() dto: CreateLoginDto): Promise<AuthResponseDto> {
     return await this.authService.login(dto);
@@ -103,6 +104,10 @@ export class AuthController {
   @ApiCreatedResponse({
     description: 'Token successfully refreshed',
     type: AuthDtoResponse.success(),
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Invalid refresh token',
+    type: AuthDtoResponse.error(),
   })
   @Post('refresh')
   async refresh(@TokenPayload() payload: JwtPayload): Promise<AuthResponseDto> {

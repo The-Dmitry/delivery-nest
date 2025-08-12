@@ -25,13 +25,16 @@ import {
   CategoryDtoResponse,
   ResponseCategoryDto,
 } from '@/category/dto/response/response-category.dto';
-import { SerializeResponse } from '@/common/decorators/serialize-dto.decorator';
+import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
+import {
+  DeleteDtoResponse,
+  DeleteResponseDto,
+} from '@/common/dto/delete-response.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: CategoryDtoResponse.error(),
 })
-@SerializeResponse(ResponseCategoryDto)
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -48,6 +51,7 @@ export class CategoryController {
     description: 'Category with the same name already exists',
     type: CategoryDtoResponse.error(),
   })
+  @SerializeResponse(ResponseCategoryDto)
   @Post()
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
@@ -63,6 +67,7 @@ export class CategoryController {
     description: 'List of categories retrieved successfully',
     type: CategoryArrayDtoResponse.success(),
   })
+  @SerializeResponse(ResponseCategoryDto)
   @Get()
   async findAll(): Promise<ResponseCategoryDto[]> {
     return await this.categoryService.findAll();
@@ -80,6 +85,7 @@ export class CategoryController {
     description: 'Category not found',
     type: CategoryDtoResponse.error(),
   })
+  @SerializeResponse(ResponseCategoryDto)
   @Get(':id')
   async findOne(@Param('id') id: string) {
     return await this.categoryService.findOne(id);
@@ -101,6 +107,7 @@ export class CategoryController {
     description: 'Category with the same name already exists',
     type: CategoryDtoResponse.error(),
   })
+  @SerializeResponse(ResponseCategoryDto)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -115,15 +122,16 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category deleted successfully',
-    type: CategoryDtoResponse.success(),
+    type: DeleteDtoResponse,
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: CategoryDtoResponse.error(),
+    type: DeleteDtoResponse,
   })
+  @SerializeResponse(DeleteResponseDto)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<ResponseCategoryDto> {
-    return await this.categoryService.remove(id);
+  async delete(@Param('id') id: string): Promise<DeleteResponseDto> {
+    return await this.categoryService.delete(id);
   }
 }
