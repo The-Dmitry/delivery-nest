@@ -4,7 +4,11 @@ export class ErrorResponseDto {
   @ApiProperty({ example: 'error', description: 'Response status' })
   status: string;
 
-  @ApiProperty({ example: 404, description: 'HTTP status code' })
+  @ApiProperty({
+    name: 'status_code',
+    example: 404,
+    description: 'HTTP status code',
+  })
   statusCode: number;
 
   @ApiProperty({

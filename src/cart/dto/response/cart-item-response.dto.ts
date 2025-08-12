@@ -30,18 +30,6 @@ export class CartItemResponseDto implements CartItem {
   quantity: number;
 
   @ApiProperty({
-    example: '2022-01-01T00:00:00.000Z',
-    description: 'The date and time when the cart item was created',
-  })
-  createdAt: Date;
-
-  @ApiProperty({
-    example: '2022-01-01T00:00:00.000Z',
-    description: 'The date and time when the cart item was last updated',
-  })
-  updatedAt: Date;
-
-  @ApiProperty({
     type: ProductVariantResponseDto,
     description: 'Product variant associated with the cart item',
   })

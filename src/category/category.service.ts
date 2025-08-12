@@ -16,10 +16,9 @@ export class CategoryService {
 
   async create({ name }: CreateCategoryDto): Promise<ResponseCategoryDto> {
     try {
-      const newCategory = await this.prisma.category.create({
+      return await this.prisma.category.create({
         data: { name },
       });
-      return newCategory;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -54,13 +53,15 @@ export class CategoryService {
     }
   }
 
-  async update(id: string, { name }: UpdateCategoryDto) {
+  async update(
+    id: string,
+    { name }: UpdateCategoryDto,
+  ): Promise<ResponseCategoryDto> {
     try {
-      const updatedCategory = await this.prisma.category.update({
+      return await this.prisma.category.update({
         where: { id },
         data: { name },
       });
-      return updatedCategory;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
@@ -78,10 +79,9 @@ export class CategoryService {
 
   async remove(id: string): Promise<ResponseCategoryDto> {
     try {
-      const deletedCategory = await this.prisma.category.delete({
+      return await this.prisma.category.delete({
         where: { id },
       });
-      return deletedCategory;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {

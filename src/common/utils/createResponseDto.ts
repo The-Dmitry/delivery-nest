@@ -7,7 +7,11 @@ export function createResponseDto<T>(dto: Type<T> | [Type<T>], name: string) {
     @ApiProperty({ example: 'ok', description: 'Response status' })
     status: string;
 
-    @ApiProperty({ example: 200, description: 'HTTP status code' })
+    @ApiProperty({
+      name: 'status_code',
+      example: 200,
+      description: 'HTTP status code',
+    })
     statusCode: number;
 
     @ApiProperty({ type: dto, description: 'Response data' })

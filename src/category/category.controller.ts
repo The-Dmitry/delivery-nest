@@ -23,12 +23,15 @@ import {
 import {
   CategoryArrayDtoResponse,
   CategoryDtoResponse,
+  ResponseCategoryDto,
 } from '@/category/dto/response/response-category.dto';
+import { SerializeResponse } from '@/common/decorators/serialize-dto.decorator';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: CategoryDtoResponse.error(),
 })
+@SerializeResponse(ResponseCategoryDto)
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
@@ -46,7 +49,9 @@ export class CategoryController {
     type: CategoryDtoResponse.error(),
   })
   @Post()
-  async create(@Body() createCategoryDto: CreateCategoryDto) {
+  async create(
+    @Body() createCategoryDto: CreateCategoryDto,
+  ): Promise<ResponseCategoryDto> {
     return await this.categoryService.create(createCategoryDto);
   }
 
@@ -59,7 +64,7 @@ export class CategoryController {
     type: CategoryArrayDtoResponse.success(),
   })
   @Get()
-  async findAll() {
+  async findAll(): Promise<ResponseCategoryDto[]> {
     return await this.categoryService.findAll();
   }
 
@@ -100,7 +105,7 @@ export class CategoryController {
   async update(
     @Param('id') id: string,
     @Body() updateCategoryDto: UpdateCategoryDto,
-  ) {
+  ): Promise<ResponseCategoryDto> {
     return await this.categoryService.update(id, updateCategoryDto);
   }
 
@@ -118,7 +123,7 @@ export class CategoryController {
   })
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<ResponseCategoryDto> {
     return await this.categoryService.remove(id);
   }
 }
