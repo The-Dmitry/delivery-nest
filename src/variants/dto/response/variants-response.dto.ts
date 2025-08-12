@@ -1,5 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
+import { Expose, Type } from 'class-transformer';
 import { IsString, IsNumber, IsDecimal } from 'class-validator';
 import { ProductVariant } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
@@ -17,6 +18,7 @@ export class VariantResponseDto implements ProductVariant {
     description:
       'Unique identifier of the product to which the variant belongs',
   })
+  @Expose({ name: 'product_id', toPlainOnly: true })
   @IsString()
   productId: string;
 
@@ -53,6 +55,7 @@ export class VariantResponseDto implements ProductVariant {
     description: 'Price of the variant',
   })
   @IsDecimal()
+  @Type(() => String)
   price: Decimal;
 
   @ApiProperty({

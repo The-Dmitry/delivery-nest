@@ -8,16 +8,17 @@ import { UpdateVariantDto } from './dto/update-variant.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
+import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 
 @Injectable()
 export class VariantsService {
   constructor(private readonly prisma: PrismaService) {}
+
   async create(variant: CreateVariantDto): Promise<VariantResponseDto> {
     try {
-      const newVariant = await this.prisma.productVariant.create({
+      return await this.prisma.productVariant.create({
         data: variant,
       });
-      return newVariant;
     } catch (error) {
       console.log(error);
 
@@ -58,7 +59,7 @@ export class VariantsService {
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2003'
+        error.code === 'P2025'
       ) {
         throw new NotFoundException(`Variant with id '${id}' not found.`);
       }
@@ -91,7 +92,21 @@ export class VariantsService {
     }
   }
 
-  async remove(id: string) {
-    return await this.prisma.productVariant.delete({ where: { id } });
+  async remove(id: string): Promise<DeleteResponseDto> {
+    try {
+      await this.prisma.productVariant.delete({ where: { id } });
+      return {
+        message: `Variant with id ${id} deleted successfully`,
+        deletedId: id,
+      };
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(`Variant with id '${id}' not found.`);
+      }
+      throw new BadRequestException('Failed to delete variant.');
+    }
   }
 }
