@@ -26,6 +26,6 @@ export class EnvService {
   }
 
   get accessTokenExpiration(): number {
-    return this.config.getOrThrow<number>('ACCESS_TOKEN_EXPIRATION');
+    return +this.config.getOrThrow<number>('ACCESS_TOKEN_EXPIRATION');
   }
 }
