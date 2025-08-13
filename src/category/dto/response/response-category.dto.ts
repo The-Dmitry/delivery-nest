@@ -4,9 +4,9 @@ import { Expose } from 'class-transformer';
 import { Category } from 'generated/prisma';
 
 export class ResponseCategoryDto implements Category {
-  constructor(partial: Partial<ResponseCategoryDto>) {
-    Object.assign(this, partial);
-  }
+  // constructor(partial: Partial<ResponseCategoryDto>) {
+  //   Object.assign(this, partial);
+  // }
 
   @ApiProperty({
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',

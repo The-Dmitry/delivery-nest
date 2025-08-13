@@ -1,6 +1,8 @@
+import { ResponseCategoryDto } from '@/category/dto/response/response-category.dto';
+import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
-import { Expose } from 'class-transformer';
+import { Expose, Type } from 'class-transformer';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Product } from 'generated/prisma';
 
@@ -68,6 +70,14 @@ export class ProductResponseDto implements Product {
     description: 'Indicates if the product is active or not',
   })
   active: boolean;
+
+  @ApiProperty({ type: () => ResponseCategoryDto })
+  @Type(() => ResponseCategoryDto)
+  category: ResponseCategoryDto;
+
+  @ApiProperty({ type: () => VariantResponseDto, isArray: true })
+  @Type(() => VariantResponseDto)
+  variants: VariantResponseDto[];
 }
 
 export const ProductDtoResponse = createResponseDto(

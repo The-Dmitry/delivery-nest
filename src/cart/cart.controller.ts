@@ -32,6 +32,7 @@ import {
   ApiOkResponse,
   ApiOperation,
 } from '@nestjs/swagger';
+import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -55,6 +56,7 @@ export class CartController {
     description: 'Cart of the authenticated user',
     type: CartDtoResponse.success(),
   })
+  @SerializeResponse(CartResponseDto)
   @HttpCode(HttpStatus.OK)
   @Get()
   async findOne(@TokenPayload() payload: JwtPayload): Promise<CartResponseDto> {
@@ -69,8 +71,9 @@ export class CartController {
     description: 'Item added to cart',
     type: CartItemDtoResponse.success(),
   })
+  @SerializeResponse(CartItemResponseDto)
   @HttpCode(HttpStatus.CREATED)
-  @Post('add')
+  @Post()
   async addToCart(
     @TokenPayload() payload: JwtPayload,
     @Body() dto: CreateCartItemDto,
@@ -86,6 +89,7 @@ export class CartController {
     description: 'Item updated in cart',
     type: CartItemDtoResponse.success(),
   })
+  @SerializeResponse(CartItemResponseDto)
   @HttpCode(HttpStatus.OK)
   @Patch('item/:id')
   async updateCartItem(
@@ -104,6 +108,7 @@ export class CartController {
     description: 'Item deleted from cart',
     type: DeleteResponseDto,
   })
+  @SerializeResponse(DeleteResponseDto)
   @HttpCode(HttpStatus.OK)
   @Delete('item/:id')
   async deleteCartItem(
@@ -121,6 +126,7 @@ export class CartController {
     description: 'Cart deleted',
     type: DeleteResponseDto,
   })
+  @SerializeResponse(DeleteResponseDto)
   @HttpCode(HttpStatus.OK)
   @Delete()
   async deleteCart(

@@ -1,6 +1,7 @@
-import { ProductVariantResponseDto } from '@/cart/dto/response/product-variant-response.dto';
+import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
+import { Expose, Type } from 'class-transformer';
 import { CartItem } from 'generated/prisma';
 
 export class CartItemResponseDto implements CartItem {
@@ -15,6 +16,7 @@ export class CartItemResponseDto implements CartItem {
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description: 'Unique identifier of the cart to which the cart item belongs',
   })
+  @Expose({ name: 'cart_id', toPlainOnly: true })
   cartId: string;
 
   @ApiProperty({
@@ -23,6 +25,7 @@ export class CartItemResponseDto implements CartItem {
     description:
       'Unique identifier of the product variant to which the cart item belongs',
   })
+  @Expose({ name: 'product_variant_id', toPlainOnly: true })
   productVariantId: string;
 
   @ApiProperty({
@@ -33,10 +36,12 @@ export class CartItemResponseDto implements CartItem {
 
   @ApiProperty({
     name: 'product_variant',
-    type: ProductVariantResponseDto,
+    type: () => VariantResponseDto,
     description: 'Product variant associated with the cart item',
   })
-  productVariant: ProductVariantResponseDto;
+  @Type(() => VariantResponseDto)
+  @Expose({ name: 'product_variant', toPlainOnly: true })
+  productVariant: VariantResponseDto;
 }
 
 export const CartItemDtoResponse = createResponseDto(

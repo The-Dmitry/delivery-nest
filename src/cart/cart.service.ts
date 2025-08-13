@@ -61,6 +61,9 @@ export class CartService {
         },
       });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(
@@ -95,8 +98,16 @@ export class CartService {
         },
       });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Cart item with id '${payload.id}' not found.`,
+          );
+        }
+        if (error.code === 'P2003') {
           throw new NotFoundException(
             `Cart for user with id '${payload.id}' not found.`,
           );
@@ -164,6 +175,9 @@ export class CartService {
         deletedId: id,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(
@@ -218,6 +232,12 @@ export class CartService {
     const user = anonymous ? { anonymousUserId: id } : { userId: id };
     const options = {
       where: user,
+      omit: {
+        userId: true,
+        anonymousUserId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
       include: {
         items: {
           include: {

@@ -32,6 +32,10 @@ export class ProductsService {
           description: description,
           images: images,
         },
+        include: {
+          category: true,
+          variants: true,
+        },
       });
       return newProduct;
     } catch (error) {
@@ -50,14 +54,16 @@ export class ProductsService {
   }
 
   async findAll(): Promise<ProductResponseDto[]> {
-    return await this.prisma.product.findMany();
+    return await this.prisma.product.findMany({
+      include: { category: true, variants: true },
+    });
   }
 
   async findOne(id: string): Promise<ProductResponseDto> {
     try {
       return await this.prisma.product.findUniqueOrThrow({
         where: { id },
-        include: { variants: true },
+        include: { variants: true, category: true },
       });
     } catch (error) {
       if (
@@ -74,6 +80,7 @@ export class ProductsService {
     try {
       const result = await this.prisma.product.findMany({
         where: { categoryId },
+        include: { category: true, variants: true },
       });
       return result;
     } catch (error) {
@@ -97,6 +104,7 @@ export class ProductsService {
       const updatedProduct = await this.prisma.product.update({
         where: { id },
         data: updateProductDto,
+        include: { category: true, variants: true },
       });
       return updatedProduct;
     } catch (error) {
