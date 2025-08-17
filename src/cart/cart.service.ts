@@ -1,7 +1,6 @@
 import { CreateCartItemDto } from '@/cart/dto/create-cart-item.dto';
-import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto';
-import { CartResponseDto } from '@/cart/dto/response/cart-response.dto';
 import { UpdateCartItemDto } from '@/cart/dto/update-cart-item.dto';
+import { FilteredCart } from '@/cart/models/models';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { JwtPayload } from '@jwt/models/models';
 import {
@@ -14,11 +13,42 @@ import { PrismaService } from '@prisma/prisma.service';
 import { Cart, Prisma } from 'generated/prisma';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 
+const CART_OPTIONS = {
+  omit: {
+    userId: true,
+    anonymousUserId: true,
+    createdAt: true,
+    updatedAt: true,
+  },
+  include: {
+    items: {
+      omit: {
+        cartId: true,
+        productVariantId: true,
+      },
+      include: {
+        productVariant: {
+          include: {
+            product: {
+              omit: {
+                updatedAt: true,
+                createdAt: true,
+                active: true,
+                categoryId: true,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+} satisfies Omit<Prisma.CartFindUniqueArgs, 'where'>;
+
 @Injectable()
 export class CartService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async getCart(payload: JwtPayload): Promise<CartResponseDto> {
+  async getCart(payload: JwtPayload): Promise<FilteredCart> {
     try {
       return await this.findCart(payload, true);
     } catch (error) {
@@ -34,7 +64,7 @@ export class CartService {
   async addToCart(
     payload: JwtPayload,
     { quantity, variantId }: CreateCartItemDto,
-  ): Promise<CartItemResponseDto> {
+  ): Promise<FilteredCart['items'][number]> {
     try {
       let cart = await this.findCart(payload);
       if (!cart) {
@@ -56,11 +86,12 @@ export class CartService {
           productVariantId: variantId,
           quantity,
         },
-        include: {
-          productVariant: true,
-        },
+        ...CART_OPTIONS.include.items,
       });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(
@@ -78,8 +109,8 @@ export class CartService {
     payload: JwtPayload,
     { quantity }: UpdateCartItemDto,
     cartItemId: string,
-    cart?: CartResponseDto,
-  ): Promise<CartItemResponseDto> {
+    cart?: FilteredCart,
+  ): Promise<FilteredCart['items'][number]> {
     try {
       cart ??= await this.findCart(payload, true);
       return await this.prisma.cartItem.update({
@@ -90,13 +121,19 @@ export class CartService {
         data: {
           quantity,
         },
-        include: {
-          productVariant: true,
-        },
+        ...CART_OPTIONS.include.items,
       });
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
+          throw new NotFoundException(
+            `Cart item with id '${payload.id}' not found.`,
+          );
+        }
+        if (error.code === 'P2003') {
           throw new NotFoundException(
             `Cart for user with id '${payload.id}' not found.`,
           );
@@ -111,7 +148,7 @@ export class CartService {
   private async createCart({
     id,
     anonymous,
-  }: JwtPayload): Promise<CartResponseDto> {
+  }: JwtPayload): Promise<FilteredCart> {
     const data = {
       userId: anonymous ? null : id,
       anonymousUserId: anonymous ? id : null,
@@ -120,13 +157,7 @@ export class CartService {
     try {
       return await this.prisma.cart.create({
         data,
-        include: {
-          items: {
-            include: {
-              productVariant: true,
-            },
-          },
-        },
+        ...CART_OPTIONS,
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -164,6 +195,9 @@ export class CartService {
         deletedId: id,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
           throw new NotFoundException(
@@ -207,24 +241,18 @@ export class CartService {
   private async findCart(
     payload: JwtPayload,
     withError: true,
-  ): Promise<CartResponseDto>;
+  ): Promise<FilteredCart>;
 
   private async findCart(
     payload: JwtPayload,
     withError?: false,
-  ): Promise<CartResponseDto | null>;
+  ): Promise<FilteredCart | null>;
 
   private async findCart({ id, anonymous }: JwtPayload, withError = false) {
     const user = anonymous ? { anonymousUserId: id } : { userId: id };
     const options = {
       where: user,
-      include: {
-        items: {
-          include: {
-            productVariant: true,
-          },
-        },
-      },
+      ...CART_OPTIONS,
     } satisfies Prisma.CartFindUniqueArgs;
     try {
       if (withError) {

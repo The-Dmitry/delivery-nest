@@ -23,8 +23,14 @@ import {
 } from '@nestjs/swagger';
 import {
   VariantDtoResponse,
+  VariantResponseDto,
   VariantsArrayDtoResponse,
 } from '@/variants/dto/response/variants-response.dto';
+import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
+import {
+  DeleteDtoResponse,
+  DeleteResponseDto,
+} from '@/common/dto/delete-response.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -46,9 +52,12 @@ export class VariantsController {
     description: 'Product with id not found',
     type: VariantDtoResponse.error(),
   })
+  @SerializeResponse(VariantResponseDto)
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async create(@Body() createVariantDto: CreateVariantDto) {
+  async create(
+    @Body() createVariantDto: CreateVariantDto,
+  ): Promise<VariantResponseDto> {
     return await this.variantsService.create(createVariantDto);
   }
 
@@ -66,9 +75,12 @@ export class VariantsController {
     type: String,
     description: 'Filter products by product id',
   })
+  @SerializeResponse(VariantResponseDto)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@Query('productId') productId?: string) {
+  async findAll(
+    @Query('productId') productId?: string,
+  ): Promise<VariantResponseDto[]> {
     return await this.variantsService.findAll(productId);
   }
 
@@ -84,6 +96,7 @@ export class VariantsController {
     description: 'Variant with id not found',
     type: VariantDtoResponse.error(),
   })
+  @SerializeResponse(VariantResponseDto)
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(@Param('id') id: string) {
@@ -102,12 +115,13 @@ export class VariantsController {
     description: 'Variant with id not found',
     type: VariantDtoResponse.error(),
   })
+  @SerializeResponse(VariantResponseDto)
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateVariantDto: UpdateVariantDto,
-  ) {
+  ): Promise<VariantResponseDto> {
     return await this.variantsService.update(id, updateVariantDto);
   }
 
@@ -117,15 +131,16 @@ export class VariantsController {
   })
   @ApiOkResponse({
     description: 'Variant deleted successfully',
-    type: VariantDtoResponse.success(),
+    type: DeleteDtoResponse,
   })
   @ApiNotFoundResponse({
     description: 'Variant with id not found',
     type: VariantDtoResponse.error(),
   })
+  @SerializeResponse(DeleteResponseDto)
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
-  async remove(@Param('id') id: string) {
+  async remove(@Param('id') id: string): Promise<DeleteResponseDto> {
     return await this.variantsService.remove(id);
   }
 }

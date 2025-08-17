@@ -46,6 +46,6 @@ export class CreateVariantDto
     example: '"10.99"',
     description: 'Price of the variant',
   })
-  @IsDecimal()
+  @IsDecimal({ force_decimal: true })
   price: Decimal;
 }

@@ -8,11 +8,18 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 import { ProductResponseDto } from '@/products/dto/response/product-response.dto';
+import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 
 @Injectable()
 export class ProductsService {
   constructor(private readonly prisma: PrismaService) {}
-  async create({ name, description, images, categoryId }: CreateProductDto) {
+
+  async create({
+    name,
+    description,
+    images,
+    categoryId,
+  }: CreateProductDto): Promise<ProductResponseDto> {
     try {
       const newProduct = await this.prisma.product.create({
         data: {
@@ -24,6 +31,10 @@ export class ProductsService {
           name: name,
           description: description,
           images: images,
+        },
+        include: {
+          category: true,
+          variants: true,
         },
       });
       return newProduct;
@@ -42,15 +53,17 @@ export class ProductsService {
     }
   }
 
-  async findAll() {
-    return await this.prisma.product.findMany();
+  async findAll(): Promise<ProductResponseDto[]> {
+    return await this.prisma.product.findMany({
+      include: { category: true, variants: true },
+    });
   }
 
-  async findOne(id: string) {
+  async findOne(id: string): Promise<ProductResponseDto> {
     try {
       return await this.prisma.product.findUniqueOrThrow({
         where: { id },
-        include: { variants: true },
+        include: { variants: true, category: true },
       });
     } catch (error) {
       if (
@@ -63,10 +76,11 @@ export class ProductsService {
     }
   }
 
-  async findByCategory(categoryId: string) {
+  async findAllByCategory(categoryId: string): Promise<ProductResponseDto[]> {
     try {
       const result = await this.prisma.product.findMany({
         where: { categoryId },
+        include: { category: true, variants: true },
       });
       return result;
     } catch (error) {
@@ -90,22 +104,31 @@ export class ProductsService {
       const updatedProduct = await this.prisma.product.update({
         where: { id },
         data: updateProductDto,
+        include: { category: true, variants: true },
       });
       return updatedProduct;
     } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException(`Product with id '${id}' not found.`);
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`Product with id '${id}' not found.`);
+        }
+        if (error.code === 'P2003') {
+          throw new NotFoundException(
+            `Category with id '${updateProductDto.categoryId}' not found.`,
+          );
+        }
       }
       throw new BadRequestException('Failed to update product.');
     }
   }
 
-  async remove(id: string): Promise<ProductResponseDto> {
+  async delete(id: string): Promise<DeleteResponseDto> {
     try {
-      return await this.prisma.product.delete({ where: { id } });
+      await this.prisma.product.delete({ where: { id } });
+      return {
+        message: `Product with id ${id} deleted successfully`,
+        deletedId: id,
+      };
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&

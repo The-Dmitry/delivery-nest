@@ -16,17 +16,30 @@ export class BaseFilter implements ExceptionFilter {
     const isErrorDataObject =
       typeof errorData === 'object' && errorData !== null;
     const response = ctx.getResponse<Response>();
-
     const data = isErrorDataObject ? errorData : { message: [errorData] };
-    if ('message' in data) {
-      data.message = Array.isArray(data.message)
-        ? data.message
-        : [data.message];
+    const test = {
+      status: 'error',
+    };
+    const result = Object.entries(data).reduce<Record<string, unknown>>(
+      (acc, [key, value]) => {
+        if (key !== 'statusCode') {
+          acc[key] = value;
+          return acc;
+        }
+        return acc;
+      },
+      test,
+    );
+    if ('message' in result) {
+      result.message = Array.isArray(result.message)
+        ? result.message
+        : [result.message];
     }
 
     response.status(code).json({
       status: 'error',
-      ...data,
+      status_code: code,
+      ...result,
     });
   }
 }

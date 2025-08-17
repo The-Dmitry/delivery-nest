@@ -29,7 +29,7 @@ export class BaseInterceptor<T = unknown>
       map((data: T) => {
         return {
           status: 'ok',
-          statusCode,
+          status_code: statusCode,
           data,
         };
       }),

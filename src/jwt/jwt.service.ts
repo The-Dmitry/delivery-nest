@@ -48,8 +48,8 @@ export class JwtService {
     id ??= crypto.randomUUID();
     const now = Math.floor(Date.now() / 1000);
     const accessTokenExpiresIn = anonymous
-      ? this.envService.accessTokenExpiration
-      : 86400;
+      ? 86400
+      : this.envService.accessTokenExpiration;
 
     const accessTokenExpiresAt = new Date(
       (now + accessTokenExpiresIn) * 1000,

@@ -1,27 +1,16 @@
-import { ProductVariantResponseDto } from '@/cart/dto/response/product-variant-response.dto';
+import { CartProductDtoResponse } from '@/cart/dto/response/cart-product-response.dto';
+import { CartItemResponse } from '@/cart/models/models';
+import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
-import { CartItem } from 'generated/prisma';
+import { Expose, Type } from 'class-transformer';
 
-export class CartItemResponseDto implements CartItem {
+export class CartItemResponseDto implements CartItemResponse {
   @ApiProperty({
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description: 'Unique identifier of the cart item',
   })
   id: string;
-
-  @ApiProperty({
-    example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
-    description: 'Unique identifier of the cart to which the cart item belongs',
-  })
-  cartId: string;
-
-  @ApiProperty({
-    example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
-    description:
-      'Unique identifier of the product variant to which the cart item belongs',
-  })
-  productVariantId: string;
 
   @ApiProperty({
     example: 1,
@@ -30,22 +19,21 @@ export class CartItemResponseDto implements CartItem {
   quantity: number;
 
   @ApiProperty({
-    example: '2022-01-01T00:00:00.000Z',
-    description: 'The date and time when the cart item was created',
-  })
-  createdAt: Date;
-
-  @ApiProperty({
-    example: '2022-01-01T00:00:00.000Z',
-    description: 'The date and time when the cart item was last updated',
-  })
-  updatedAt: Date;
-
-  @ApiProperty({
-    type: ProductVariantResponseDto,
+    name: 'product_variant',
+    type: () => VariantResponseDto,
     description: 'Product variant associated with the cart item',
   })
-  productVariant: ProductVariantResponseDto;
+  @Type(() => VariantResponseDto)
+  @Expose({ name: 'product_variant', toPlainOnly: true })
+  productVariant: VariantResponseDto;
+
+  @ApiProperty({
+    name: 'product',
+    type: () => CartProductDtoResponse,
+    description: 'Product associated with the cart item',
+  })
+  @Type(() => CartProductDtoResponse)
+  product: CartProductDtoResponse;
 }
 
 export const CartItemDtoResponse = createResponseDto(

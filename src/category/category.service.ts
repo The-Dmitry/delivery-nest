@@ -9,6 +9,7 @@ import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { Prisma } from 'generated/prisma';
 import { ResponseCategoryDto } from '@/category/dto/response/response-category.dto';
+import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 
 @Injectable()
 export class CategoryService {
@@ -16,10 +17,9 @@ export class CategoryService {
 
   async create({ name }: CreateCategoryDto): Promise<ResponseCategoryDto> {
     try {
-      const newCategory = await this.prisma.category.create({
+      return await this.prisma.category.create({
         data: { name },
       });
-      return newCategory;
     } catch (error) {
       if (
         error instanceof Prisma.PrismaClientKnownRequestError &&
@@ -43,32 +43,34 @@ export class CategoryService {
         where: { id: String(id) },
       });
       if (!category) {
-        throw new NotFoundException(`Category with id "${id}" not found.`);
+        throw new NotFoundException(`Category with id '${id}' not found.`);
       }
       return category;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        throw new BadRequestException(`Category with id "${id}" not found.`);
+        throw new BadRequestException(`Category with id '${id}' not found.`);
       }
       throw error;
     }
   }
 
-  async update(id: string, { name }: UpdateCategoryDto) {
+  async update(
+    id: string,
+    { name }: UpdateCategoryDto,
+  ): Promise<ResponseCategoryDto> {
     try {
-      const updatedCategory = await this.prisma.category.update({
+      return await this.prisma.category.update({
         where: { id },
         data: { name },
       });
-      return updatedCategory;
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new NotFoundException(`Category with id "${id}" not found.`);
+          throw new NotFoundException(`Category with id '${id}' not found.`);
         }
         if (error.code === 'P2002') {
           throw new ConflictException(
-            `Category with name "${name}" already exists.`,
+            `Category with name '${name}' already exists.`,
           );
         }
       }
@@ -76,16 +78,26 @@ export class CategoryService {
     }
   }
 
-  async remove(id: string): Promise<ResponseCategoryDto> {
+  async delete(id: string): Promise<DeleteResponseDto> {
     try {
-      const deletedCategory = await this.prisma.category.delete({
+      await this.prisma.category.delete({
         where: { id },
       });
-      return deletedCategory;
+      return {
+        message: `Category with id ${id} deleted successfully`,
+        deletedId: id,
+      };
     } catch (error) {
+      console.log(error);
+
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`Category with id "${id}" not found.`);
+        if (error.code === 'P2025' || error.code === 'P2003') {
+          throw new NotFoundException(`Category with id '${id}' not found.`);
+        }
+        if (error.code === 'P2026') {
+          throw new NotFoundException(
+            `Category with id '${id}' has associated products.`,
+          );
         }
       }
       throw new BadRequestException(`Failed to delete category with id: ${id}`);
