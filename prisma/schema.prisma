@@ -109,5 +109,5 @@ model OrderItem {
   productVariantId String         @map("product_variant_id")
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   quantity         Int
-  priceAtPurchase  Decimal        @map("price_at_purchase")
+  singleItemPrice  Decimal        @map("price_at_purchase")
 }
