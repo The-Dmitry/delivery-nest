@@ -1,4 +1,5 @@
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
+import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import { JwtPayload } from '@jwt/models/models';
 import {
   BadRequestException,
@@ -14,10 +15,47 @@ import {
   Decimal,
   PrismaClientKnownRequestError,
 } from 'generated/prisma/runtime/library';
+import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
+
+  async findMany() {
+    return await this.prisma.order.findMany({
+      include: {
+        items: {
+          include: {
+            productVariant: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findOne(orderId: string) {
+    try {
+      return await this.prisma.order.findUniqueOrThrow({
+        where: { id: String(orderId) },
+        include: {
+          items: {
+            include: {
+              productVariant: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundError('Order not found');
+      }
+      console.error('Error finding order:', error);
+      throw new BadRequestException('Failed to find order');
+    }
+  }
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
@@ -87,7 +125,7 @@ export class OrdersService {
         status,
       } = dto;
       const total = singleItemPrice.times(quantity);
-      return await this.prisma.orderItem.update({
+      const result = await this.prisma.orderItem.update({
         where: { id: itemId },
         data: {
           singleItemPrice,
@@ -96,6 +134,8 @@ export class OrdersService {
           status,
         },
       });
+      await this.recalculateOrderTotalPrice(result.orderId);
+      return result;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -111,7 +151,47 @@ export class OrdersService {
     }
   }
 
-  // private async recalculateItemTotalPrice() {
+  async updateOrder(
+    orderId: string,
+    { status }: UpdateOrderDto,
+    updateItems = false,
+  ) {
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status,
+        items: updateItems
+          ? {
+              updateMany: {
+                where: {
+                  orderId,
+                },
+                data: { status },
+              },
+            }
+          : undefined,
+      },
+    });
+  }
 
-  // }
+  private async recalculateOrderTotalPrice(orderId: Order['id']) {
+    const { items } = await this.prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
+      select: {
+        items: {
+          select: {
+            total: true,
+          },
+        },
+      },
+    });
+    const total = items.reduce(
+      (sum, item) => sum.plus(item.total),
+      new Decimal(0),
+    );
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: { total },
+    });
+  }
 }
