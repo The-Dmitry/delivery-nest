@@ -1,3 +1,5 @@
+import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
+import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import { JwtPayload } from '@jwt/models/models';
@@ -7,21 +9,21 @@ import {
   HttpException,
   HttpStatus,
   Injectable,
+  NotFoundException,
   Post,
 } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
-import { Order, Prisma } from 'generated/prisma';
+import { $Enums, Order, Prisma } from 'generated/prisma';
 import {
   Decimal,
   PrismaClientKnownRequestError,
 } from 'generated/prisma/runtime/library';
-import { NotFoundError } from 'rxjs';
 
 @Injectable()
 export class OrdersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findMany() {
+  async findManyOrders(): Promise<ResponseOrderDto[]> {
     return await this.prisma.order.findMany({
       include: {
         items: {
@@ -33,7 +35,7 @@ export class OrdersService {
     });
   }
 
-  async findOne(orderId: string) {
+  async findOneOrder(orderId: string): Promise<ResponseOrderDto> {
     try {
       return await this.prisma.order.findUniqueOrThrow({
         where: { id: String(orderId) },
@@ -50,7 +52,7 @@ export class OrdersService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new NotFoundError('Order not found');
+        throw new NotFoundException('Order not found');
       }
       console.error('Error finding order:', error);
       throw new BadRequestException('Failed to find order');
@@ -59,10 +61,7 @@ export class OrdersService {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createOrder({
-    anonymous,
-    id,
-  }: JwtPayload): Promise<Pick<Order, 'orderNumber'>> {
+  async createOrder({ anonymous, id }: JwtPayload): Promise<ResponseOrderDto> {
     const userId = anonymous ? { anonymousUserId: id } : { userId: id };
     const cart = await this.prisma.cart.findUnique({
       where: {
@@ -93,7 +92,7 @@ export class OrdersService {
       return sum.plus(itemTotal);
     }, new Decimal(0));
     try {
-      return await this.prisma.order.create({
+      const newOrder = await this.prisma.order.create({
         data: {
           total,
           ...userId,
@@ -101,16 +100,59 @@ export class OrdersService {
             create: orderItems,
           },
         },
-        select: {
-          orderNumber: true,
+        include: {
+          items: {
+            include: {
+              productVariant: true,
+            },
+          },
         },
       });
+      await this.prisma.cartItem.deleteMany({
+        where: {
+          cartId: cart.id,
+        },
+      });
+      return newOrder;
     } catch {
       throw new BadRequestException('Failed to create order');
     }
   }
 
-  async updateOrderItem(itemId: string, dto: UpdateOrderItemDto) {
+  async updateOrder(
+    orderId: string,
+    { status }: UpdateOrderDto,
+    updateItems = false,
+  ): Promise<ResponseOrderDto> {
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status,
+        items: updateItems
+          ? {
+              updateMany: {
+                where: {
+                  orderId,
+                },
+                data: { status },
+              },
+            }
+          : undefined,
+      },
+      include: {
+        items: {
+          include: {
+            productVariant: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updateOrderItem(
+    itemId: string,
+    dto: UpdateOrderItemDto,
+  ): Promise<ResponseOrderItemDto> {
     try {
       const currentItem = await this.prisma.orderItem.findUniqueOrThrow({
         where: { id: itemId },
@@ -133,6 +175,9 @@ export class OrdersService {
           total,
           status,
         },
+        include: {
+          productVariant: true,
+        },
       });
       await this.recalculateOrderTotalPrice(result.orderId);
       return result;
@@ -144,34 +189,11 @@ export class OrdersService {
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
       ) {
-        throw new BadRequestException('Order item not found');
+        throw new NotFoundException('Order item not found');
       }
       console.error('Error updating order item:', error);
       throw new BadRequestException('Failed to update order item');
     }
-  }
-
-  async updateOrder(
-    orderId: string,
-    { status }: UpdateOrderDto,
-    updateItems = false,
-  ) {
-    return await this.prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status,
-        items: updateItems
-          ? {
-              updateMany: {
-                where: {
-                  orderId,
-                },
-                data: { status },
-              },
-            }
-          : undefined,
-      },
-    });
   }
 
   private async recalculateOrderTotalPrice(orderId: Order['id']) {
@@ -181,12 +203,16 @@ export class OrdersService {
         items: {
           select: {
             total: true,
+            status: true,
           },
         },
       },
     });
     const total = items.reduce(
-      (sum, item) => sum.plus(item.total),
+      (sum, item) =>
+        item.status === $Enums.OrderStatus.CANCELED
+          ? sum
+          : sum.plus(item.total),
       new Decimal(0),
     );
     return await this.prisma.order.update({
