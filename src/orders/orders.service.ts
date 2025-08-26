@@ -1,3 +1,4 @@
+import { CartService } from '@/cart/cart.service';
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
 import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
@@ -21,7 +22,10 @@ import {
 
 @Injectable()
 export class OrdersService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cartService: CartService,
+  ) {}
 
   async findManyOrders(): Promise<ResponseOrderDto[]> {
     return await this.prisma.order.findMany({
@@ -61,7 +65,8 @@ export class OrdersService {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createOrder({ anonymous, id }: JwtPayload): Promise<ResponseOrderDto> {
+  async createOrder(payload: JwtPayload): Promise<ResponseOrderDto> {
+    const { anonymous, id } = payload;
     const userId = anonymous ? { anonymousUserId: id } : { userId: id };
     const cart = await this.prisma.cart.findUnique({
       where: {
@@ -108,11 +113,7 @@ export class OrdersService {
           },
         },
       });
-      await this.prisma.cartItem.deleteMany({
-        where: {
-          cartId: cart.id,
-        },
-      });
+      await this.cartService.deleteCart(payload);
       return newOrder;
     } catch {
       throw new BadRequestException('Failed to create order');
