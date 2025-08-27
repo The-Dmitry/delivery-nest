@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsNumber, IsString } from 'class-validator';
+import { IsNumber, IsString, Min } from 'class-validator';
 import { CartItem, ProductVariant } from 'generated/prisma';
 
 export class CreateCartItemDto {
@@ -16,5 +16,6 @@ export class CreateCartItemDto {
     description: 'Quantity of the product to add to the cart',
   })
   @IsNumber()
+  @Min(1)
   quantity: CartItem['quantity'];
 }

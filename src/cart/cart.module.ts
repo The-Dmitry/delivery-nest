@@ -6,5 +6,6 @@ import { JwtAccessStrategy } from '@/common/strategies/jwt-access.strategy';
 @Module({
   controllers: [CartController],
   providers: [CartService, JwtAccessStrategy],
+  exports: [CartService],
 })
 export class CartModule {}

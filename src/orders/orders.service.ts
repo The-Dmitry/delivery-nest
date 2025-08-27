@@ -1,0 +1,224 @@
+import { CartService } from '@/cart/cart.service';
+import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
+import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
+import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
+import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
+import { JwtPayload } from '@jwt/models/models';
+import {
+  BadRequestException,
+  HttpCode,
+  HttpException,
+  HttpStatus,
+  Injectable,
+  NotFoundException,
+  Post,
+} from '@nestjs/common';
+import { PrismaService } from '@prisma/prisma.service';
+import { $Enums, Order, Prisma } from 'generated/prisma';
+import {
+  Decimal,
+  PrismaClientKnownRequestError,
+} from 'generated/prisma/runtime/library';
+
+@Injectable()
+export class OrdersService {
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly cartService: CartService,
+  ) {}
+
+  async findManyOrders(): Promise<ResponseOrderDto[]> {
+    return await this.prisma.order.findMany({
+      include: {
+        items: {
+          include: {
+            productVariant: true,
+          },
+        },
+      },
+    });
+  }
+
+  async findOneOrder(orderId: string): Promise<ResponseOrderDto> {
+    try {
+      return await this.prisma.order.findUniqueOrThrow({
+        where: { id: String(orderId) },
+        include: {
+          items: {
+            include: {
+              productVariant: true,
+            },
+          },
+        },
+      });
+    } catch (error) {
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Order not found');
+      }
+      console.error('Error finding order:', error);
+      throw new BadRequestException('Failed to find order');
+    }
+  }
+
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async createOrder(payload: JwtPayload): Promise<ResponseOrderDto> {
+    const { anonymous, id } = payload;
+    const userId = anonymous ? { anonymousUserId: id } : { userId: id };
+    const cart = await this.prisma.cart.findUnique({
+      where: {
+        ...userId,
+      },
+      include: {
+        items: {
+          include: {
+            productVariant: true,
+          },
+        },
+      },
+    });
+    if (!cart || cart.items.length === 0) {
+      throw new BadRequestException('Cart is empty');
+    }
+    const orderItems = cart.items.map(
+      ({ quantity, productVariant, productVariantId }) => ({
+        quantity: quantity,
+        singleItemPrice: productVariant.price,
+        productVariant: { connect: { id: productVariantId } },
+        total: productVariant.price.times(quantity),
+      }),
+    ) satisfies Omit<Prisma.OrderItemCreateInput, 'order'>[];
+
+    const total = orderItems.reduce((sum, item) => {
+      const itemTotal = item.singleItemPrice.times(item.quantity);
+      return sum.plus(itemTotal);
+    }, new Decimal(0));
+    try {
+      const newOrder = await this.prisma.order.create({
+        data: {
+          total,
+          ...userId,
+          items: {
+            create: orderItems,
+          },
+        },
+        include: {
+          items: {
+            include: {
+              productVariant: true,
+            },
+          },
+        },
+      });
+      await this.cartService.deleteCart(payload);
+      return newOrder;
+    } catch {
+      throw new BadRequestException('Failed to create order');
+    }
+  }
+
+  async updateOrder(
+    orderId: string,
+    { status }: UpdateOrderDto,
+    updateItems = false,
+  ): Promise<ResponseOrderDto> {
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: {
+        status,
+        items: updateItems
+          ? {
+              updateMany: {
+                where: {
+                  orderId,
+                },
+                data: { status },
+              },
+            }
+          : undefined,
+      },
+      include: {
+        items: {
+          include: {
+            productVariant: true,
+          },
+        },
+      },
+    });
+  }
+
+  async updateOrderItem(
+    itemId: string,
+    dto: UpdateOrderItemDto,
+  ): Promise<ResponseOrderItemDto> {
+    try {
+      const currentItem = await this.prisma.orderItem.findUniqueOrThrow({
+        where: { id: itemId },
+        select: {
+          quantity: true,
+          singleItemPrice: true,
+        },
+      });
+      const {
+        quantity = currentItem.quantity,
+        singleItemPrice = currentItem.singleItemPrice,
+        status,
+      } = dto;
+      const total = singleItemPrice.times(quantity);
+      const result = await this.prisma.orderItem.update({
+        where: { id: itemId },
+        data: {
+          singleItemPrice,
+          quantity,
+          total,
+          status,
+        },
+        include: {
+          productVariant: true,
+        },
+      });
+      await this.recalculateOrderTotalPrice(result.orderId);
+      return result;
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Order item not found');
+      }
+      console.error('Error updating order item:', error);
+      throw new BadRequestException('Failed to update order item');
+    }
+  }
+
+  private async recalculateOrderTotalPrice(orderId: Order['id']) {
+    const { items } = await this.prisma.order.findUniqueOrThrow({
+      where: { id: orderId },
+      select: {
+        items: {
+          select: {
+            total: true,
+            status: true,
+          },
+        },
+      },
+    });
+    const total = items.reduce(
+      (sum, item) =>
+        item.status === $Enums.OrderStatus.CANCELED
+          ? sum
+          : sum.plus(item.total),
+      new Decimal(0),
+    );
+    return await this.prisma.order.update({
+      where: { id: orderId },
+      data: { total },
+    });
+  }
+}

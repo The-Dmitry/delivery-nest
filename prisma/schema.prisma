@@ -14,11 +14,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum OrderStatus {
+  NEW
+  PROCESSING
+  DELIVERED
+  CANCELED
+}
+
 model User {
   id    String    @id @default(uuid())
   email String  @unique
   password String
   cart Cart?
+  orders Order[]
 }
 
 model Cart {
@@ -75,4 +83,31 @@ model ProductVariant {
   size Int?
   available Boolean  @default(false)
   cartItems CartItem[] 
+
+  OrderItem OrderItem[]
+}
+
+model Order {
+  id        String       @id @default(uuid())
+  orderNumber Int @unique @default(autoincrement()) @map("order_number")
+  userId  String?  @map("user_id")
+  user      User?         @relation(fields: [userId], references: [id])
+  anonymousUserId String? @unique @map("anonymous_user_id")
+  status    OrderStatus  @default(NEW)
+  total     Decimal      
+  items     OrderItem[]
+  createdAt DateTime     @default(now()) @map("created_at")
+  updatedAt DateTime     @updatedAt @map("updated_at")
+}
+
+model OrderItem {
+  id               String         @id @default(uuid())
+  orderId          String         @map("order_id")
+  order            Order          @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  status    OrderStatus  @default(NEW)
+  total            Decimal
+  productVariantId String         @map("product_variant_id")
+  productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
+  quantity         Int
+  singleItemPrice  Decimal        @map("price_at_purchase")
 }
