@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -63,14 +64,17 @@ export class UsersService {
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new BadRequestException(`User not found.`);
+          throw new NotFoundException(`User not found.`);
         }
       }
       throw new BadRequestException('Failed to get user');
     }
   }
 
-  async update(id: string, updateUserDto: UpdateUserDto) {
+  async update(
+    id: string,
+    updateUserDto: UpdateUserDto,
+  ): Promise<UserResponseDto> {
     try {
       return await this.prisma.user.update({
         where: { id },
@@ -79,14 +83,10 @@ export class UsersService {
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
-          throw new BadRequestException(`User not found.`);
+          throw new NotFoundException(`User not found.`);
         }
       }
       throw new BadRequestException('Failed to update user');
     }
   }
-
-  // async remove(id: number) {
-  //   return `This action removes a #${id} user`;
-  // }
 }
