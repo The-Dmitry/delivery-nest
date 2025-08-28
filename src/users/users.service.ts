@@ -9,6 +9,7 @@ import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library'
 import { hash } from 'argon2';
 import { Prisma } from 'generated/prisma';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
+import { UpdateUserDto } from '@/users/dto/update-user.dto';
 
 @Injectable()
 export class UsersService {
@@ -69,9 +70,21 @@ export class UsersService {
     }
   }
 
-  // async update(id: number, updateUserDto: UpdateUserDto) {
-  //   return `This action updates a #${id} user`;
-  // }
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    try {
+      return await this.prisma.user.update({
+        where: { id },
+        data: updateUserDto,
+      });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new BadRequestException(`User not found.`);
+        }
+      }
+      throw new BadRequestException('Failed to update user');
+    }
+  }
 
   // async remove(id: number) {
   //   return `This action removes a #${id} user`;

@@ -1,4 +1,5 @@
 import { CartService } from '@/cart/cart.service';
+import { CreateOrderDto } from '@/orders/dto/create-order.dto';
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
 import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
@@ -65,14 +66,23 @@ export class OrdersService {
 
   @HttpCode(HttpStatus.CREATED)
   @Post()
-  async createOrder(payload: JwtPayload): Promise<ResponseOrderDto> {
+  async createOrder(
+    payload: JwtPayload,
+    { name, address, phone, comment }: CreateOrderDto,
+  ): Promise<ResponseOrderDto> {
     const { anonymous, id } = payload;
+    if (anonymous && !(name || address || phone)) {
+      throw new BadRequestException(
+        'Name, address or phone is required for anonymous user',
+      );
+    }
     const userId = anonymous ? { anonymousUserId: id } : { userId: id };
     const cart = await this.prisma.cart.findUnique({
       where: {
         ...userId,
       },
       include: {
+        user: true,
         items: {
           include: {
             productVariant: true,
@@ -101,6 +111,10 @@ export class OrdersService {
         data: {
           total,
           ...userId,
+          comment,
+          name: name ?? cart.user?.name ?? 'Anonymous',
+          address: address ?? cart.user?.address ?? 'No address',
+          phone: phone ?? cart.user?.phone ?? 'No phone',
           items: {
             create: orderItems,
           },

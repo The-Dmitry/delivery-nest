@@ -97,6 +97,10 @@ model Order {
   user      User?         @relation(fields: [userId], references: [id])
   anonymousUserId String? @unique @map("anonymous_user_id")
   status    OrderStatus  @default(NEW)
+  comment   String?
+  name  String
+  phone String
+  address String
   total     Decimal      
   items     OrderItem[]
   createdAt DateTime     @default(now()) @map("created_at")
