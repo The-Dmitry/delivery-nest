@@ -78,4 +78,4 @@ export class ResponseOrderDto implements Order {
 export const { OrderResponse, OrderArrayResponse } = createResponseDtoTemp(
   ResponseOrderDto,
   'Order',
-).success();
+);

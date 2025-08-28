@@ -75,18 +75,11 @@ export function createResponseDtoTemp<T, Name extends string>(
   });
 
   return {
-    success() {
-      return {
-        [name + 'Response']: SuccessDto,
-        [name + 'ArrayResponse']: SuccessArrayDto,
-      } as {
-        [K in ResponseDtoName]: typeof SuccessDto;
-      } & {
-        [K in ResponseArrayDtoName]: typeof SuccessArrayDto;
-      };
-    },
-    error() {
-      return ErrorResponseDto;
-    },
+    [name + 'Response']: SuccessDto,
+    [name + 'ArrayResponse']: SuccessArrayDto,
+  } as {
+    [K in ResponseDtoName]: typeof SuccessDto;
+  } & {
+    [K in ResponseArrayDtoName]: typeof SuccessArrayDto;
   };
 }

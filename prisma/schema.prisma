@@ -24,6 +24,9 @@ enum OrderStatus {
 model User {
   id    String    @id @default(uuid())
   email String  @unique
+  name  String
+  phone String? @unique
+  address String?
   password String
   cart Cart?
   orders Order[]
