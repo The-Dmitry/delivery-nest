@@ -22,6 +22,30 @@ export class ResponseOrderDto implements Order {
   userId: string | null;
 
   @ApiProperty({
+    description: 'The delivery address for the order',
+    example: '123 Main St, Springfield, IL 62701',
+  })
+  address: string;
+
+  @ApiProperty({
+    description: 'The comment for the order',
+    example: 'Please deliver it asap',
+  })
+  comment: string | null;
+
+  @ApiProperty({
+    description: 'The name of the person who placed the order',
+    example: 'John Doe',
+  })
+  name: string;
+
+  @ApiProperty({
+    description: 'The phone number of the person who placed the order',
+    example: '555-555-5555',
+  })
+  phone: string;
+
+  @ApiProperty({
     description: 'The ID of the anonymous user who placed the order',
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     nullable: true,
@@ -78,4 +102,4 @@ export class ResponseOrderDto implements Order {
 export const { OrderResponse, OrderArrayResponse } = createResponseDtoTemp(
   ResponseOrderDto,
   'Order',
-).success();
+);

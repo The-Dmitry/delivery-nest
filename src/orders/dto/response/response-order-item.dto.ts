@@ -69,4 +69,4 @@ export class ResponseOrderItemDto implements OrderItem {
 }
 
 export const { OrderItemResponse, OrderItemArrayResponse } =
-  createResponseDtoTemp(ResponseOrderItemDto, 'OrderItem').success();
+  createResponseDtoTemp(ResponseOrderItemDto, 'OrderItem');

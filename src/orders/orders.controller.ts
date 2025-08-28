@@ -31,6 +31,7 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
+import { CreateOrderDto } from '@/orders/dto/create-order.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -92,8 +93,9 @@ export class OrdersController {
   @Post()
   async createOrder(
     @TokenPayload() payload: JwtPayload,
+    @Body() createOrderDto: CreateOrderDto,
   ): Promise<ResponseOrderDto> {
-    return await this.ordersService.createOrder(payload);
+    return await this.ordersService.createOrder(payload, createOrderDto);
   }
 
   @ApiOperation({
