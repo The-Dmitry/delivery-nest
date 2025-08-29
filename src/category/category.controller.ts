@@ -8,6 +8,7 @@ import {
   Delete,
   HttpCode,
   HttpStatus,
+  Query,
 } from '@nestjs/common';
 import { CategoryService } from './category.service';
 import { CreateCategoryDto } from './dto/create-category.dto';
@@ -21,19 +22,23 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import {
-  CategoryArrayDtoResponse,
-  CategoryDtoResponse,
+  CategoryResponse,
+  CategoryWithQueriesArrayResponse,
+  CategoryWithQueriesResponse,
   ResponseCategoryDto,
+  ResponseCategoryWithQueries,
 } from '@/category/dto/response/response-category.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import {
   DeleteDtoResponse,
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
+import { CategoryQueriesDto } from '@/category/dto/category-queries.dto';
+import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: CategoryDtoResponse.error(),
+  type: ErrorResponseDto,
 })
 @Controller('categories')
 export class CategoryController {
@@ -45,11 +50,11 @@ export class CategoryController {
   })
   @ApiCreatedResponse({
     description: 'Category created successfully',
-    type: CategoryDtoResponse.success(),
+    type: CategoryResponse,
   })
   @ApiConflictResponse({
     description: 'Category with the same name already exists',
-    type: CategoryDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @SerializeResponse(ResponseCategoryDto)
   @Post()
@@ -65,12 +70,14 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'List of categories retrieved successfully',
-    type: CategoryArrayDtoResponse.success(),
+    type: CategoryWithQueriesArrayResponse,
   })
-  @SerializeResponse(ResponseCategoryDto)
+  @SerializeResponse(ResponseCategoryWithQueries)
   @Get()
-  async findAll(): Promise<ResponseCategoryDto[]> {
-    return await this.categoryService.findAll();
+  async findAll(
+    @Query() { count, products }: CategoryQueriesDto,
+  ): Promise<ResponseCategoryWithQueries[]> {
+    return await this.categoryService.findAll(count, products);
   }
 
   @ApiOperation({
@@ -79,16 +86,19 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category retrieved successfully',
-    type: CategoryDtoResponse.success(),
+    type: CategoryWithQueriesResponse,
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: CategoryDtoResponse.error(),
+    type: ErrorResponseDto,
   })
-  @SerializeResponse(ResponseCategoryDto)
+  @SerializeResponse(ResponseCategoryWithQueries)
   @Get(':id')
-  async findOne(@Param('id') id: string) {
-    return await this.categoryService.findOne(id);
+  async findOne(
+    @Param('id') id: string,
+    @Query() { count, products }: CategoryQueriesDto,
+  ): Promise<ResponseCategoryWithQueries> {
+    return await this.categoryService.findOne(id, count, products);
   }
 
   @ApiOperation({
@@ -97,15 +107,15 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category updated successfully',
-    type: CategoryDtoResponse.success(),
+    type: CategoryResponse,
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: CategoryDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @ApiConflictResponse({
     description: 'Category with the same name already exists',
-    type: CategoryDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @SerializeResponse(ResponseCategoryDto)
   @Patch(':id')

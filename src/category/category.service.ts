@@ -8,7 +8,10 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { Prisma } from 'generated/prisma';
-import { ResponseCategoryDto } from '@/category/dto/response/response-category.dto';
+import {
+  ResponseCategoryDto,
+  ResponseCategoryWithQueries,
+} from '@/category/dto/response/response-category.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 
 @Injectable()
@@ -33,14 +36,30 @@ export class CategoryService {
     }
   }
 
-  async findAll(): Promise<ResponseCategoryDto[]> {
-    return await this.prisma.category.findMany();
+  async findAll(
+    _count?: boolean,
+    products?: boolean,
+  ): Promise<ResponseCategoryWithQueries[]> {
+    return await this.prisma.category.findMany({
+      include: {
+        _count,
+        products,
+      },
+    });
   }
 
-  async findOne(id: string): Promise<ResponseCategoryDto> {
+  async findOne(
+    id: string,
+    _count?: boolean,
+    products?: boolean,
+  ): Promise<ResponseCategoryWithQueries> {
     try {
       const category = await this.prisma.category.findUnique({
         where: { id: String(id) },
+        include: {
+          _count,
+          products,
+        },
       });
       if (!category) {
         throw new NotFoundException(`Category with id '${id}' not found.`);

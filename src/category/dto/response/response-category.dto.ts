@@ -1,13 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDto } from '@utils/createResponseDto';
-import { Expose } from 'class-transformer';
+import { ProductResponseDto } from '@/products/dto/response/product-response.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { Expose, Transform } from 'class-transformer';
 import { Category } from 'generated/prisma';
 
 export class ResponseCategoryDto implements Category {
-  // constructor(partial: Partial<ResponseCategoryDto>) {
-  //   Object.assign(this, partial);
-  // }
-
   @ApiProperty({
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description: 'Unique identifier of the category',
@@ -37,12 +34,32 @@ export class ResponseCategoryDto implements Category {
   updatedAt: Date;
 }
 
-export const CategoryDtoResponse = createResponseDto(
+export class ResponseCategoryWithQueries extends ResponseCategoryDto {
+  @ApiPropertyOptional({
+    name: 'products_count',
+    example: 42,
+    description: 'Products count (present only if ?count=true)',
+  })
+  @Expose({ name: 'products_count', toPlainOnly: true })
+  @Transform(({ value }) => (value as { products: number })?.products, {
+    toPlainOnly: true,
+  })
+  _count?: {
+    products: number;
+  };
+
+  @ApiPropertyOptional({
+    type: [ProductResponseDto],
+    description:
+      'List of products in this category (present only if ?products=true)',
+  })
+  products?: ProductResponseDto[];
+}
+
+export const { CategoryResponse } = createResponseDtoTemp(
   ResponseCategoryDto,
   'Category',
 );
 
-export const CategoryArrayDtoResponse = createResponseDto(
-  [ResponseCategoryDto],
-  'AllCategories',
-);
+export const { CategoryWithQueriesArrayResponse, CategoryWithQueriesResponse } =
+  createResponseDtoTemp(ResponseCategoryWithQueries, 'CategoryWithQueries');

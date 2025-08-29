@@ -70,7 +70,9 @@ export class ProductResponseDto implements Product {
     description: 'Indicates if the product is active or not',
   })
   active: boolean;
+}
 
+export class ProductWithCategoryAndVariantsCount extends ProductResponseDto {
   @ApiProperty({ type: () => ResponseCategoryDto })
   @Type(() => ResponseCategoryDto)
   category: ResponseCategoryDto;
@@ -81,11 +83,11 @@ export class ProductResponseDto implements Product {
 }
 
 export const ProductDtoResponse = createResponseDto(
-  ProductResponseDto,
+  ProductWithCategoryAndVariantsCount,
   'Product',
 );
 
 export const ProductsArrayDtoResponse = createResponseDto(
-  [ProductResponseDto],
+  [ProductWithCategoryAndVariantsCount],
   'ProductsArray',
 );
