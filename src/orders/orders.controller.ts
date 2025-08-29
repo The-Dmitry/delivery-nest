@@ -25,6 +25,7 @@ import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
+  ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -89,6 +90,7 @@ export class OrdersController {
     type: OrderResponse,
   })
   @SerializeResponse(ResponseOrderDto)
+  @ApiBody({ type: CreateOrderDto })
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createOrder(
