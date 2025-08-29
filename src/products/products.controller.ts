@@ -8,6 +8,7 @@ import {
   Delete,
   HttpStatus,
   HttpCode,
+  Query,
 } from '@nestjs/common';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
@@ -20,19 +21,26 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import {
-  ProductDtoResponse,
+  ProductResponse,
   ProductResponseDto,
-  ProductsArrayDtoResponse,
+  ProductWithCategoryAndVariantsCountDto,
+  ProductWithQueriesArrayResponse,
+  ProductWithQueriesResponse,
 } from '@/products/dto/response/product-response.dto';
 import {
   DeleteDtoResponse,
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
+import { ErrorResponseDto } from '@/common/dto/error-response.dto';
+import {
+  ProductQueriesDto,
+  ProductQueriesWithCategoryDto,
+} from '@/products/dto/product-queries.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: ProductDtoResponse.error(),
+  type: ErrorResponseDto,
 })
 @Controller('products')
 export class ProductsController {
@@ -41,7 +49,7 @@ export class ProductsController {
   @ApiOperation({ summary: 'Create product', description: 'Create product' })
   @ApiCreatedResponse({
     description: 'Product created',
-    type: ProductDtoResponse.success(),
+    type: ProductResponse,
   })
   @SerializeResponse(ProductResponseDto)
   @HttpCode(HttpStatus.CREATED)
@@ -58,13 +66,15 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Products found',
-    type: ProductsArrayDtoResponse.success(),
+    type: ProductWithQueriesArrayResponse,
   })
-  @SerializeResponse(ProductResponseDto)
+  @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(): Promise<ProductResponseDto[]> {
-    return await this.productsService.findAll();
+  async findAll(
+    @Query() queries: ProductQueriesWithCategoryDto,
+  ): Promise<ProductWithCategoryAndVariantsCountDto[]> {
+    return await this.productsService.findAll(queries);
   }
 
   @ApiOperation({
@@ -73,36 +83,19 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Product found',
-    type: ProductDtoResponse.success(),
+    type: ProductWithQueriesResponse,
   })
   @ApiNotFoundResponse({
     description: 'Product not found',
-    type: ProductDtoResponse.error(),
+    type: ErrorResponseDto,
   })
-  @SerializeResponse(ProductResponseDto)
+  @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
   @Get(':id')
-  async findOne(@Param('id') id: string): Promise<ProductResponseDto> {
-    return await this.productsService.findOne(id);
-  }
-
-  @ApiOperation({
-    summary: 'Get products by category id',
-    description: 'Get products by category',
-  })
-  @ApiOkResponse({
-    description: 'Products found',
-    type: ProductsArrayDtoResponse.success(),
-  })
-  @ApiNotFoundResponse({
-    description: 'Category not found',
-    type: ProductDtoResponse.error(),
-  })
-  @SerializeResponse(ProductResponseDto)
-  @Get('category/:id')
-  async findAllByCategory(
+  async findOne(
     @Param('id') id: string,
-  ): Promise<ProductResponseDto[]> {
-    return await this.productsService.findAllByCategory(id);
+    @Query() queries: ProductQueriesDto,
+  ): Promise<ProductResponseDto> {
+    return await this.productsService.findOne(id, queries);
   }
 
   @ApiOperation({
@@ -111,11 +104,11 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Product updated',
-    type: ProductDtoResponse.success(),
+    type: ProductResponse,
   })
   @ApiNotFoundResponse({
     description: 'Product not found',
-    type: ProductDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @SerializeResponse(ProductResponseDto)
   @HttpCode(HttpStatus.OK)
@@ -137,7 +130,7 @@ export class ProductsController {
   })
   @ApiNotFoundResponse({
     description: 'Product not found',
-    type: ProductDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @HttpCode(HttpStatus.OK)
   @SerializeResponse(DeleteResponseDto)

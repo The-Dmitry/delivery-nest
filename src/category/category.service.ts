@@ -13,6 +13,7 @@ import {
   ResponseCategoryWithQueries,
 } from '@/category/dto/response/response-category.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { CategoryQueriesDto } from '@/category/dto/category-queries.dto';
 
 @Injectable()
 export class CategoryService {
@@ -36,10 +37,10 @@ export class CategoryService {
     }
   }
 
-  async findAll(
-    _count?: boolean,
-    products?: boolean,
-  ): Promise<ResponseCategoryWithQueries[]> {
+  async findAll({
+    _count,
+    products,
+  }: CategoryQueriesDto): Promise<ResponseCategoryWithQueries[]> {
     return await this.prisma.category.findMany({
       include: {
         _count,
@@ -50,8 +51,7 @@ export class CategoryService {
 
   async findOne(
     id: string,
-    _count?: boolean,
-    products?: boolean,
+    { _count, products }: CategoryQueriesDto,
   ): Promise<ResponseCategoryWithQueries> {
     try {
       const category = await this.prisma.category.findUnique({

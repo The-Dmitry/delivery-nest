@@ -7,8 +7,15 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
-import { ProductResponseDto } from '@/products/dto/response/product-response.dto';
+import {
+  ProductResponseDto,
+  ProductWithCategoryAndVariantsCountDto,
+} from '@/products/dto/response/product-response.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import {
+  ProductQueriesDto,
+  ProductQueriesWithCategoryDto,
+} from '@/products/dto/product-queries.dto';
 
 @Injectable()
 export class ProductsService {
@@ -21,7 +28,7 @@ export class ProductsService {
     categoryId,
   }: CreateProductDto): Promise<ProductResponseDto> {
     try {
-      const newProduct = await this.prisma.product.create({
+      return await this.prisma.product.create({
         data: {
           category: {
             connect: {
@@ -32,12 +39,7 @@ export class ProductsService {
           description: description,
           images: images,
         },
-        include: {
-          category: true,
-          variants: true,
-        },
       });
-      return newProduct;
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2002') {
@@ -53,17 +55,36 @@ export class ProductsService {
     }
   }
 
-  async findAll(): Promise<ProductResponseDto[]> {
+  async findAll({
+    _count,
+    category,
+    variants,
+    categoryId,
+  }: ProductQueriesWithCategoryDto): Promise<
+    ProductWithCategoryAndVariantsCountDto[]
+  > {
     return await this.prisma.product.findMany({
-      include: { category: true, variants: true },
+      where: { categoryId },
+      include: {
+        _count: _count ? { select: { variants: true } } : undefined,
+        variants,
+        category,
+      },
     });
   }
 
-  async findOne(id: string): Promise<ProductResponseDto> {
+  async findOne(
+    id: string,
+    { _count, category, variants }: ProductQueriesDto,
+  ): Promise<ProductResponseDto> {
     try {
       return await this.prisma.product.findUniqueOrThrow({
         where: { id },
-        include: { variants: true, category: true },
+        include: {
+          _count: _count ? { select: { variants: true } } : undefined,
+          variants,
+          category,
+        },
       });
     } catch (error) {
       if (
@@ -71,26 +92,6 @@ export class ProductsService {
         error.code === 'P2025'
       ) {
         throw new NotFoundException(`Product with id '${id}' not found.`);
-      }
-      throw new BadRequestException('Failed to find product.');
-    }
-  }
-
-  async findAllByCategory(categoryId: string): Promise<ProductResponseDto[]> {
-    try {
-      const result = await this.prisma.product.findMany({
-        where: { categoryId },
-        include: { category: true, variants: true },
-      });
-      return result;
-    } catch (error) {
-      if (
-        error instanceof PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        throw new NotFoundException(
-          `Product with id '${categoryId}' not found.`,
-        );
       }
       throw new BadRequestException('Failed to find product.');
     }

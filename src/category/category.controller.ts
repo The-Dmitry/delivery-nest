@@ -75,9 +75,9 @@ export class CategoryController {
   @SerializeResponse(ResponseCategoryWithQueries)
   @Get()
   async findAll(
-    @Query() { count, products }: CategoryQueriesDto,
+    @Query() queries: CategoryQueriesDto,
   ): Promise<ResponseCategoryWithQueries[]> {
-    return await this.categoryService.findAll(count, products);
+    return await this.categoryService.findAll(queries);
   }
 
   @ApiOperation({
@@ -96,9 +96,9 @@ export class CategoryController {
   @Get(':id')
   async findOne(
     @Param('id') id: string,
-    @Query() { count, products }: CategoryQueriesDto,
+    @Query() queries: CategoryQueriesDto,
   ): Promise<ResponseCategoryWithQueries> {
-    return await this.categoryService.findOne(id, count, products);
+    return await this.categoryService.findOne(id, queries);
   }
 
   @ApiOperation({
