@@ -8,7 +8,6 @@ import {
   Param,
   Patch,
   Post,
-  UseInterceptors,
 } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
@@ -17,11 +16,11 @@ import { JwtPayload } from '@jwt/models/models';
 import { CreateCartItemDto } from '@/cart/dto/create-cart-item.dto';
 import { UpdateCartItemDto } from '@/cart/dto/update-cart-item.dto';
 import {
-  CartDtoResponse,
+  CartResponse,
   CartResponseDto,
 } from '@/cart/dto/response/cart-response.dto';
 import {
-  CartItemDtoResponse,
+  CartItemResponse,
   CartItemResponseDto,
 } from '@/cart/dto/response/cart-item-response.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
@@ -34,16 +33,15 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
-import { FilteredCart } from '@/cart/models/models';
-import { FormatItemsInterceptor } from '@/cart/interceptors/format-items.interceptor';
+import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: CartDtoResponse.error(),
+  type: ErrorResponseDto,
 })
 @ApiNotFoundResponse({
   description: 'Cart not found',
-  type: CartDtoResponse.error(),
+  type: ErrorResponseDto,
 })
 @ApiBearerAuth('access-token')
 @JwtAuthorization()
@@ -57,13 +55,12 @@ export class CartController {
   })
   @ApiOkResponse({
     description: 'Cart of the authenticated user',
-    type: CartDtoResponse.success(),
+    type: CartResponse,
   })
-  @UseInterceptors(FormatItemsInterceptor)
   @SerializeResponse(CartResponseDto)
   @HttpCode(HttpStatus.OK)
   @Get()
-  async getCart(@TokenPayload() payload: JwtPayload): Promise<FilteredCart> {
+  async getCart(@TokenPayload() payload: JwtPayload): Promise<CartResponseDto> {
     return await this.cartService.getCart(payload);
   }
 
@@ -73,16 +70,15 @@ export class CartController {
   })
   @ApiCreatedResponse({
     description: 'Item added to cart',
-    type: CartItemDtoResponse.success(),
+    type: CartItemResponse,
   })
-  @UseInterceptors(FormatItemsInterceptor)
   @SerializeResponse(CartItemResponseDto)
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async addToCart(
     @TokenPayload() payload: JwtPayload,
     @Body() dto: CreateCartItemDto,
-  ): Promise<FilteredCart['items'][number]> {
+  ): Promise<CartItemResponseDto> {
     return await this.cartService.addToCart(payload, dto);
   }
 
@@ -92,9 +88,8 @@ export class CartController {
   })
   @ApiOkResponse({
     description: 'Item updated in cart',
-    type: CartItemDtoResponse.success(),
+    type: CartItemResponse,
   })
-  @UseInterceptors(FormatItemsInterceptor)
   @SerializeResponse(CartItemResponseDto)
   @HttpCode(HttpStatus.OK)
   @Patch('item/:id')
@@ -102,7 +97,7 @@ export class CartController {
     @TokenPayload() payload: JwtPayload,
     @Param('id') id: string,
     @Body() dto: UpdateCartItemDto,
-  ): Promise<FilteredCart['items'][number]> {
+  ): Promise<CartItemResponseDto> {
     return await this.cartService.updateCartItemQuantity(payload, dto, id);
   }
 

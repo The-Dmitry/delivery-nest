@@ -1,7 +1,9 @@
 import { CreateCartItemDto } from '@/cart/dto/create-cart-item.dto';
+import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto';
+import { CartResponseDto } from '@/cart/dto/response/cart-response.dto';
 import { UpdateCartItemDto } from '@/cart/dto/update-cart-item.dto';
-import { FilteredCart } from '@/cart/models/models';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { VariantsService } from '@/variants/variants.service';
 import { JwtPayload } from '@jwt/models/models';
 import {
   BadRequestException,
@@ -14,29 +16,12 @@ import { Cart, Prisma } from 'generated/prisma';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 
 const CART_OPTIONS = {
-  omit: {
-    userId: true,
-    anonymousUserId: true,
-    createdAt: true,
-    updatedAt: true,
-  },
   include: {
     items: {
-      omit: {
-        cartId: true,
-        productVariantId: true,
-      },
       include: {
         productVariant: {
           include: {
-            product: {
-              omit: {
-                updatedAt: true,
-                createdAt: true,
-                active: true,
-                categoryId: true,
-              },
-            },
+            product: true,
           },
         },
       },
@@ -46,9 +31,12 @@ const CART_OPTIONS = {
 
 @Injectable()
 export class CartService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly variantsService: VariantsService,
+  ) {}
 
-  async getCart(payload: JwtPayload): Promise<FilteredCart> {
+  async getCart(payload: JwtPayload): Promise<CartResponseDto> {
     try {
       return await this.findCart(payload, true);
     } catch (error) {
@@ -64,8 +52,14 @@ export class CartService {
   async addToCart(
     payload: JwtPayload,
     { quantity, variantId }: CreateCartItemDto,
-  ): Promise<FilteredCart['items'][number]> {
+  ): Promise<CartItemResponseDto> {
     try {
+      const variant = await this.variantsService.findOne(variantId);
+      if (!variant.available) {
+        throw new BadRequestException(
+          `Variant with id '${variantId}' is not available.`,
+        );
+      }
       let cart = await this.findCart(payload);
       if (!cart) {
         cart = await this.createCart(payload);
@@ -109,8 +103,8 @@ export class CartService {
     payload: JwtPayload,
     { quantity }: UpdateCartItemDto,
     cartItemId: string,
-    cart?: FilteredCart,
-  ): Promise<FilteredCart['items'][number]> {
+    cart?: Cart,
+  ): Promise<CartItemResponseDto> {
     try {
       cart ??= await this.findCart(payload, true);
       return await this.prisma.cartItem.update({
@@ -148,7 +142,7 @@ export class CartService {
   private async createCart({
     id,
     anonymous,
-  }: JwtPayload): Promise<FilteredCart> {
+  }: JwtPayload): Promise<CartResponseDto> {
     const data = {
       userId: anonymous ? null : id,
       anonymousUserId: anonymous ? id : null,
@@ -157,7 +151,15 @@ export class CartService {
     try {
       return await this.prisma.cart.create({
         data,
-        ...CART_OPTIONS,
+        include: {
+          items: {
+            include: {
+              productVariant: {
+                include: { product: true },
+              },
+            },
+          },
+        },
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
@@ -199,14 +201,7 @@ export class CartService {
         throw error;
       }
       if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(
-            `Cart for user with id '${payload.id}' not found.`,
-          );
-        }
-        if (error.code === 'P2003') {
-          throw new NotFoundException(`Cart item with id '${id}' not found.`);
-        }
+        throw new NotFoundException(`Cart item with id '${id}' not found.`);
       }
       throw new BadRequestException(
         `Failed to find cart for user with id: ${payload.id}`,
@@ -241,12 +236,12 @@ export class CartService {
   private async findCart(
     payload: JwtPayload,
     withError: true,
-  ): Promise<FilteredCart>;
+  ): Promise<CartResponseDto>;
 
   private async findCart(
     payload: JwtPayload,
     withError?: false,
-  ): Promise<FilteredCart | null>;
+  ): Promise<CartResponseDto | null>;
 
   private async findCart({ id, anonymous }: JwtPayload, withError = false) {
     const user = anonymous ? { anonymousUserId: id } : { userId: id };
