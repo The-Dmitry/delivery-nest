@@ -10,6 +10,7 @@ export const TokenPayload = createParamDecorator(
   (data: keyof JwtPayload, ctx: ExecutionContext) => {
     const request = ctx.switchToHttp().getRequest<Request>();
     const payload = request.user;
+
     if (
       payload &&
       'id' in payload &&

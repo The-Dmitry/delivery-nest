@@ -9,6 +9,8 @@ import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { Role } from 'generated/prisma';
+import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
 
 @Injectable()
 export class VariantsService {
@@ -34,10 +36,23 @@ export class VariantsService {
     }
   }
 
-  async findAll(productId?: string): Promise<VariantResponseDto[]> {
+  async findAll(
+    { showAll, productId }: VariantsQueriesDto,
+    role?: Role,
+  ): Promise<VariantResponseDto[]> {
+    const isShowAll = showAll && role === 'ADMIN';
+    console.log(isShowAll);
     try {
-      const where = productId ? { productId } : {};
-      return await this.prisma.productVariant.findMany({ where });
+      return await this.prisma.productVariant.findMany({
+        where: {
+          productId,
+          available: isShowAll
+            ? undefined
+            : {
+                equals: true,
+              },
+        },
+      });
     } catch (error) {
       if (
         error instanceof PrismaClientKnownRequestError &&
