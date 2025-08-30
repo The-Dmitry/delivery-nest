@@ -1,7 +1,7 @@
 import { ToBoolean } from '@/common/decorators/to-boolean.decorator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsOptional, IsString } from 'class-validator';
+import { IsOptional, IsUUID } from 'class-validator';
 
 export class VariantsQueriesDto {
   @ApiPropertyOptional({
@@ -11,7 +11,7 @@ export class VariantsQueriesDto {
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     required: false,
   })
-  @IsString()
+  @IsUUID()
   @IsOptional()
   @Expose({ name: 'product_id' })
   productId?: string;

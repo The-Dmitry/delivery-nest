@@ -15,6 +15,7 @@ import { CreateCategoryDto } from './dto/create-category.dto';
 import { UpdateCategoryDto } from './dto/update-category.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiConflictResponse,
   ApiCreatedResponse,
   ApiNotFoundResponse,
@@ -35,18 +36,19 @@ import {
 } from '@/common/dto/delete-response.dto';
 import { CategoryQueriesDto } from '@/category/dto/category-queries.dto';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
+import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: ErrorResponseDto,
 })
+@ApiBearerAuth('access-token')
 @Controller('categories')
 export class CategoryController {
   constructor(private readonly categoryService: CategoryService) {}
 
   @ApiOperation({
-    summary: 'Create a new category',
-    description: 'Creates a new category with the provided name',
+    summary: 'Create a new category (admin only)',
   })
   @ApiCreatedResponse({
     description: 'Category created successfully',
@@ -57,6 +59,8 @@ export class CategoryController {
     type: ErrorResponseDto,
   })
   @SerializeResponse(ResponseCategoryDto)
+  @JwtAuthorization('ADMIN')
+  @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
     @Body() createCategoryDto: CreateCategoryDto,
@@ -65,8 +69,7 @@ export class CategoryController {
   }
 
   @ApiOperation({
-    summary: 'Get all categories',
-    description: 'Retrieves a list of all categories',
+    summary: 'Get array of categories',
   })
   @ApiOkResponse({
     description: 'List of categories retrieved successfully',
@@ -82,7 +85,6 @@ export class CategoryController {
 
   @ApiOperation({
     summary: 'Get a category by ID',
-    description: 'Retrieves a category by its unique identifier',
   })
   @ApiOkResponse({
     description: 'Category retrieved successfully',
@@ -102,8 +104,7 @@ export class CategoryController {
   }
 
   @ApiOperation({
-    summary: 'Update a category',
-    description: 'Updates an existing category by its ID',
+    summary: 'Update a category by ID (admin only)',
   })
   @ApiOkResponse({
     description: 'Category updated successfully',
@@ -118,6 +119,8 @@ export class CategoryController {
     type: ErrorResponseDto,
   })
   @SerializeResponse(ResponseCategoryDto)
+  @JwtAuthorization('ADMIN')
+  @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
     @Param('id') id: string,
@@ -127,8 +130,7 @@ export class CategoryController {
   }
 
   @ApiOperation({
-    summary: 'Delete a category',
-    description: 'Deletes a category by its unique identifier',
+    summary: 'Delete a category by ID (admin only)',
   })
   @ApiOkResponse({
     description: 'Category deleted successfully',
@@ -139,6 +141,7 @@ export class CategoryController {
     type: DeleteDtoResponse,
   })
   @SerializeResponse(DeleteResponseDto)
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<DeleteResponseDto> {

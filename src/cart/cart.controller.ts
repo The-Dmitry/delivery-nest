@@ -51,7 +51,6 @@ export class CartController {
 
   @ApiOperation({
     summary: 'Get cart',
-    description: 'Get cart of the authenticated user',
   })
   @ApiOkResponse({
     description: 'Cart of the authenticated user',
@@ -66,7 +65,6 @@ export class CartController {
 
   @ApiOperation({
     summary: 'Add item to cart',
-    description: 'Add item to cart of the authenticated user',
   })
   @ApiCreatedResponse({
     description: 'Item added to cart',
@@ -84,7 +82,6 @@ export class CartController {
 
   @ApiOperation({
     summary: 'Update item in cart',
-    description: 'Update item in cart of the authenticated user',
   })
   @ApiOkResponse({
     description: 'Item updated in cart',
@@ -103,7 +100,6 @@ export class CartController {
 
   @ApiOperation({
     summary: 'Delete item from cart',
-    description: 'Delete item from cart of the authenticated user',
   })
   @ApiOkResponse({
     description: 'Item deleted from cart',
@@ -121,7 +117,6 @@ export class CartController {
 
   @ApiOperation({
     summary: 'Delete cart',
-    description: 'Delete cart of the authenticated user',
   })
   @ApiOkResponse({
     description: 'Cart deleted',

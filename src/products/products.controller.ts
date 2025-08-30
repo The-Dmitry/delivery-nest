@@ -15,6 +15,7 @@ import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -37,21 +38,26 @@ import {
   ProductQueriesDto,
   ProductQueriesWithCategoryDto,
 } from '@/products/dto/product-queries.dto';
+import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
+import { TokenPayload } from '@/common/decorators/token-payload.decorator';
+import { JwtPayload } from '@jwt/models/models';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: ErrorResponseDto,
 })
+@ApiBearerAuth('access-token')
 @Controller('products')
 export class ProductsController {
   constructor(private readonly productsService: ProductsService) {}
 
-  @ApiOperation({ summary: 'Create product', description: 'Create product' })
+  @ApiOperation({ summary: 'Create product (admin only)' })
   @ApiCreatedResponse({
     description: 'Product created',
     type: ProductResponse,
   })
   @SerializeResponse(ProductResponseDto)
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
@@ -62,19 +68,20 @@ export class ProductsController {
 
   @ApiOperation({
     summary: 'Get all products',
-    description: 'Get all products',
   })
   @ApiOkResponse({
     description: 'Products found',
     type: ProductWithQueriesArrayResponse,
   })
   @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
     @Query() queries: ProductQueriesWithCategoryDto,
+    @TokenPayload('role') role: JwtPayload['role'],
   ): Promise<ProductWithCategoryAndVariantsCountDto[]> {
-    return await this.productsService.findAll(queries);
+    return await this.productsService.findAll(queries, role);
   }
 
   @ApiOperation({
@@ -99,8 +106,7 @@ export class ProductsController {
   }
 
   @ApiOperation({
-    summary: 'Update product by id',
-    description: 'Update product by id',
+    summary: 'Update product by id (admin only)',
   })
   @ApiOkResponse({
     description: 'Product updated',
@@ -111,6 +117,7 @@ export class ProductsController {
     type: ErrorResponseDto,
   })
   @SerializeResponse(ProductResponseDto)
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
@@ -121,8 +128,7 @@ export class ProductsController {
   }
 
   @ApiOperation({
-    summary: 'Delete product by id',
-    description: 'Delete product by id',
+    summary: 'Delete product by id (admin only)',
   })
   @ApiOkResponse({
     description: 'Product deleted',
@@ -132,8 +138,9 @@ export class ProductsController {
     description: 'Product not found',
     type: ErrorResponseDto,
   })
-  @HttpCode(HttpStatus.OK)
   @SerializeResponse(DeleteResponseDto)
+  @JwtAuthorization('ADMIN')
+  @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async delete(@Param('id') id: string): Promise<DeleteResponseDto> {
     return await this.productsService.delete(id);

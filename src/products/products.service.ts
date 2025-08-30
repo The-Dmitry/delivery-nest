@@ -16,6 +16,7 @@ import {
   ProductQueriesDto,
   ProductQueriesWithCategoryDto,
 } from '@/products/dto/product-queries.dto';
+import { JwtPayload } from '@jwt/models/models';
 
 @Injectable()
 export class ProductsService {
@@ -55,16 +56,26 @@ export class ProductsService {
     }
   }
 
-  async findAll({
-    _count,
-    category,
-    variants,
-    categoryId,
-  }: ProductQueriesWithCategoryDto): Promise<
-    ProductWithCategoryAndVariantsCountDto[]
-  > {
+  async findAll(
+    {
+      _count,
+      category,
+      variants,
+      categoryId,
+      showAll,
+    }: ProductQueriesWithCategoryDto,
+    role?: JwtPayload['role'],
+  ): Promise<ProductWithCategoryAndVariantsCountDto[]> {
+    const isShowAll = showAll && role === 'ADMIN';
     return await this.prisma.product.findMany({
-      where: { categoryId },
+      where: {
+        categoryId,
+        active: isShowAll
+          ? undefined
+          : {
+              equals: true,
+            },
+      },
       include: {
         _count: _count ? { select: { variants: true } } : undefined,
         variants,
@@ -113,7 +124,6 @@ export class ProductsService {
       const updatedProduct = await this.prisma.product.update({
         where: { id },
         data: updateProductDto,
-        include: { category: true, variants: true },
       });
       return updatedProduct;
     } catch (error) {
@@ -139,6 +149,8 @@ export class ProductsService {
         deletedId: id,
       };
     } catch (error) {
+      console.error(error);
+
       if (
         error instanceof PrismaClientKnownRequestError &&
         error.code === 'P2025'
