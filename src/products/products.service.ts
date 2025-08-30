@@ -81,7 +81,15 @@ export class ProductsService {
       return await this.prisma.product.findUniqueOrThrow({
         where: { id },
         include: {
-          _count: _count ? { select: { variants: true } } : undefined,
+          _count: _count
+            ? {
+                select: {
+                  variants: {
+                    where: { available: true },
+                  },
+                },
+              }
+            : undefined,
           variants,
           category,
         },

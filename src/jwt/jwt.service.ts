@@ -44,7 +44,11 @@ export class JwtService {
     }
   }
 
-  generateToken(id?: string, anonymous: boolean = true): AuthResponseDto {
+  generateToken({
+    id,
+    anonymous = true,
+    role = 'USER',
+  }: Partial<Omit<JwtPayload, 'tokenType'>>): AuthResponseDto {
     id ??= crypto.randomUUID();
     const now = Math.floor(Date.now() / 1000);
     const accessTokenExpiresIn = anonymous
@@ -56,15 +60,15 @@ export class JwtService {
     ).toISOString();
 
     const accessToken = this.NestJwtService.sign(
-      { id, anonymous, tokenType: 'access' } satisfies JwtPayload,
+      { id, anonymous, tokenType: 'access', role } satisfies JwtPayload,
       { expiresIn: accessTokenExpiresIn },
     );
 
     const refreshToken = this.NestJwtService.sign(
-      { id, anonymous, tokenType: 'refresh' } satisfies JwtPayload,
+      { id, anonymous, tokenType: 'refresh', role } satisfies JwtPayload,
       { expiresIn: '10d' },
     );
 
-    return { accessToken, refreshToken, anonymous, accessTokenExpiresAt };
+    return { accessToken, refreshToken, anonymous, accessTokenExpiresAt, role };
   }
 }

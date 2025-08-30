@@ -1,6 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
 import { Expose } from 'class-transformer';
+import { $Enums } from 'generated/prisma';
 
 export class AuthResponseDto {
   @ApiProperty({
@@ -24,6 +25,13 @@ export class AuthResponseDto {
     description: 'Indicates if the user is anonymous',
   })
   anonymous: boolean;
+
+  @ApiProperty({
+    example: 'USER',
+    description: 'Role of the user',
+    enum: $Enums.Role,
+  })
+  role: $Enums.Role;
 
   @ApiProperty({
     name: 'access_token_expires_at',

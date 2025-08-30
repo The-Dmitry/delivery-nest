@@ -17,28 +17,36 @@ export class AuthService {
   ) {}
 
   async login({ email, password }: CreateLoginDto): Promise<AuthResponseDto> {
-    const user = await this.usersService.findWithParams({ email });
-    const isPasswordValid = await verify(user.password, password);
+    const {
+      id,
+      role,
+      password: currentPassword,
+    } = await this.usersService.findWithParams({ email });
+    const isPasswordValid = await verify(currentPassword, password);
     if (!isPasswordValid) {
       throw new NotFoundException('User not found');
     }
-    return this.jwt.generateToken(user.id, false);
+    return this.jwt.generateToken({ id, role, anonymous: false });
   }
 
   async register(payload: CreateRegistrationDto): Promise<AuthResponseDto> {
-    const newUser = await this.usersService.create(payload);
-    return this.jwt.generateToken(newUser.id, false);
+    const { id, role } = await this.usersService.create(payload);
+    return this.jwt.generateToken({ id, role, anonymous: false });
   }
 
   anonymousLogin(): AuthResponseDto {
-    return this.jwt.generateToken();
+    return this.jwt.generateToken({ anonymous: true });
   }
 
   async refresh({ id, anonymous }: JwtPayload): Promise<AuthResponseDto> {
     if (anonymous) {
-      return this.jwt.generateToken(id, true);
+      return this.jwt.generateToken({ id, anonymous });
     }
     const user = await this.usersService.findById(id);
-    return this.jwt.generateToken(user.id);
+    return this.jwt.generateToken({
+      id: user.id,
+      role: user.role,
+      anonymous: false,
+    });
   }
 }

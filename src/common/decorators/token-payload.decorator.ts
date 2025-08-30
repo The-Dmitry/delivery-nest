@@ -14,7 +14,8 @@ export const TokenPayload = createParamDecorator(
       payload &&
       'id' in payload &&
       'anonymous' in payload &&
-      'tokenType' in payload
+      'tokenType' in payload &&
+      'role' in payload
     ) {
       return data ? payload[data] : payload;
     }
