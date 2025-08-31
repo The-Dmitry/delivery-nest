@@ -16,8 +16,10 @@ import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorato
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import {
-  OrderArrayResponse,
   OrderResponse,
+  OrderWithItemsArrayResponse,
+  OrderWithItemsResponse,
+  OrderWithItemsResponseDto,
   ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
@@ -25,7 +27,6 @@ import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import {
   ApiBadRequestResponse,
   ApiBearerAuth,
-  ApiBody,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
@@ -33,50 +34,20 @@ import {
 } from '@nestjs/swagger';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { CreateOrderDto } from '@/orders/dto/create-order.dto';
+import {
+  ManyOrdersQueryDto,
+  OneOrderQueryDto,
+} from '@/orders/dto/orders-queries.dto';
+import { UpdateOrderQueriesDto } from '@/orders/dto/update-order-queries.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: ErrorResponseDto,
 })
 @ApiBearerAuth('access-token')
-@JwtAuthorization()
 @Controller('orders')
 export class OrdersController {
   constructor(private readonly ordersService: OrdersService) {}
-
-  @ApiOperation({
-    summary: 'Get list of orders',
-    description: 'Retrieve a list of orders',
-  })
-  @ApiOkResponse({
-    description: 'List of orders',
-    type: OrderArrayResponse,
-  })
-  @SerializeResponse(ResponseOrderDto)
-  @HttpCode(HttpStatus.OK)
-  @Get()
-  async findMany(): Promise<ResponseOrderDto[]> {
-    return await this.ordersService.findManyOrders();
-  }
-
-  @ApiOperation({
-    summary: 'Get order by ID',
-    description: 'Retrieve a specific order by its ID',
-  })
-  @ApiOkResponse({
-    description: 'Order details',
-    type: OrderResponse,
-  })
-  @ApiNotFoundResponse({
-    description: 'Order not found',
-    type: ErrorResponseDto,
-  })
-  @SerializeResponse(ResponseOrderDto)
-  @HttpCode(HttpStatus.OK)
-  @Get(':id')
-  async findOne(@Param('id') orderId: string): Promise<ResponseOrderDto> {
-    return await this.ordersService.findOneOrder(orderId);
-  }
 
   @ApiOperation({
     summary: 'Create a new order',
@@ -90,7 +61,7 @@ export class OrdersController {
     type: OrderResponse,
   })
   @SerializeResponse(ResponseOrderDto)
-  @ApiBody({ type: CreateOrderDto })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async createOrder(
@@ -101,7 +72,48 @@ export class OrdersController {
   }
 
   @ApiOperation({
-    summary: 'Update an order',
+    summary: 'Get list of orders',
+    description: 'Retrieve a list of orders',
+  })
+  @ApiOkResponse({
+    description: 'List of orders',
+    type: OrderWithItemsArrayResponse,
+  })
+  @SerializeResponse(OrderWithItemsResponseDto)
+  @JwtAuthorization()
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async findMany(
+    @Query() queries: ManyOrdersQueryDto,
+  ): Promise<OrderWithItemsResponseDto[]> {
+    return await this.ordersService.findManyOrders(queries);
+  }
+
+  @ApiOperation({
+    summary: 'Get order by ID',
+    description: 'Retrieve a specific order by its ID',
+  })
+  @ApiOkResponse({
+    description: 'Order details',
+    type: OrderWithItemsResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Order not found',
+    type: ErrorResponseDto,
+  })
+  @SerializeResponse(OrderWithItemsResponseDto)
+  @JwtAuthorization()
+  @HttpCode(HttpStatus.OK)
+  @Get(':id')
+  async findOne(
+    @Param('id') orderId: string,
+    @Query() queries: OneOrderQueryDto,
+  ): Promise<OrderWithItemsResponseDto> {
+    return await this.ordersService.findOneOrder(orderId, queries);
+  }
+
+  @ApiOperation({
+    summary: 'Update an order (admin only)',
     description: 'Update order details. Optionally update order items.',
   })
   @ApiOkResponse({
@@ -113,13 +125,13 @@ export class OrdersController {
     type: ErrorResponseDto,
   })
   @SerializeResponse(ResponseOrderDto)
-  //TODO: Implement admin authorization for this endpoint
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async updateOrder(
     @Param('id') orderId: string,
     @Body() updateOrderDto: UpdateOrderDto,
-    @Query('update_items') updateItems?: boolean,
+    @Query() { updateItems }: UpdateOrderQueriesDto,
   ): Promise<ResponseOrderDto> {
     return await this.ordersService.updateOrder(
       orderId,
@@ -129,7 +141,7 @@ export class OrdersController {
   }
 
   @ApiOperation({
-    summary: 'Update an order item',
+    summary: 'Update an order item (admin only)',
     description: 'Update details of a specific order item',
   })
   @ApiOkResponse({
@@ -141,7 +153,7 @@ export class OrdersController {
     type: ErrorResponseDto,
   })
   @SerializeResponse(ResponseOrderItemDto)
-  //TODO: Implement admin authorization for this endpoint
+  @JwtAuthorization('ADMIN')
   @Patch('item/:id')
   async updateItem(
     @Param('id') itemId: string,

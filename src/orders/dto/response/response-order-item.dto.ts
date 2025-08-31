@@ -1,5 +1,5 @@
-import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { VariantWithProduct } from '@/variants/dto/response/variants-response.dto';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { createResponseDtoTemp } from '@utils/createResponseDto';
 import { Expose, Type } from 'class-transformer';
 import { OrderItem, OrderStatus } from 'generated/prisma';
@@ -58,14 +58,14 @@ export class ResponseOrderItemDto implements OrderItem {
   })
   status: OrderStatus;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Product variant details',
-    type: VariantResponseDto,
+    type: VariantWithProduct,
     name: 'product_variant',
   })
   @Expose({ name: 'product_variant', toPlainOnly: true })
-  @Type(() => VariantResponseDto)
-  productVariant: VariantResponseDto;
+  @Type(() => VariantWithProduct)
+  productVariant?: VariantWithProduct;
 }
 
 export const { OrderItemResponse, OrderItemArrayResponse } =

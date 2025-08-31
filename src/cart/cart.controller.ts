@@ -50,20 +50,6 @@ export class CartController {
   constructor(private readonly cartService: CartService) {}
 
   @ApiOperation({
-    summary: 'Get cart',
-  })
-  @ApiOkResponse({
-    description: 'Cart of the authenticated user',
-    type: CartResponse,
-  })
-  @SerializeResponse(CartResponseDto)
-  @HttpCode(HttpStatus.OK)
-  @Get()
-  async getCart(@TokenPayload() payload: JwtPayload): Promise<CartResponseDto> {
-    return await this.cartService.getCart(payload);
-  }
-
-  @ApiOperation({
     summary: 'Add item to cart',
   })
   @ApiCreatedResponse({
@@ -78,6 +64,20 @@ export class CartController {
     @Body() dto: CreateCartItemDto,
   ): Promise<CartItemResponseDto> {
     return await this.cartService.addToCart(payload, dto);
+  }
+
+  @ApiOperation({
+    summary: 'Get cart',
+  })
+  @ApiOkResponse({
+    description: 'Cart of the authenticated user',
+    type: CartResponse,
+  })
+  @SerializeResponse(CartResponseDto)
+  @HttpCode(HttpStatus.OK)
+  @Get()
+  async getCart(@TokenPayload() payload: JwtPayload): Promise<CartResponseDto> {
+    return await this.cartService.getCart(payload);
   }
 
   @ApiOperation({

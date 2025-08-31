@@ -49,6 +49,6 @@ export class CreateOrderDto {
   })
   @IsString()
   @IsOptional()
-  @MaxLength(200, { message: 'Comment must be at most 200 characters long' })
+  @MaxLength(400, { message: 'Comment must be at most 400 characters long' })
   comment?: string;
 }

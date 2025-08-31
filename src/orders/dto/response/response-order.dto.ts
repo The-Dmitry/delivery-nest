@@ -1,5 +1,5 @@
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { createResponseDtoTemp } from '@utils/createResponseDto';
 import { Expose, Type } from 'class-transformer';
 import { Order, OrderStatus } from 'generated/prisma';
@@ -76,13 +76,6 @@ export class ResponseOrderDto implements Order {
   total: Decimal;
 
   @ApiProperty({
-    description: 'The items included in the order',
-    type: [ResponseOrderItemDto],
-  })
-  @Type(() => ResponseOrderItemDto)
-  items: ResponseOrderItemDto[];
-
-  @ApiProperty({
     description: 'The date and time when the order was last updated',
     example: '2023-10-02T12:34:56.789Z',
     name: 'updated_at',
@@ -99,7 +92,19 @@ export class ResponseOrderDto implements Order {
   createdAt: Date;
 }
 
+export class OrderWithItemsResponseDto extends ResponseOrderDto {
+  @ApiPropertyOptional({
+    description: 'The items included in the order',
+    type: [ResponseOrderItemDto],
+  })
+  @Type(() => ResponseOrderItemDto)
+  items?: ResponseOrderItemDto[];
+}
+
 export const { OrderResponse, OrderArrayResponse } = createResponseDtoTemp(
   ResponseOrderDto,
   'Order',
 );
+
+export const { OrderWithItemsResponse, OrderWithItemsArrayResponse } =
+  createResponseDtoTemp(OrderWithItemsResponseDto, 'OrderWithItems');
