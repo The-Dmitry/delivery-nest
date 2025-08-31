@@ -21,7 +21,7 @@ export class AuthService {
       id,
       role,
       password: currentPassword,
-    } = await this.usersService.findWithParams({ email });
+    } = await this.usersService.findByEmail(email);
     const isPasswordValid = await verify(currentPassword, password);
     if (!isPasswordValid) {
       throw new NotFoundException('User not found');

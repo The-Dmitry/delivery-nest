@@ -8,9 +8,9 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 import { hash } from 'argon2';
-import { Prisma } from 'generated/prisma';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
+import { UsersQueriesDto } from '@/users/dto/users-queries.dto';
 
 @Injectable()
 export class UsersService {
@@ -36,31 +36,32 @@ export class UsersService {
   }
 
   async findMany({
-    id,
+    name,
     email,
     phone,
-  }: Pick<Prisma.UserWhereUniqueInput, 'id' | 'email' | 'phone'>): Promise<
-    UserResponseDto[]
-  > {
-    return await this.prisma.user.findMany({ where: { id, email, phone } });
+    role,
+  }: UsersQueriesDto): Promise<UserResponseDto[]> {
+    return await this.prisma.user.findMany({
+      where: { name, email, phone, role },
+    });
+  }
+
+  async findByEmail(email: string): Promise<UserResponseDto> {
+    try {
+      return this.prisma.user.findUniqueOrThrow({ where: { email } });
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2025') {
+          throw new NotFoundException(`User not found.`);
+        }
+      }
+      throw new BadRequestException('Failed to get user');
+    }
   }
 
   async findById(id: string): Promise<UserResponseDto> {
-    return await this.findWithParams({ id });
-  }
-
-  async findWithParams({
-    id,
-    email,
-    phone,
-  }: Pick<
-    Prisma.UserWhereUniqueInput,
-    'id' | 'email' | 'phone'
-  >): Promise<UserResponseDto> {
     try {
-      return await this.prisma.user.findUniqueOrThrow({
-        where: { id, email, phone },
-      });
+      return this.prisma.user.findUniqueOrThrow({ where: { id } });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
@@ -73,12 +74,17 @@ export class UsersService {
 
   async update(
     id: string,
-    updateUserDto: UpdateUserDto,
+    { address, name, password, phone }: UpdateUserDto,
   ): Promise<UserResponseDto> {
     try {
       return await this.prisma.user.update({
         where: { id },
-        data: updateUserDto,
+        data: {
+          address,
+          name,
+          password: password ? await hash(password) : undefined,
+          phone,
+        },
       });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
