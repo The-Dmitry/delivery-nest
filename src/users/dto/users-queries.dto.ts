@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { IsOptional } from 'class-validator';
+import { IsEnum, IsOptional } from 'class-validator';
 import { Role } from 'generated/prisma';
 
 export class UsersQueriesDto {
@@ -38,5 +38,7 @@ export class UsersQueriesDto {
   @Transform(({ value }: { value: string }) =>
     typeof value === 'string' ? value.toUpperCase() : value,
   )
+  @IsOptional()
+  @IsEnum(Role, { message: 'Role must be either USER or ADMIN' })
   role?: Role;
 }

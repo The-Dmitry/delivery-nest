@@ -7,6 +7,7 @@ import {
   Patch,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -26,6 +27,8 @@ import {
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
 import { UsersQueriesDto } from '@/users/dto/users-queries.dto';
+import { TokenPayload } from '@/common/decorators/token-payload.decorator';
+import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad Request',
@@ -89,7 +92,24 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @TokenPayload('id') adminId: string,
   ): Promise<UserResponseDto> {
-    return await this.usersService.update(id, updateUserDto);
+    return await this.usersService.update(id, updateUserDto, adminId);
+  }
+
+  @ApiOperation({
+    summary: 'Delete user by ID (admin only)',
+  })
+  @ApiOkResponse({
+    description: 'User deleted successfully',
+    type: DeleteResponseDto,
+  })
+  @JwtAuthorization('ADMIN')
+  @Delete(':id')
+  async delete(
+    @Param('id') id: string,
+    @TokenPayload('id') adminId: string,
+  ): Promise<DeleteResponseDto> {
+    return await this.usersService.delete(id, adminId);
   }
 }

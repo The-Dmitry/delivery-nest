@@ -1,6 +1,13 @@
-import { IsOptional, IsString, MaxLength, MinLength } from 'class-validator';
+import {
+  IsEnum,
+  IsOptional,
+  IsString,
+  MaxLength,
+  MinLength,
+} from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
+import { Role } from 'generated/prisma';
 
 export class UpdateUserDto {
   @ApiPropertyOptional({
@@ -59,4 +66,17 @@ export class UpdateUserDto {
     message: 'Password must be at most 20 characters long',
   })
   password?: string;
+
+  @ApiPropertyOptional({
+    type: String,
+    description: 'User role',
+    required: false,
+    enum: Role,
+  })
+  @Transform(({ value }: { value: string }) =>
+    typeof value === 'string' ? value.toUpperCase() : value,
+  )
+  @IsEnum(Role, { message: 'Role must be either USER or ADMIN' })
+  @IsOptional()
+  role?: Role;
 }
