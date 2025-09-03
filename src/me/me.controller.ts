@@ -1,4 +1,11 @@
-import { Controller, Get } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  HttpCode,
+  HttpStatus,
+  Patch,
+} from '@nestjs/common';
 import { MeService } from './me.service';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
@@ -9,6 +16,7 @@ import {
 } from '@/me/dto/me-user-response.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
+import { MeUpdateDto } from '@/me/dto/me-update.dto';
 
 @JwtAuthorization('USER')
 @Controller('me')
@@ -20,8 +28,17 @@ export class MeController {
   })
   @ApiOkResponse({ type: MeUserResponseDto })
   @SerializeResponse(MeUserResponse)
+  @HttpCode(HttpStatus.OK)
   @Get()
-  async getMe(@TokenPayload('id') id: string): Promise<UserResponseDto> {
+  async meProfile(@TokenPayload('id') id: string): Promise<UserResponseDto> {
     return this.meService.getMe(id);
   }
+
+  @HttpCode(HttpStatus.OK)
+  @Patch()
+  async updateMe(@TokenPayload('id') id: string, @Body() data: MeUpdateDto) {
+    return await this.meService.updateMe(id, data);
+  }
+
+  async meOrders() {}
 }
