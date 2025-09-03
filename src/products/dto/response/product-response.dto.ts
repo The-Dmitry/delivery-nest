@@ -1,8 +1,8 @@
 import { ResponseCategoryDto } from '@/category/dto/response/response-category.dto';
 import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
-import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDto } from '@utils/createResponseDto';
-import { Expose, Type } from 'class-transformer';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { Expose, Transform, Type } from 'class-transformer';
 import { IsNotEmpty, IsString } from 'class-validator';
 import { Product } from 'generated/prisma';
 
@@ -70,22 +70,38 @@ export class ProductResponseDto implements Product {
     description: 'Indicates if the product is active or not',
   })
   active: boolean;
-
-  @ApiProperty({ type: () => ResponseCategoryDto })
-  @Type(() => ResponseCategoryDto)
-  category: ResponseCategoryDto;
-
-  @ApiProperty({ type: () => VariantResponseDto, isArray: true })
-  @Type(() => VariantResponseDto)
-  variants: VariantResponseDto[];
 }
 
-export const ProductDtoResponse = createResponseDto(
+export class ProductWithCategoryAndVariantsCountDto extends ProductResponseDto {
+  @ApiPropertyOptional({ type: () => ResponseCategoryDto })
+  @Type(() => ResponseCategoryDto)
+  category?: ResponseCategoryDto;
+
+  @ApiPropertyOptional({ type: () => VariantResponseDto, isArray: true })
+  @Type(() => VariantResponseDto)
+  variants?: VariantResponseDto[];
+
+  @ApiPropertyOptional({
+    name: 'variants_count',
+    example: 2,
+    description:
+      'Variants count for each product (present only if ?count=true)',
+  })
+  @Expose({ name: 'variants_count', toPlainOnly: true })
+  @Transform(({ value }) => (value as { variants: number })?.variants, {
+    toPlainOnly: true,
+  })
+  _count?: {
+    variants: number;
+  };
+}
+
+export const { ProductResponse, ProductArrayResponse } = createResponseDtoTemp(
   ProductResponseDto,
   'Product',
 );
-
-export const ProductsArrayDtoResponse = createResponseDto(
-  [ProductResponseDto],
-  'ProductsArray',
-);
+export const { ProductWithQueriesResponse, ProductWithQueriesArrayResponse } =
+  createResponseDtoTemp(
+    ProductWithCategoryAndVariantsCountDto,
+    'ProductWithQueries',
+  );

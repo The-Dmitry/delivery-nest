@@ -1,7 +1,14 @@
 import { CartService } from '@/cart/cart.service';
 import { CreateOrderDto } from '@/orders/dto/create-order.dto';
+import {
+  ManyOrdersQueryDto,
+  OneOrderQueryDto,
+} from '@/orders/dto/orders-queries.dto';
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
-import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
+import {
+  OrderWithItemsResponseDto,
+  ResponseOrderDto,
+} from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import { JwtPayload } from '@jwt/models/models';
@@ -28,28 +35,71 @@ export class OrdersService {
     private readonly cartService: CartService,
   ) {}
 
-  async findManyOrders(): Promise<ResponseOrderDto[]> {
+  async findManyOrders({
+    userId,
+    name,
+    phone,
+    status,
+    showAll,
+    from,
+    to,
+    items,
+    product,
+    variant,
+  }: ManyOrdersQueryDto): Promise<OrderWithItemsResponseDto[]> {
     return await this.prisma.order.findMany({
-      include: {
-        items: {
-          include: {
-            productVariant: true,
-          },
+      where: {
+        userId,
+        name: name
+          ? {
+              contains: name,
+              mode: 'insensitive',
+            }
+          : undefined,
+        phone,
+        status: showAll
+          ? undefined
+          : status
+            ? status
+            : {
+                not: {
+                  equals: 'CANCELED',
+                },
+              },
+        createdAt: {
+          gte: from,
+          lte: to,
         },
+      },
+      include: {
+        items: items
+          ? {
+              include: {
+                productVariant: variant ? { include: { product } } : undefined,
+              },
+            }
+          : undefined,
       },
     });
   }
 
-  async findOneOrder(orderId: string): Promise<ResponseOrderDto> {
+  async findOneOrder(
+    orderId: string,
+    { items, product, variant }: OneOrderQueryDto,
+  ): Promise<OrderWithItemsResponseDto> {
     try {
       return await this.prisma.order.findUniqueOrThrow({
         where: { id: String(orderId) },
         include: {
-          items: {
-            include: {
-              productVariant: true,
-            },
-          },
+          items: items
+            ? {
+                include: {
+                  productVariant: variant
+                    ? { include: { product } }
+                    : undefined,
+                },
+              }
+            : undefined,
         },
       });
     } catch (error) {
@@ -112,18 +162,11 @@ export class OrdersService {
           total,
           ...userId,
           comment,
-          name: name ?? cart.user?.name ?? 'Anonymous',
-          address: address ?? cart.user?.address ?? 'No address',
-          phone: phone ?? cart.user?.phone ?? 'No phone',
+          name: cart.user?.name ?? name ?? 'Anonymous',
+          address: cart.user?.address ?? address ?? 'No address',
+          phone: cart.user?.phone ?? phone ?? 'No phone',
           items: {
             create: orderItems,
-          },
-        },
-        include: {
-          items: {
-            include: {
-              productVariant: true,
-            },
           },
         },
       });
@@ -136,13 +179,15 @@ export class OrdersService {
 
   async updateOrder(
     orderId: string,
-    { status }: UpdateOrderDto,
+    { status, phone, address }: UpdateOrderDto,
     updateItems = false,
   ): Promise<ResponseOrderDto> {
     return await this.prisma.order.update({
       where: { id: orderId },
       data: {
         status,
+        phone,
+        address,
         items: updateItems
           ? {
               updateMany: {
@@ -153,13 +198,6 @@ export class OrdersService {
               },
             }
           : undefined,
-      },
-      include: {
-        items: {
-          include: {
-            productVariant: true,
-          },
-        },
       },
     });
   }
@@ -189,9 +227,6 @@ export class OrdersService {
           quantity,
           total,
           status,
-        },
-        include: {
-          productVariant: true,
         },
       });
       await this.recalculateOrderTotalPrice(result.orderId);

@@ -26,8 +26,6 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(payload: JwtPayload): JwtPayload {
-    console.log('Validating JWT Refresh Token:', payload);
-
     if (
       payload.tokenType !== 'refresh' ||
       !payload.id ||

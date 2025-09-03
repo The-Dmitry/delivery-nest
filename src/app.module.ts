@@ -17,6 +17,7 @@ import { UsersModule } from './users/users.module';
   imports: [
     AuthModule,
     PrismaModule,
+    UsersModule,
     JwtModule,
     ConfigModule.forRoot({
       isGlobal: true,

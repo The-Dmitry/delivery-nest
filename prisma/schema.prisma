@@ -21,6 +21,11 @@ enum OrderStatus {
   CANCELED
 }
 
+enum Role {
+  USER
+  ADMIN
+}
+
 model User {
   id    String    @id @default(uuid())
   email String  @unique
@@ -30,6 +35,7 @@ model User {
   password String
   cart Cart?
   orders Order[]
+  role Role @default(USER)
 }
 
 model Cart {
@@ -78,7 +84,7 @@ model Product {
 model ProductVariant {
   id        String   @id @default(uuid()) @unique
   productId String   @map("product_id")
-  product   Product  @relation(fields: [productId], references: [id])
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
   name      String  
   description String?
   price     Decimal  

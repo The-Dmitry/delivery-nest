@@ -1,16 +1,15 @@
 import {
   Controller,
   Get,
-  Post,
   Body,
   Param,
   Query,
   Patch,
   HttpCode,
   HttpStatus,
+  Delete,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { CreateUserDto } from './dto/create-user.dto';
 import {
   UserArrayResponse,
   UserResponse,
@@ -20,104 +19,40 @@ import { SerializeResponse } from '@/common/decorators/serialize-response.decora
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
 import {
   ApiBadRequestResponse,
-  ApiCreatedResponse,
+  ApiBearerAuth,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
 } from '@nestjs/swagger';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
+import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
+import { UsersQueriesDto } from '@/users/dto/users-queries.dto';
+import { TokenPayload } from '@/common/decorators/token-payload.decorator';
+import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 
-@SerializeResponse(UserResponseDto)
 @ApiBadRequestResponse({
   description: 'Bad Request',
   type: ErrorResponseDto,
 })
+@SerializeResponse(UserResponseDto)
+@ApiBearerAuth('access-token')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({
-    summary: 'Create a new user',
-    description: 'Registers a new user with the provided details',
-  })
-  @ApiCreatedResponse({
-    description: 'User successfully registered',
-    type: UserResponse,
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found',
-    type: ErrorResponseDto,
-  })
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
-  async create(@Body() createUserDto: CreateUserDto): Promise<UserResponseDto> {
-    return await this.usersService.create(createUserDto);
-  }
-
-  @ApiOperation({
-    summary: 'Get all users',
+    summary: 'Get array of users',
     description: 'Retrieves a list of all users',
   })
   @ApiOkResponse({
     description: 'List of users retrieved successfully',
     type: UserArrayResponse,
   })
-  @ApiQuery({
-    name: 'email',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'phone',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'id',
-    required: false,
-  })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(
-    @Query('email') email: string,
-    @Query('phone') phone: string,
-    @Query('id') id: string,
-  ): Promise<UserResponseDto[]> {
-    return this.usersService.findMany({ email, phone, id });
-  }
-
-  @ApiOperation({
-    summary: 'Find user by parameters',
-    description:
-      'Retrieves a user based on provided query parameters (email, phone, id)',
-  })
-  @ApiOkResponse({
-    description: 'User retrieved successfully',
-    type: UserResponse,
-  })
-  @ApiNotFoundResponse({
-    description: 'User not found',
-    type: ErrorResponseDto,
-  })
-  @ApiQuery({
-    name: 'email',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'phone',
-    required: false,
-  })
-  @ApiQuery({
-    name: 'id',
-    required: false,
-  })
-  @HttpCode(HttpStatus.OK)
-  @Get('find')
-  async findWithParams(
-    @Query('email') email: string,
-    @Query('phone') phone: string,
-    @Query('id') id: string,
-  ): Promise<UserResponseDto> {
-    return this.usersService.findWithParams({ email, phone, id });
+  async findAll(@Query() queries: UsersQueriesDto): Promise<UserResponseDto[]> {
+    return this.usersService.findMany(queries);
   }
 
   @ApiOperation({
@@ -132,6 +67,7 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findById(@Param('id') id: string): Promise<UserResponseDto> {
@@ -139,7 +75,7 @@ export class UsersController {
   }
 
   @ApiOperation({
-    summary: 'Update user by ID',
+    summary: 'Update user by ID (admin only)',
     description: 'Updates user details based on their unique ID',
   })
   @ApiOkResponse({
@@ -150,12 +86,30 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
+    @TokenPayload('id') adminId: string,
   ): Promise<UserResponseDto> {
-    return await this.usersService.update(id, updateUserDto);
+    return await this.usersService.update(id, updateUserDto, adminId);
+  }
+
+  @ApiOperation({
+    summary: 'Delete user by ID (admin only)',
+  })
+  @ApiOkResponse({
+    description: 'User deleted successfully',
+    type: DeleteResponseDto,
+  })
+  @JwtAuthorization('ADMIN')
+  @Delete(':id')
+  async delete(
+    @Param('id') id: string,
+    @TokenPayload('id') adminId: string,
+  ): Promise<DeleteResponseDto> {
+    return await this.usersService.delete(id, adminId);
   }
 }

@@ -15,11 +15,11 @@ import { CreateVariantDto } from './dto/create-variant.dto';
 import { UpdateVariantDto } from './dto/update-variant.dto';
 import {
   ApiBadRequestResponse,
+  ApiBearerAuth,
   ApiCreatedResponse,
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
-  ApiQuery,
 } from '@nestjs/swagger';
 import {
   VariantDtoResponse,
@@ -31,7 +31,12 @@ import {
   DeleteDtoResponse,
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
+import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
+import { TokenPayload } from '@/common/decorators/token-payload.decorator';
+import { Role } from 'generated/prisma';
+import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
 
+@ApiBearerAuth('access-token')
 @ApiBadRequestResponse({
   description: 'Bad request',
   type: VariantDtoResponse.error(),
@@ -41,8 +46,7 @@ export class VariantsController {
   constructor(private readonly variantsService: VariantsService) {}
 
   @ApiOperation({
-    summary: 'Create a new variant',
-    description: 'Create a new variant',
+    summary: 'Create a new variant (admin only)',
   })
   @ApiCreatedResponse({
     description: 'Variant created successfully',
@@ -53,6 +57,7 @@ export class VariantsController {
     type: VariantDtoResponse.error(),
   })
   @SerializeResponse(VariantResponseDto)
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.CREATED)
   @Post()
   async create(
@@ -63,30 +68,24 @@ export class VariantsController {
 
   @ApiOperation({
     summary: 'Get array of variants',
-    description: 'Get all variants or variants by product id',
   })
   @ApiOkResponse({
     description: 'Variants found successfully',
     type: VariantsArrayDtoResponse.success(),
   })
-  @ApiQuery({
-    name: 'productId',
-    required: false,
-    type: String,
-    description: 'Filter products by product id',
-  })
   @SerializeResponse(VariantResponseDto)
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
-    @Query('productId') productId?: string,
+    @TokenPayload('role') role: Role,
+    @Query() queries: VariantsQueriesDto,
   ): Promise<VariantResponseDto[]> {
-    return await this.variantsService.findAll(productId);
+    return await this.variantsService.findAll(queries, role);
   }
 
   @ApiOperation({
     summary: 'Get a variant by id',
-    description: 'Get a variant by id',
   })
   @ApiOkResponse({
     description: 'Variant found successfully',
@@ -104,8 +103,7 @@ export class VariantsController {
   }
 
   @ApiOperation({
-    summary: 'Update a variant by id',
-    description: 'Update a variant by id',
+    summary: 'Update a variant by id (admin only)',
   })
   @ApiOkResponse({
     description: 'Variant updated successfully',
@@ -116,6 +114,7 @@ export class VariantsController {
     type: VariantDtoResponse.error(),
   })
   @SerializeResponse(VariantResponseDto)
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
@@ -126,8 +125,7 @@ export class VariantsController {
   }
 
   @ApiOperation({
-    summary: 'Delete a variant by id',
-    description: 'Delete a variant by id',
+    summary: 'Delete a variant by id (admin only)',
   })
   @ApiOkResponse({
     description: 'Variant deleted successfully',
@@ -138,6 +136,7 @@ export class VariantsController {
     type: VariantDtoResponse.error(),
   })
   @SerializeResponse(DeleteResponseDto)
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Delete(':id')
   async remove(@Param('id') id: string): Promise<DeleteResponseDto> {
