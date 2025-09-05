@@ -21,9 +21,14 @@ import {
   ChangePasswordResponse,
   ChangePasswordResponseDto,
 } from '@/me/dto/response/change-password-response.dto';
+import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
+import {
+  OrderWithItemsArrayResponse,
+  OrderWithItemsResponseDto,
+} from '@/orders/dto/response/response-order.dto';
 
-@JwtAuthorization('USER')
 @ApiBearerAuth('access-token')
+@JwtAuthorization('USER')
 @Controller('me')
 export class MeController {
   constructor(private readonly meService: MeService) {}
@@ -67,5 +72,20 @@ export class MeController {
     return await this.meService.changePassword(id, data);
   }
 
-  async meOrders() {}
+  @ApiOperation({
+    summary: 'Get own orders',
+  })
+  @ApiOkResponse({
+    description: 'List of orders',
+    type: OrderWithItemsArrayResponse,
+  })
+  @SerializeResponse(OrderWithItemsResponseDto)
+  @HttpCode(HttpStatus.OK)
+  @Get('orders')
+  async meOrders(
+    @TokenPayload('id') id: string,
+    queries: MeOrdersQueryDto,
+  ): Promise<OrderWithItemsResponseDto[]> {
+    return await this.meService.getMyOrders(id, queries);
+  }
 }

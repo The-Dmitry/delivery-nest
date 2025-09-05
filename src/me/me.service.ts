@@ -1,5 +1,8 @@
 import { MeChangePasswordDto } from '@/me/dto/me-change-password.dto';
+import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
 import { MeUpdateDto } from '@/me/dto/me-update.dto';
+import { OrderWithItemsResponseDto } from '@/orders/dto/response/response-order.dto';
+import { OrdersService } from '@/orders/orders.service';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
 import { UsersService } from '@/users/users.service';
 import { BadRequestException, Injectable } from '@nestjs/common';
@@ -7,7 +10,10 @@ import { verify } from 'argon2';
 
 @Injectable()
 export class MeService {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly ordersService: OrdersService,
+  ) {}
 
   async getMe(id: string): Promise<UserResponseDto> {
     return await this.usersService.findById(id);
@@ -36,5 +42,12 @@ export class MeService {
       message: 'Password changed successfully',
       passwordChanged: true,
     };
+  }
+
+  async getMyOrders(
+    id: string,
+    queries: MeOrdersQueryDto,
+  ): Promise<OrderWithItemsResponseDto[]> {
+    return await this.ordersService.findManyOrders({ userId: id, ...queries });
   }
 }
