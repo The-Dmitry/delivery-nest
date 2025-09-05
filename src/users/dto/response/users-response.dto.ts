@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDtoTemp } from '@utils/createResponseDto';
-import { Expose } from 'class-transformer';
+import { Exclude } from 'class-transformer';
 import { Role, User } from 'generated/prisma';
 
 export class UserResponseDto implements User {
@@ -28,7 +28,7 @@ export class UserResponseDto implements User {
   })
   address: string | null;
 
-  @Expose()
+  @Exclude()
   password: string;
 
   @ApiProperty({
