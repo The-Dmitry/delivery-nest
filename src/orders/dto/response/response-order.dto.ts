@@ -1,6 +1,6 @@
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Expose, Type } from 'class-transformer';
 import { Order, OrderStatus } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
@@ -101,10 +101,10 @@ export class OrderWithItemsResponseDto extends ResponseOrderDto {
   items?: ResponseOrderItemDto[];
 }
 
-export const { OrderResponse, OrderArrayResponse } = createResponseDtoTemp(
+export const { OrderResponse, OrderArrayResponse } = createResponseDto(
   ResponseOrderDto,
   'Order',
 );
 
 export const { OrderWithItemsResponse, OrderWithItemsArrayResponse } =
-  createResponseDtoTemp(OrderWithItemsResponseDto, 'OrderWithItems');
+  createResponseDto(OrderWithItemsResponseDto, 'OrderWithItems');

@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Exclude } from 'class-transformer';
 import { Role, User } from 'generated/prisma';
 
@@ -45,7 +45,7 @@ export class UserResponseDto implements User {
   role: Role;
 }
 
-export const { UserResponse, UserArrayResponse } = createResponseDtoTemp(
+export const { UserResponse, UserArrayResponse } = createResponseDto(
   UserResponseDto,
   'User',
 );

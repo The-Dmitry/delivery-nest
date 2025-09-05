@@ -1,5 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Expose } from 'class-transformer';
 
 export class ChangePasswordResponseDto {
@@ -18,7 +18,7 @@ export class ChangePasswordResponseDto {
   passwordChanged: boolean;
 }
 
-export const { ChangePasswordResponse } = createResponseDtoTemp(
+export const { ChangePasswordResponse } = createResponseDto(
   ChangePasswordResponseDto,
   'ChangePassword',
 );

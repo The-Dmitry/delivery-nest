@@ -1,6 +1,6 @@
 import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Expose, Type } from 'class-transformer';
 import { Cart } from 'generated/prisma';
 
@@ -48,4 +48,4 @@ export class CartResponseDto implements Cart {
   @Type(() => CartItemResponseDto)
   items: CartItemResponseDto[];
 }
-export const { CartResponse } = createResponseDtoTemp(CartResponseDto, 'Cart');
+export const { CartResponse } = createResponseDto(CartResponseDto, 'Cart');
