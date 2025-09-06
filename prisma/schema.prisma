@@ -103,6 +103,7 @@ model Order {
   user      User?         @relation(fields: [userId], references: [id])
   anonymousUserId String? @unique @map("anonymous_user_id")
   status    OrderStatus  @default(NEW)
+  canceledByUser Boolean @default(false) @map("canceled_by_user")
   comment   String?
   name  String
   phone String

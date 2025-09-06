@@ -1,6 +1,6 @@
 import { VariantWithProduct } from '@/variants/dto/response/variants-response.dto';
 import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Exclude, Expose, Type } from 'class-transformer';
 import { CartItem } from 'generated/prisma';
 
@@ -33,7 +33,7 @@ export class CartItemResponseDto implements CartItem {
   productVariant: VariantWithProduct;
 }
 
-export const { CartItemResponse } = createResponseDtoTemp(
+export const { CartItemResponse } = createResponseDto(
   CartItemResponseDto,
   'CartItem',
 );

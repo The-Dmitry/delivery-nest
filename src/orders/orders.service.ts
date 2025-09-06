@@ -47,6 +47,7 @@ export class OrdersService {
     product,
     variant,
   }: ManyOrdersQueryDto): Promise<OrderWithItemsResponseDto[]> {
+    const showItems = items || product || variant;
     return await this.prisma.order.findMany({
       where: {
         userId,
@@ -72,7 +73,7 @@ export class OrdersService {
         },
       },
       include: {
-        items: items
+        items: showItems
           ? {
               include: {
                 productVariant: variant ? { include: { product } } : undefined,
@@ -179,7 +180,7 @@ export class OrdersService {
 
   async updateOrder(
     orderId: string,
-    { status, phone, address }: UpdateOrderDto,
+    { status, phone, address, canceledByUser }: UpdateOrderDto,
     updateItems = false,
   ): Promise<ResponseOrderDto> {
     return await this.prisma.order.update({
@@ -188,6 +189,7 @@ export class OrdersService {
         status,
         phone,
         address,
+        canceledByUser,
         items: updateItems
           ? {
               updateMany: {

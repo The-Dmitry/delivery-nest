@@ -42,4 +42,4 @@ export class AuthResponseDto {
   accessTokenExpiresAt: string;
 }
 
-export const AuthDtoResponse = createResponseDto(AuthResponseDto, 'Auth');
+export const { AuthResponse } = createResponseDto(AuthResponseDto, 'Auth');

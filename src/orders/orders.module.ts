@@ -7,5 +7,6 @@ import { CartModule } from '@/cart/cart.module';
   imports: [CartModule],
   controllers: [OrdersController],
   providers: [OrdersService],
+  exports: [OrdersService],
 })
 export class OrdersModule {}

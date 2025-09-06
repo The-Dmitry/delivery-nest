@@ -31,7 +31,7 @@ import {
 } from '@/category/dto/response/response-category.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import {
-  DeleteDtoResponse,
+  DeleteResponse,
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
 import { CategoryQueriesDto } from '@/category/dto/category-queries.dto';
@@ -134,11 +134,11 @@ export class CategoryController {
   })
   @ApiOkResponse({
     description: 'Category deleted successfully',
-    type: DeleteDtoResponse,
+    type: DeleteResponse,
   })
   @ApiNotFoundResponse({
     description: 'Category not found',
-    type: DeleteDtoResponse,
+    type: DeleteResponse,
   })
   @SerializeResponse(DeleteResponseDto)
   @JwtAuthorization('ADMIN')

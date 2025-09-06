@@ -18,7 +18,7 @@ export class DeleteResponseDto {
   deletedId: string;
 }
 
-export const DeleteDtoResponse = createResponseDto(
+export const { DeleteResponse } = createResponseDto(
   DeleteResponseDto,
   'Delete',
-).success();
+);

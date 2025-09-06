@@ -22,13 +22,13 @@ import {
   ApiOperation,
 } from '@nestjs/swagger';
 import {
-  VariantDtoResponse,
+  VariantResponse,
   VariantResponseDto,
-  VariantsArrayDtoResponse,
+  VariantArrayResponse,
 } from '@/variants/dto/response/variants-response.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import {
-  DeleteDtoResponse,
+  DeleteResponse,
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
@@ -39,7 +39,7 @@ import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
 @ApiBearerAuth('access-token')
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: VariantDtoResponse.error(),
+  type: DeleteResponse,
 })
 @Controller('variants')
 export class VariantsController {
@@ -50,11 +50,11 @@ export class VariantsController {
   })
   @ApiCreatedResponse({
     description: 'Variant created successfully',
-    type: VariantDtoResponse.success(),
+    type: VariantResponse,
   })
   @ApiNotFoundResponse({
     description: 'Product with id not found',
-    type: VariantDtoResponse.error(),
+    type: DeleteResponse,
   })
   @SerializeResponse(VariantResponseDto)
   @JwtAuthorization('ADMIN')
@@ -71,7 +71,7 @@ export class VariantsController {
   })
   @ApiOkResponse({
     description: 'Variants found successfully',
-    type: VariantsArrayDtoResponse.success(),
+    type: VariantArrayResponse,
   })
   @SerializeResponse(VariantResponseDto)
   @JwtAuthorization()
@@ -89,11 +89,11 @@ export class VariantsController {
   })
   @ApiOkResponse({
     description: 'Variant found successfully',
-    type: VariantDtoResponse.success(),
+    type: VariantResponse,
   })
   @ApiNotFoundResponse({
     description: 'Variant with id not found',
-    type: VariantDtoResponse.error(),
+    type: DeleteResponse,
   })
   @SerializeResponse(VariantResponseDto)
   @HttpCode(HttpStatus.OK)
@@ -107,11 +107,11 @@ export class VariantsController {
   })
   @ApiOkResponse({
     description: 'Variant updated successfully',
-    type: VariantDtoResponse.success(),
+    type: VariantResponse,
   })
   @ApiNotFoundResponse({
     description: 'Variant with id not found',
-    type: VariantDtoResponse.error(),
+    type: DeleteResponse,
   })
   @SerializeResponse(VariantResponseDto)
   @JwtAuthorization('ADMIN')
@@ -129,11 +129,11 @@ export class VariantsController {
   })
   @ApiOkResponse({
     description: 'Variant deleted successfully',
-    type: DeleteDtoResponse,
+    type: DeleteResponse,
   })
   @ApiNotFoundResponse({
     description: 'Variant with id not found',
-    type: VariantDtoResponse.error(),
+    type: DeleteResponse,
   })
   @SerializeResponse(DeleteResponseDto)
   @JwtAuthorization('ADMIN')

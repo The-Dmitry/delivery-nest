@@ -7,9 +7,9 @@ import {
 } from 'class-validator';
 import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Transform } from 'class-transformer';
-import { Role } from 'generated/prisma';
+import { Role, User } from 'generated/prisma';
 
-export class UpdateUserDto {
+export class UpdateUserDto implements Partial<User> {
   @ApiPropertyOptional({
     description: 'Customer name',
     example: 'John Doe',

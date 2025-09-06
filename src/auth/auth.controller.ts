@@ -1,11 +1,12 @@
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
+import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import { JwtRefreshGuard } from '@/common/guards/jwt-refresh.guard';
 import { AuthService } from '@auth/auth.service';
 import { CreateLoginDto } from '@auth/dto/login.dto';
 import { CreateRegistrationDto } from '@auth/dto/registration.dto';
 import {
-  AuthDtoResponse,
+  AuthResponse,
   AuthResponseDto,
 } from '@auth/dto/response/auth-response.dto';
 import { TokenInterceptor } from '@interceptors/token.interceptor';
@@ -31,7 +32,7 @@ import {
 
 @ApiBadRequestResponse({
   description: 'Bad request',
-  type: AuthDtoResponse.error(),
+  type: ErrorResponseDto,
 })
 @SerializeResponse(AuthResponseDto)
 @UseInterceptors(TokenInterceptor)
@@ -45,11 +46,11 @@ export class AuthController {
   })
   @ApiCreatedResponse({
     description: 'User successfully registered',
-    type: AuthDtoResponse.success(),
+    type: AuthResponse,
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: AuthDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
@@ -63,15 +64,15 @@ export class AuthController {
   })
   @ApiOkResponse({
     description: 'User successfully logged in',
-    type: AuthDtoResponse.success(),
+    type: AuthResponse,
   })
   @ApiNotFoundResponse({
     description: 'User not found',
-    type: AuthDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @ApiUnauthorizedResponse({
     description: 'Email already exists',
-    type: AuthDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @HttpCode(HttpStatus.OK)
   @Post('login')
@@ -85,7 +86,7 @@ export class AuthController {
   })
   @ApiOkResponse({
     description: 'Anonymous user successfully logged in',
-    type: AuthDtoResponse.success(),
+    type: AuthResponse,
   })
   @HttpCode(HttpStatus.OK)
   @Post('anonymous')
@@ -103,11 +104,11 @@ export class AuthController {
   @UseGuards(JwtRefreshGuard)
   @ApiCreatedResponse({
     description: 'Token successfully refreshed',
-    type: AuthDtoResponse.success(),
+    type: AuthResponse,
   })
   @ApiUnauthorizedResponse({
     description: 'Invalid refresh token',
-    type: AuthDtoResponse.error(),
+    type: ErrorResponseDto,
   })
   @Post('refresh')
   async refresh(@TokenPayload() payload: JwtPayload): Promise<AuthResponseDto> {

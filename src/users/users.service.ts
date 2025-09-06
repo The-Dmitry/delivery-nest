@@ -76,7 +76,7 @@ export class UsersService {
   async update(
     id: string,
     { address, name, password, phone, role }: UpdateUserDto,
-    adminId: string,
+    adminId?: string,
   ): Promise<UserResponseDto> {
     this.adminCantChangeHimself(id, adminId);
     try {
@@ -118,7 +118,7 @@ export class UsersService {
     }
   }
 
-  private adminCantChangeHimself(id: string, adminId: string) {
+  private adminCantChangeHimself(id: string, adminId?: string) {
     if (id === adminId) {
       throw new UnauthorizedException(
         'You cannot delete yourself or change your role',

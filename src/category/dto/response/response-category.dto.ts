@@ -1,6 +1,6 @@
 import { ProductResponseDto } from '@/products/dto/response/product-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Expose, Transform } from 'class-transformer';
 import { Category } from 'generated/prisma';
 
@@ -56,10 +56,10 @@ export class ResponseCategoryWithQueries extends ResponseCategoryDto {
   products?: ProductResponseDto[];
 }
 
-export const { CategoryResponse } = createResponseDtoTemp(
+export const { CategoryResponse } = createResponseDto(
   ResponseCategoryDto,
   'Category',
 );
 
 export const { CategoryWithQueriesArrayResponse, CategoryWithQueriesResponse } =
-  createResponseDtoTemp(ResponseCategoryWithQueries, 'CategoryWithQueries');
+  createResponseDto(ResponseCategoryWithQueries, 'CategoryWithQueries');

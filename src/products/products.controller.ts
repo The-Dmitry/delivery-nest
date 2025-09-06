@@ -29,7 +29,7 @@ import {
   ProductWithQueriesResponse,
 } from '@/products/dto/response/product-response.dto';
 import {
-  DeleteDtoResponse,
+  DeleteResponse,
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
@@ -132,7 +132,7 @@ export class ProductsController {
   })
   @ApiOkResponse({
     description: 'Product deleted',
-    type: DeleteDtoResponse,
+    type: DeleteResponse,
   })
   @ApiNotFoundResponse({
     description: 'Product not found',

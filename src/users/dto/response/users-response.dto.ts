@@ -1,7 +1,7 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
-import { Exclude, Expose } from 'class-transformer';
-import { $Enums, User } from 'generated/prisma';
+import { createResponseDto } from '@utils/createResponseDto';
+import { Exclude } from 'class-transformer';
+import { Role, User } from 'generated/prisma';
 
 export class UserResponseDto implements User {
   @ApiProperty({
@@ -28,7 +28,7 @@ export class UserResponseDto implements User {
   })
   address: string | null;
 
-  @Expose()
+  @Exclude()
   password: string;
 
   @ApiProperty({
@@ -40,11 +40,12 @@ export class UserResponseDto implements User {
   @ApiProperty({
     description: 'Role of the user',
     example: 'USER',
+    enum: Role,
   })
-  role: $Enums.Role;
+  role: Role;
 }
 
-export const { UserResponse, UserArrayResponse } = createResponseDtoTemp(
+export const { UserResponse, UserArrayResponse } = createResponseDto(
   UserResponseDto,
   'User',
 );

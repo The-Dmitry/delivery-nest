@@ -1,6 +1,6 @@
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { createResponseDtoTemp } from '@utils/createResponseDto';
+import { createResponseDto } from '@utils/createResponseDto';
 import { Expose, Type } from 'class-transformer';
 import { Order, OrderStatus } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
@@ -69,6 +69,13 @@ export class ResponseOrderDto implements Order {
   status: OrderStatus;
 
   @ApiProperty({
+    description: 'Whether the order was canceled by the user',
+    example: true,
+  })
+  @Expose({ name: 'canceled_by_user', toPlainOnly: true })
+  canceledByUser: boolean;
+
+  @ApiProperty({
     description: 'The total amount for the order',
     example: '59.99',
   })
@@ -101,10 +108,10 @@ export class OrderWithItemsResponseDto extends ResponseOrderDto {
   items?: ResponseOrderItemDto[];
 }
 
-export const { OrderResponse, OrderArrayResponse } = createResponseDtoTemp(
+export const { OrderResponse, OrderArrayResponse } = createResponseDto(
   ResponseOrderDto,
   'Order',
 );
 
 export const { OrderWithItemsResponse, OrderWithItemsArrayResponse } =
-  createResponseDtoTemp(OrderWithItemsResponseDto, 'OrderWithItems');
+  createResponseDto(OrderWithItemsResponseDto, 'OrderWithItems');
