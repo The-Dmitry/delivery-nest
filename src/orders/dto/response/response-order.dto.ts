@@ -69,6 +69,13 @@ export class ResponseOrderDto implements Order {
   status: OrderStatus;
 
   @ApiProperty({
+    description: 'Whether the order was canceled by the user',
+    example: true,
+  })
+  @Expose({ name: 'canceled_by_user', toPlainOnly: true })
+  canceledByUser: boolean;
+
+  @ApiProperty({
     description: 'The total amount for the order',
     example: '59.99',
   })

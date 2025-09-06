@@ -180,7 +180,7 @@ export class OrdersService {
 
   async updateOrder(
     orderId: string,
-    { status, phone, address }: UpdateOrderDto,
+    { status, phone, address, canceledByUser }: UpdateOrderDto,
     updateItems = false,
   ): Promise<ResponseOrderDto> {
     return await this.prisma.order.update({
@@ -189,6 +189,7 @@ export class OrdersService {
         status,
         phone,
         address,
+        canceledByUser,
         items: updateItems
           ? {
               updateMany: {

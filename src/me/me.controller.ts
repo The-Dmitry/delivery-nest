@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Param,
   Patch,
 } from '@nestjs/common';
 import { MeService } from './me.service';
@@ -87,5 +88,19 @@ export class MeController {
     queries: MeOrdersQueryDto,
   ): Promise<OrderWithItemsResponseDto[]> {
     return await this.meService.getMyOrders(id, queries);
+  }
+
+  @ApiOperation({
+    summary: 'Cancel own order',
+  })
+  @ApiOkResponse({ type: OrderWithItemsResponseDto })
+  @SerializeResponse(OrderWithItemsResponseDto)
+  @HttpCode(HttpStatus.OK)
+  @Patch('orders/:id')
+  async cancelOrder(
+    @TokenPayload('id') id: string,
+    @Param('id') orderId: string,
+  ) {
+    return await this.meService.cancelOrder(id, orderId);
   }
 }

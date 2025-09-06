@@ -50,4 +50,14 @@ export class MeService {
   ): Promise<OrderWithItemsResponseDto[]> {
     return await this.ordersService.findManyOrders({ userId: id, ...queries });
   }
+
+  async cancelOrder(userId: string, orderId: string) {
+    const order = await this.ordersService.findOneOrder(orderId, {});
+    if (order.userId !== userId) {
+      throw new BadRequestException('You are not allowed to cancel this order');
+    }
+    return await this.ordersService.updateOrder(orderId, {
+      canceledByUser: true,
+    });
+  }
 }
