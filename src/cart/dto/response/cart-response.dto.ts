@@ -3,6 +3,7 @@ import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
 import { Expose, Type } from 'class-transformer';
 import { Cart } from 'generated/prisma';
+import { Decimal } from 'generated/prisma/runtime/library';
 
 export class CartResponseDto implements Cart {
   @ApiProperty({
@@ -25,6 +26,13 @@ export class CartResponseDto implements Cart {
   })
   @Expose({ name: 'anonymous_user_id', toPlainOnly: true })
   anonymousUserId: string | null;
+
+  @ApiProperty({
+    example: '10.99',
+    description: 'The total amount of the cart',
+  })
+  @Type(() => String)
+  total: Decimal;
 
   @ApiProperty({
     example: '2022-01-01T00:00:00.000Z',

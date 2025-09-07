@@ -14,7 +14,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { Cart, Prisma } from 'generated/prisma';
-import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
+import {
+  Decimal,
+  PrismaClientKnownRequestError,
+} from 'generated/prisma/runtime/library';
 
 const CART_OPTIONS = {
   include: {
@@ -39,7 +42,12 @@ export class CartService {
 
   async getCart(payload: JwtPayload): Promise<CartResponseDto> {
     try {
-      return await this.findCart(payload, true);
+      const result = await this.findCart(payload, true);
+
+      return {
+        ...result,
+        total: this.calculateTotalCartPrice(result.items),
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -143,10 +151,9 @@ export class CartService {
   private async createCart({
     id,
     anonymous,
-  }: MakeFieldsOptional<
-    JwtPayload,
-    'role' | 'tokenType'
-  >): Promise<CartResponseDto> {
+  }: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>): Promise<
+    Omit<CartResponseDto, 'total'>
+  > {
     const data = {
       userId: anonymous ? null : id,
       anonymousUserId: anonymous ? id : null,
@@ -299,19 +306,18 @@ export class CartService {
       }
     } catch {
       console.error('Failed to merge anonymous cart');
-      return;
     }
   }
 
   private async findCart(
     payload: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
     withError: true,
-  ): Promise<CartResponseDto>;
+  ): Promise<Omit<CartResponseDto, 'total'>>;
 
   private async findCart(
     payload: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
     withError?: false,
-  ): Promise<CartResponseDto | null>;
+  ): Promise<Omit<CartResponseDto, 'total'> | null>;
 
   private async findCart(
     { id, anonymous }: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
@@ -339,5 +345,12 @@ export class CartService {
         `Failed to find cart for user with id: ${id}`,
       );
     }
+  }
+
+  private calculateTotalCartPrice(items: CartResponseDto['items']) {
+    return items.reduce(
+      (sum, item) => sum.plus(item.productVariant.price.times(item.quantity)),
+      new Decimal(0),
+    );
   }
 }
