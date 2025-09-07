@@ -3,6 +3,7 @@ import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto'
 import { CartResponseDto } from '@/cart/dto/response/cart-response.dto';
 import { UpdateCartItemDto } from '@/cart/dto/update-cart-item.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { MakeFieldsOptional } from '@/common/types/partially-optional';
 import { VariantsService } from '@/variants/variants.service';
 import { JwtPayload } from '@jwt/models/models';
 import {
@@ -142,7 +143,10 @@ export class CartService {
   private async createCart({
     id,
     anonymous,
-  }: JwtPayload): Promise<CartResponseDto> {
+  }: MakeFieldsOptional<
+    JwtPayload,
+    'role' | 'tokenType'
+  >): Promise<CartResponseDto> {
     const data = {
       userId: anonymous ? null : id,
       anonymousUserId: anonymous ? id : null,
@@ -233,17 +237,86 @@ export class CartService {
     }
   }
 
+  async mergeAnonymousCart(payload: JwtPayload, userId: string) {
+    const [anonCart, userCart] = await Promise.all([
+      this.findCart({ ...payload, anonymous: true }),
+      this.findCart({ id: userId, anonymous: false }),
+    ]);
+    if (!anonCart) return;
+    try {
+      if (anonCart && !userCart) {
+        return await this.prisma.cart.update({
+          where: {
+            id: anonCart.id,
+          },
+          data: {
+            userId,
+            anonymousUserId: null,
+          },
+        });
+      }
+      if (anonCart && userCart) {
+        const existingVariants = new Set(
+          userCart.items.map((i) => i.productVariantId),
+        );
+
+        const itemsToUpdate = anonCart.items.filter((item) =>
+          existingVariants.has(item.productVariantId),
+        );
+        const itemsToCreate = anonCart.items.filter(
+          (item) => !existingVariants.has(item.productVariantId),
+        );
+        const updatePromises = itemsToUpdate.map((item) =>
+          this.prisma.cartItem.update({
+            where: {
+              cartId_productVariantId: {
+                cartId: userCart.id,
+                productVariantId: item.productVariantId,
+              },
+            },
+            data: {
+              quantity: {
+                increment: item.quantity,
+              },
+            },
+          }),
+        );
+        const createPromises = itemsToCreate.map((item) =>
+          this.prisma.cartItem.create({
+            data: {
+              cartId: userCart.id,
+              productVariantId: item.productVariantId,
+              quantity: item.quantity,
+            },
+          }),
+        );
+        await Promise.all([...updatePromises, ...createPromises]);
+        await this.prisma.cart.delete({
+          where: {
+            id: anonCart.id,
+          },
+        });
+      }
+    } catch {
+      console.error('Failed to merge anonymous cart');
+      return;
+    }
+  }
+
   private async findCart(
-    payload: JwtPayload,
+    payload: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
     withError: true,
   ): Promise<CartResponseDto>;
 
   private async findCart(
-    payload: JwtPayload,
+    payload: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
     withError?: false,
   ): Promise<CartResponseDto | null>;
 
-  private async findCart({ id, anonymous }: JwtPayload, withError = false) {
+  private async findCart(
+    { id, anonymous }: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
+    withError = false,
+  ) {
     const user = anonymous ? { anonymousUserId: id } : { userId: id };
     const options = {
       where: user,
