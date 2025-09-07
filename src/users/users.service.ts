@@ -49,12 +49,13 @@ export class UsersService {
 
   async findByEmail(email: string): Promise<UserResponseDto> {
     try {
-      return this.prisma.user.findUniqueOrThrow({ where: { email } });
+      return await this.prisma.user.findUniqueOrThrow({ where: { email } });
     } catch (error) {
-      if (error instanceof PrismaClientKnownRequestError) {
-        if (error.code === 'P2025') {
-          throw new NotFoundException(`User not found.`);
-        }
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException(`User not found.`);
       }
       throw new BadRequestException('Failed to get user');
     }

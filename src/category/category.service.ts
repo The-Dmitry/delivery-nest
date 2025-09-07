@@ -19,10 +19,13 @@ import { CategoryQueriesDto } from '@/category/dto/category-queries.dto';
 export class CategoryService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async create({ name }: CreateCategoryDto): Promise<ResponseCategoryDto> {
+  async create({
+    name,
+    linkName,
+  }: CreateCategoryDto): Promise<ResponseCategoryDto> {
     try {
       return await this.prisma.category.create({
-        data: { name },
+        data: { name, linkName },
       });
     } catch (error) {
       if (
@@ -40,8 +43,12 @@ export class CategoryService {
   async findAll({
     _count,
     products,
+    showAll,
   }: CategoryQueriesDto): Promise<ResponseCategoryWithQueries[]> {
     return await this.prisma.category.findMany({
+      where: {
+        active: showAll ? undefined : { equals: true },
+      },
       include: {
         _count,
         products,
@@ -75,12 +82,12 @@ export class CategoryService {
 
   async update(
     id: string,
-    { name }: UpdateCategoryDto,
+    { name, linkName, active }: UpdateCategoryDto,
   ): Promise<ResponseCategoryDto> {
     try {
       return await this.prisma.category.update({
         where: { id },
-        data: { name },
+        data: { name, linkName, active },
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -107,8 +114,7 @@ export class CategoryService {
         deletedId: id,
       };
     } catch (error) {
-      console.log(error);
-
+      console.error(error);
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
         if (error.code === 'P2025' || error.code === 'P2003') {
           throw new NotFoundException(`Category with id '${id}' not found.`);
