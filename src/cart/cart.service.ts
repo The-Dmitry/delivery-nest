@@ -1,4 +1,5 @@
 import { CreateCartItemDto } from '@/cart/dto/create-cart-item.dto';
+import { DeleteInactiveItemsDto } from '@/cart/dto/delete-cart-item.dto';
 import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto';
 import { CartResponseDto } from '@/cart/dto/response/cart-response.dto';
 import { UpdateCartItemDto } from '@/cart/dto/update-cart-item.dto';
@@ -326,6 +327,33 @@ export class CartService {
         `Failed to find cart for user with id: ${id}`,
       );
     }
+  }
+
+  async deleteInactiveItems(
+    { productId, variantId }: DeleteInactiveItemsDto,
+    available: boolean = false,
+  ): Promise<DeleteResponseDto> {
+    if (!productId && !variantId) {
+      throw new BadRequestException('Product ID or Variant ID is required.');
+    }
+    const { count } = await this.prisma.cartItem.deleteMany({
+      where: {
+        productVariant: {
+          productId,
+          id: variantId,
+          available,
+        },
+      },
+    });
+
+    if (count === 0) {
+      throw new NotFoundException('No inactive items found.');
+    }
+
+    return {
+      message: `${count} Inactive items deleted successfully`,
+      deletedId: productId ?? variantId!,
+    };
   }
 
   private calculateTotalCartPrice(items: CartResponseDto['items']) {
