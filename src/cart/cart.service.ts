@@ -263,49 +263,30 @@ export class CartService {
         });
       }
       if (anonCart && userCart) {
-        const existingVariants = new Set(
-          userCart.items.map((i) => i.productVariantId),
-        );
-
-        const itemsToUpdate = anonCart.items.filter((item) =>
-          existingVariants.has(item.productVariantId),
-        );
-        const itemsToCreate = anonCart.items.filter(
-          (item) => !existingVariants.has(item.productVariantId),
-        );
-        const updatePromises = itemsToUpdate.map((item) =>
-          this.prisma.cartItem.update({
+        const upsertItems = anonCart.items.map((anonItem) => {
+          return this.prisma.cartItem.upsert({
             where: {
               cartId_productVariantId: {
                 cartId: userCart.id,
-                productVariantId: item.productVariantId,
+                productVariantId: anonItem.productVariantId,
               },
             },
-            data: {
-              quantity: {
-                increment: item.quantity,
-              },
+            update: {
+              quantity: { increment: anonItem.quantity },
             },
-          }),
-        );
-        const createPromises = itemsToCreate.map((item) =>
-          this.prisma.cartItem.create({
-            data: {
+            create: {
               cartId: userCart.id,
-              productVariantId: item.productVariantId,
-              quantity: item.quantity,
+              productVariantId: anonItem.productVariantId,
+              quantity: anonItem.quantity,
             },
-          }),
-        );
-        await Promise.all([...updatePromises, ...createPromises]);
-        await this.prisma.cart.delete({
-          where: {
-            id: anonCart.id,
-          },
+          });
         });
+        await this.prisma.$transaction(upsertItems);
       }
-    } catch {
-      console.error('Failed to merge anonymous cart');
+      await this.deleteCart(payload);
+    } catch (error) {
+      console.error(error);
+      console.error('Failed to merge anonymous cart\n', error);
     }
   }
 

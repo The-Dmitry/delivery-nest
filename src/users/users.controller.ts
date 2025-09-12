@@ -36,19 +36,19 @@ import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 })
 @SerializeResponse(UserResponseDto)
 @ApiBearerAuth('access-token')
+@JwtAuthorization('ADMIN')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({
-    summary: 'Get array of users',
+    summary: 'Get array of users (admin only)',
     description: 'Retrieves a list of all users',
   })
   @ApiOkResponse({
     description: 'List of users retrieved successfully',
     type: UserArrayResponse,
   })
-  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(@Query() queries: UsersQueriesDto): Promise<UserResponseDto[]> {
@@ -56,7 +56,7 @@ export class UsersController {
   }
 
   @ApiOperation({
-    summary: 'Get user by ID',
+    summary: 'Get user by ID (admin only)',
     description: 'Retrieves a user by their unique ID',
   })
   @ApiOkResponse({
@@ -86,7 +86,6 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
-  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
@@ -104,7 +103,6 @@ export class UsersController {
     description: 'User deleted successfully',
     type: DeleteResponseDto,
   })
-  @JwtAuthorization('ADMIN')
   @Delete(':id')
   async delete(
     @Param('id') id: string,

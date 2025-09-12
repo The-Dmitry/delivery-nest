@@ -34,7 +34,7 @@ export class UpdateOrderItemDto
     example: '19.99',
     type: Decimal,
   })
-  @IsDecimal({ force_decimal: true })
+  @IsDecimal()
   @IsOptional()
   singleItemPrice?: Decimal;
 }

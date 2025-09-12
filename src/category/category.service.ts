@@ -62,7 +62,7 @@ export class CategoryService {
   ): Promise<ResponseCategoryWithQueries> {
     try {
       const category = await this.prisma.category.findUnique({
-        where: { id: String(id) },
+        where: { id },
         include: {
           _count,
           products,

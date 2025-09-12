@@ -7,12 +7,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { verify } from 'argon2';
 import { CreateLoginDto } from 'src/auth/dto/login.dto';
 import { CreateRegistrationDto } from 'src/auth/dto/registration.dto';
-import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class AuthService {
   constructor(
-    private readonly prisma: PrismaService,
     private readonly usersService: UsersService,
     private readonly cartService: CartService,
     private readonly jwt: JwtService,
