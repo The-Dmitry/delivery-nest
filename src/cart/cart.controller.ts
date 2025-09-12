@@ -34,6 +34,8 @@ import {
 } from '@nestjs/swagger';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
+import { DeleteInactiveItemsDto } from '@/cart/dto/delete-cart-item.dto';
+import { DeleteCartItemQueriesDto } from '@/cart/dto/delete-cart-item-queries.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -44,7 +46,6 @@ import { ErrorResponseDto } from '@/common/dto/error-response.dto';
   type: ErrorResponseDto,
 })
 @ApiBearerAuth('access-token')
-@JwtAuthorization()
 @Controller('cart')
 export class CartController {
   constructor(private readonly cartService: CartService) {}
@@ -56,6 +57,7 @@ export class CartController {
     description: 'Item added to cart',
     type: CartItemResponse,
   })
+  @JwtAuthorization()
   @SerializeResponse(CartItemResponseDto)
   @HttpCode(HttpStatus.CREATED)
   @Post()
@@ -73,6 +75,7 @@ export class CartController {
     description: 'Cart of the authenticated user',
     type: CartResponse,
   })
+  @JwtAuthorization()
   @SerializeResponse(CartResponseDto)
   @HttpCode(HttpStatus.OK)
   @Get()
@@ -87,6 +90,7 @@ export class CartController {
     description: 'Item updated in cart',
     type: CartItemResponse,
   })
+  @JwtAuthorization()
   @SerializeResponse(CartItemResponseDto)
   @HttpCode(HttpStatus.OK)
   @Patch('item/:id')
@@ -105,6 +109,7 @@ export class CartController {
     description: 'Item deleted from cart',
     type: DeleteResponseDto,
   })
+  @JwtAuthorization()
   @SerializeResponse(DeleteResponseDto)
   @HttpCode(HttpStatus.OK)
   @Delete('item/:id')
@@ -122,6 +127,7 @@ export class CartController {
     description: 'Cart deleted',
     type: DeleteResponseDto,
   })
+  @JwtAuthorization()
   @SerializeResponse(DeleteResponseDto)
   @HttpCode(HttpStatus.OK)
   @Delete()
@@ -129,5 +135,25 @@ export class CartController {
     @TokenPayload() payload: JwtPayload,
   ): Promise<DeleteResponseDto> {
     return await this.cartService.deleteCart(payload);
+  }
+
+  @ApiOperation({
+    summary: 'Delete inactive items (admin only)',
+    description:
+      'Delete inactive items from the cart after changing product or variant status',
+  })
+  @ApiOkResponse({
+    description: 'Inactive items deleted',
+    type: DeleteResponseDto,
+  })
+  @SerializeResponse(DeleteResponseDto)
+  @HttpCode(HttpStatus.OK)
+  @Delete('inactive')
+  @JwtAuthorization('ADMIN')
+  async deleteInactiveItems(
+    @Body() body: DeleteInactiveItemsDto,
+    @Param() { available }: DeleteCartItemQueriesDto,
+  ): Promise<DeleteResponseDto> {
+    return await this.cartService.deleteInactiveItems(body, available);
   }
 }

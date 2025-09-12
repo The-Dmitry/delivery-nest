@@ -41,7 +41,6 @@ export class VariantsService {
     role?: Role,
   ): Promise<VariantResponseDto[]> {
     const isShowAll = showAll && role === 'ADMIN';
-    console.log(isShowAll);
     try {
       return await this.prisma.productVariant.findMany({
         where: {

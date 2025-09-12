@@ -1,8 +1,10 @@
 import { CreateCartItemDto } from '@/cart/dto/create-cart-item.dto';
+import { DeleteInactiveItemsDto } from '@/cart/dto/delete-cart-item.dto';
 import { CartItemResponseDto } from '@/cart/dto/response/cart-item-response.dto';
 import { CartResponseDto } from '@/cart/dto/response/cart-response.dto';
 import { UpdateCartItemDto } from '@/cart/dto/update-cart-item.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { MakeFieldsOptional } from '@/common/types/partially-optional';
 import { VariantsService } from '@/variants/variants.service';
 import { JwtPayload } from '@jwt/models/models';
 import {
@@ -13,7 +15,10 @@ import {
 } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { Cart, Prisma } from 'generated/prisma';
-import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
+import {
+  Decimal,
+  PrismaClientKnownRequestError,
+} from 'generated/prisma/runtime/library';
 
 const CART_OPTIONS = {
   include: {
@@ -38,7 +43,12 @@ export class CartService {
 
   async getCart(payload: JwtPayload): Promise<CartResponseDto> {
     try {
-      return await this.findCart(payload, true);
+      const result = await this.findCart(payload, true);
+
+      return {
+        ...result,
+        total: this.calculateTotalCartPrice(result.items),
+      };
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -142,7 +152,9 @@ export class CartService {
   private async createCart({
     id,
     anonymous,
-  }: JwtPayload): Promise<CartResponseDto> {
+  }: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>): Promise<
+    Omit<CartResponseDto, 'total'>
+  > {
     const data = {
       userId: anonymous ? null : id,
       anonymousUserId: anonymous ? id : null,
@@ -233,17 +245,66 @@ export class CartService {
     }
   }
 
+  async mergeAnonymousCart(payload: JwtPayload, userId: string) {
+    const [anonCart, userCart] = await Promise.all([
+      this.findCart({ ...payload, anonymous: true }),
+      this.findCart({ id: userId, anonymous: false }),
+    ]);
+    if (!anonCart) return;
+    try {
+      if (anonCart && !userCart) {
+        return await this.prisma.cart.update({
+          where: {
+            id: anonCart.id,
+          },
+          data: {
+            userId,
+            anonymousUserId: null,
+          },
+        });
+      }
+      if (anonCart && userCart) {
+        const upsertItems = anonCart.items.map((anonItem) => {
+          return this.prisma.cartItem.upsert({
+            where: {
+              cartId_productVariantId: {
+                cartId: userCart.id,
+                productVariantId: anonItem.productVariantId,
+              },
+            },
+            update: {
+              quantity: { increment: anonItem.quantity },
+            },
+            create: {
+              cartId: userCart.id,
+              productVariantId: anonItem.productVariantId,
+              quantity: anonItem.quantity,
+            },
+          });
+        });
+        await this.prisma.$transaction(upsertItems);
+      }
+      await this.deleteCart(payload);
+    } catch (error) {
+      console.error(error);
+      console.error('Failed to merge anonymous cart\n', error);
+    }
+  }
+
   private async findCart(
-    payload: JwtPayload,
+    payload: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
     withError: true,
-  ): Promise<CartResponseDto>;
+  ): Promise<Omit<CartResponseDto, 'total'>>;
 
   private async findCart(
-    payload: JwtPayload,
+    payload: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
     withError?: false,
-  ): Promise<CartResponseDto | null>;
+  ): Promise<Omit<CartResponseDto, 'total'> | null>;
 
-  private async findCart({ id, anonymous }: JwtPayload, withError = false) {
+  private async findCart(
+    { id, anonymous }: MakeFieldsOptional<JwtPayload, 'role' | 'tokenType'>,
+    withError = false,
+  ) {
     const user = anonymous ? { anonymousUserId: id } : { userId: id };
     const options = {
       where: user,
@@ -266,5 +327,39 @@ export class CartService {
         `Failed to find cart for user with id: ${id}`,
       );
     }
+  }
+
+  async deleteInactiveItems(
+    { productId, variantId }: DeleteInactiveItemsDto,
+    available: boolean = false,
+  ): Promise<DeleteResponseDto> {
+    if (!productId && !variantId) {
+      throw new BadRequestException('Product ID or Variant ID is required.');
+    }
+    const { count } = await this.prisma.cartItem.deleteMany({
+      where: {
+        productVariant: {
+          productId,
+          id: variantId,
+          available,
+        },
+      },
+    });
+
+    if (count === 0) {
+      throw new NotFoundException('No inactive items found.');
+    }
+
+    return {
+      message: `${count} Inactive items deleted successfully`,
+      deletedId: productId ?? variantId!,
+    };
+  }
+
+  private calculateTotalCartPrice(items: CartResponseDto['items']) {
+    return items.reduce(
+      (sum, item) => sum.plus(item.productVariant.price.times(item.quantity)),
+      new Decimal(0),
+    );
   }
 }

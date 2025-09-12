@@ -1,6 +1,8 @@
+import { AnonymousTokenPayload } from '@/common/decorators/anonymous-token-payload.decorator';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
+import { OptionalJwtGuard } from '@/common/guards/jwt-option.guard';
 import { JwtRefreshGuard } from '@/common/guards/jwt-refresh.guard';
 import { AuthService } from '@auth/auth.service';
 import { CreateLoginDto } from '@auth/dto/login.dto';
@@ -52,10 +54,14 @@ export class AuthController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @UseGuards(OptionalJwtGuard)
   @HttpCode(HttpStatus.CREATED)
   @Post('register')
-  async register(@Body() dto: CreateRegistrationDto): Promise<AuthResponseDto> {
-    return await this.authService.register(dto);
+  async register(
+    @Body() dto: CreateRegistrationDto,
+    @AnonymousTokenPayload() anonPayload: JwtPayload | null,
+  ): Promise<AuthResponseDto> {
+    return await this.authService.register(dto, anonPayload);
   }
 
   @ApiOperation({
@@ -74,10 +80,14 @@ export class AuthController {
     description: 'Email already exists',
     type: ErrorResponseDto,
   })
+  @UseGuards(OptionalJwtGuard)
   @HttpCode(HttpStatus.OK)
   @Post('login')
-  async login(@Body() dto: CreateLoginDto): Promise<AuthResponseDto> {
-    return await this.authService.login(dto);
+  async login(
+    @Body() dto: CreateLoginDto,
+    @AnonymousTokenPayload() anonPayload: JwtPayload | null,
+  ): Promise<AuthResponseDto> {
+    return await this.authService.login(dto, anonPayload);
   }
 
   @ApiOperation({

@@ -18,6 +18,18 @@ export class ResponseCategoryDto implements Category {
   name: string;
 
   @ApiProperty({
+    example: 'pizza',
+    description: 'Link name of the category',
+  })
+  linkName: string;
+
+  @ApiProperty({
+    example: true,
+    description: 'Indicates if the category is active',
+  })
+  active: boolean;
+
+  @ApiProperty({
     name: 'created_at',
     example: '2023-10-01T12:00:00Z',
     description: 'The date and time when the category was created',

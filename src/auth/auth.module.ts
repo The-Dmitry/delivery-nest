@@ -7,6 +7,7 @@ import { JwtRefreshStrategy } from '@/common/strategies/jwt-refresh.strategy';
 import { UsersModule } from '@/users/users.module';
 import { JwtAccessStrategy } from '@/common/strategies/jwt-access.strategy';
 import { JwtAdminStrategy } from '@/common/strategies/jwt-admin.strategy';
+import { CartModule } from '@/cart/cart.module';
 @Module({
   controllers: [AuthController],
   providers: [
@@ -16,7 +17,7 @@ import { JwtAdminStrategy } from '@/common/strategies/jwt-admin.strategy';
     JwtAccessStrategy,
     JwtAdminStrategy,
   ],
-  imports: [PassportModule, UsersModule],
+  imports: [PassportModule, UsersModule, CartModule],
   exports: [PassportModule],
 })
 export class AuthModule {}

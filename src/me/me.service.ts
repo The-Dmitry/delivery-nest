@@ -53,6 +53,9 @@ export class MeService {
 
   async cancelOrder(userId: string, orderId: string) {
     const order = await this.ordersService.findOneOrder(orderId, {});
+    if (order.status !== 'NEW') {
+      throw new BadRequestException('Order is in progress or already canceled');
+    }
     if (order.userId !== userId) {
       throw new BadRequestException('You are not allowed to cancel this order');
     }
