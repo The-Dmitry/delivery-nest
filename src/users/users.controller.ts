@@ -11,9 +11,9 @@ import {
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
-  UserArrayResponse,
   UserResponse,
   UserResponseDto,
+  UserArrayResponse,
 } from '@/users/dto/response/users-response.dto';
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
@@ -26,9 +26,11 @@ import {
 } from '@nestjs/swagger';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
-import { UsersQueriesDto } from '@/users/dto/users-queries.dto';
+import { AllUsersQueriesDto } from '@/users/dto/all-users-queries.dto';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { WithPagination } from '@/common/types/pagination';
+import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad Request',
@@ -51,7 +53,9 @@ export class UsersController {
   })
   @HttpCode(HttpStatus.OK)
   @Get()
-  async findAll(@Query() queries: UsersQueriesDto): Promise<UserResponseDto[]> {
+  async findAll(
+    @Query() queries: AllUsersQueriesDto,
+  ): Promise<WithPagination<UserResponseDto>> {
     return this.usersService.findMany(queries);
   }
 
@@ -67,11 +71,15 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
-  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
-  async findById(@Param('id') id: string): Promise<UserResponseDto> {
-    return this.usersService.findById(id);
+  async findById(
+    @Param('id') id: string,
+    @Query() queries: SingleUserQueriesDto,
+  ): Promise<UserResponseDto> {
+    console.log();
+
+    return this.usersService.findById(id, queries);
   }
 
   @ApiOperation({

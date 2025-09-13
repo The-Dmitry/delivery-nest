@@ -1,5 +1,6 @@
 import { ToBoolean } from '@/common/decorators/to-boolean.decorator';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { PaginationQueriesDto } from '@/common/dto/pagination-queries.dto';
+import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsOptional, IsUUID } from 'class-validator';
 
@@ -47,7 +48,10 @@ export class ProductQueriesDto {
   showAll?: boolean;
 }
 
-export class ProductQueriesWithCategoryDto extends ProductQueriesDto {
+export class ProductQueriesWithCategoryDto extends IntersectionType(
+  ProductQueriesDto,
+  PaginationQueriesDto,
+) {
   @ApiPropertyOptional({
     name: 'category_id',
     description: 'Filter products by category ID (UUID)',

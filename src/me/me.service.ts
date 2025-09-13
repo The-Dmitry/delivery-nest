@@ -1,7 +1,10 @@
 import { MeChangePasswordDto } from '@/me/dto/me-change-password.dto';
 import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
 import { MeUpdateDto } from '@/me/dto/me-update.dto';
-import { OrderWithItemsResponseDto } from '@/orders/dto/response/response-order.dto';
+import {
+  OrderWithItemsResponseDto,
+  ResponseOrderDto,
+} from '@/orders/dto/response/response-order.dto';
 import { OrdersService } from '@/orders/orders.service';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
 import { UsersService } from '@/users/users.service';
@@ -51,7 +54,10 @@ export class MeService {
     return await this.ordersService.findManyOrders({ userId: id, ...queries });
   }
 
-  async cancelOrder(userId: string, orderId: string) {
+  async cancelOrder(
+    userId: string,
+    orderId: string,
+  ): Promise<ResponseOrderDto> {
     const order = await this.ordersService.findOneOrder(orderId, {});
     if (order.status !== 'NEW') {
       throw new BadRequestException('Order is in progress or already canceled');
@@ -59,8 +65,12 @@ export class MeService {
     if (order.userId !== userId) {
       throw new BadRequestException('You are not allowed to cancel this order');
     }
-    return await this.ordersService.updateOrder(orderId, {
-      canceledByUser: true,
-    });
+    return await this.ordersService.updateOrder(
+      orderId,
+      {
+        canceledByUser: true,
+      },
+      true,
+    );
   }
 }

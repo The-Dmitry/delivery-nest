@@ -22,7 +22,10 @@ import {
   OrderWithItemsResponseDto,
   ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
-import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
+import {
+  OrderItemResponse,
+  ResponseOrderItemDto,
+} from '@/orders/dto/response/response-order-item.dto';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import {
   ApiBadRequestResponse,
@@ -146,7 +149,7 @@ export class OrdersController {
   })
   @ApiOkResponse({
     description: 'Updated order item details',
-    type: ResponseOrderItemDto,
+    type: OrderItemResponse,
   })
   @ApiNotFoundResponse({
     description: 'Order item not found',

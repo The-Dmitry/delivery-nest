@@ -50,7 +50,11 @@ export class CategoryService {
         active: showAll ? undefined : { equals: true },
       },
       include: {
-        _count,
+        _count: _count && {
+          select: {
+            products: true,
+          },
+        },
         products,
       },
     });

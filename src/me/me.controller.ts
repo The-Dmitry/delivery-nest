@@ -24,8 +24,10 @@ import {
 } from '@/me/dto/response/change-password-response.dto';
 import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
 import {
+  OrderResponse,
   OrderWithItemsArrayResponse,
   OrderWithItemsResponseDto,
+  ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
 
 @ApiBearerAuth('access-token')
@@ -93,14 +95,14 @@ export class MeController {
   @ApiOperation({
     summary: 'Cancel own order',
   })
-  @ApiOkResponse({ type: OrderWithItemsResponseDto })
-  @SerializeResponse(OrderWithItemsResponseDto)
+  @ApiOkResponse({ type: OrderResponse })
+  @SerializeResponse(ResponseOrderDto)
   @HttpCode(HttpStatus.OK)
   @Patch('orders/:id')
   async cancelOrder(
     @TokenPayload('id') id: string,
     @Param('id') orderId: string,
-  ) {
+  ): Promise<ResponseOrderDto> {
     return await this.meService.cancelOrder(id, orderId);
   }
 }

@@ -183,25 +183,39 @@ export class OrdersService {
     { status, phone, address, canceledByUser }: UpdateOrderDto,
     updateItems = false,
   ): Promise<ResponseOrderDto> {
-    return await this.prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status,
-        phone,
-        address,
-        canceledByUser,
-        items: updateItems
-          ? {
-              updateMany: {
-                where: {
-                  orderId,
+    try {
+      return await this.prisma.order.update({
+        where: { id: orderId },
+        data: {
+          status,
+          phone,
+          address,
+          canceledByUser,
+          items: updateItems
+            ? {
+                updateMany: {
+                  where: {
+                    orderId,
+                  },
+                  data: { status },
                 },
-                data: { status },
-              },
-            }
-          : undefined,
-      },
-    });
+              }
+            : undefined,
+        },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Order not found');
+      }
+      console.error('Error updating order:', error);
+      throw new BadRequestException('Failed to update order');
+    }
   }
 
   async updateOrderItem(

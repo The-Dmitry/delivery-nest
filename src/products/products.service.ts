@@ -8,8 +8,9 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 import {
+  ProductPaginationResponseDto,
   ProductResponseDto,
-  ProductWithCategoryAndVariantsCountDto,
+  ProductWithQueries,
 } from '@/products/dto/response/product-response.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import {
@@ -17,6 +18,7 @@ import {
   ProductQueriesWithCategoryDto,
 } from '@/products/dto/product-queries.dto';
 import { JwtPayload } from '@jwt/models/models';
+import { Prisma } from 'generated/prisma';
 
 @Injectable()
 export class ProductsService {
@@ -63,11 +65,13 @@ export class ProductsService {
       variants,
       categoryId,
       showAll,
+      page = 1,
+      limit = 20,
     }: ProductQueriesWithCategoryDto,
     role?: JwtPayload['role'],
-  ): Promise<ProductWithCategoryAndVariantsCountDto[]> {
+  ): Promise<ProductPaginationResponseDto> {
     const isShowAll = showAll && role === 'ADMIN';
-    return await this.prisma.product.findMany({
+    const options = {
       where: {
         categoryId,
         active: isShowAll
@@ -76,18 +80,34 @@ export class ProductsService {
               equals: true,
             },
       },
-      include: {
-        _count: _count ? { select: { variants: true } } : undefined,
-        variants,
-        category,
+      take: limit,
+      skip: (page - 1) * limit,
+    } satisfies Prisma.ProductFindManyArgs;
+    const [data, total] = await Promise.all([
+      this.prisma.product.findMany({
+        ...options,
+        include: {
+          _count: _count ? { select: { variants: true } } : undefined,
+          variants,
+          category,
+        },
+      }),
+      this.prisma.product.count(options),
+    ]);
+    return {
+      data,
+      pagination: {
+        page,
+        limit,
+        total,
       },
-    });
+    };
   }
 
   async findOne(
     id: string,
     { _count, category, variants }: ProductQueriesDto,
-  ): Promise<ProductResponseDto> {
+  ): Promise<ProductWithQueries> {
     try {
       return await this.prisma.product.findUniqueOrThrow({
         where: { id },

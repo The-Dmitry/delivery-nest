@@ -24,9 +24,10 @@ import {
 import {
   ProductResponse,
   ProductResponseDto,
-  ProductWithCategoryAndVariantsCountDto,
-  ProductWithQueriesArrayResponse,
   ProductWithQueriesResponse,
+  ProductPaginationResponseDto,
+  ProductWithQueriesArrayResponse,
+  ProductWithQueries,
 } from '@/products/dto/response/product-response.dto';
 import {
   DeleteResponse,
@@ -73,14 +74,14 @@ export class ProductsController {
     description: 'Products found',
     type: ProductWithQueriesArrayResponse,
   })
-  @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
+  @SerializeResponse(ProductPaginationResponseDto)
   @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
     @Query() queries: ProductQueriesWithCategoryDto,
     @TokenPayload('role') role: JwtPayload['role'],
-  ): Promise<ProductWithCategoryAndVariantsCountDto[]> {
+  ): Promise<ProductPaginationResponseDto> {
     return await this.productsService.findAll(queries, role);
   }
 
@@ -96,12 +97,12 @@ export class ProductsController {
     description: 'Product not found',
     type: ErrorResponseDto,
   })
-  @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
+  @SerializeResponse(ProductWithQueries)
   @Get(':id')
   async findOne(
     @Param('id') id: string,
     @Query() queries: ProductQueriesDto,
-  ): Promise<ProductResponseDto> {
+  ): Promise<ProductWithQueries> {
     return await this.productsService.findOne(id, queries);
   }
 

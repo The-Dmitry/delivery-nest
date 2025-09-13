@@ -1,4 +1,5 @@
 import { ResponseCategoryDto } from '@/category/dto/response/response-category.dto';
+import { PaginationResponseDto } from '@/common/dto/pagination-response.dto';
 import { VariantResponseDto } from '@/variants/dto/response/variants-response.dto';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
@@ -72,7 +73,7 @@ export class ProductResponseDto implements Product {
   active: boolean;
 }
 
-export class ProductWithCategoryAndVariantsCountDto extends ProductResponseDto {
+export class ProductWithQueries extends ProductResponseDto {
   @ApiPropertyOptional({ type: () => ResponseCategoryDto })
   @Type(() => ResponseCategoryDto)
   category?: ResponseCategoryDto;
@@ -96,12 +97,17 @@ export class ProductWithCategoryAndVariantsCountDto extends ProductResponseDto {
   };
 }
 
-export const { ProductResponse, ProductArrayResponse } = createResponseDto(
+export class ProductPaginationResponseDto {
+  @ApiProperty({ type: ProductWithQueries, isArray: true })
+  data: ProductWithQueries[];
+
+  @ApiProperty({ type: PaginationResponseDto })
+  pagination: PaginationResponseDto;
+}
+
+export const { ProductResponse } = createResponseDto(
   ProductResponseDto,
   'Product',
 );
 export const { ProductWithQueriesResponse, ProductWithQueriesArrayResponse } =
-  createResponseDto(
-    ProductWithCategoryAndVariantsCountDto,
-    'ProductWithQueries',
-  );
+  createResponseDto(ProductWithQueries, 'ProductWithQueries');
