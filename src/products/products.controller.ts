@@ -25,7 +25,6 @@ import {
   ProductResponse,
   ProductResponseDto,
   ProductWithQueriesResponse,
-  ProductPaginationResponseDto,
   ProductWithQueriesArrayResponse,
   ProductWithQueries,
 } from '@/products/dto/response/product-response.dto';
@@ -36,12 +35,13 @@ import {
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import {
-  ProductQueriesDto,
-  ProductQueriesWithCategoryDto,
+  ProductQueries,
+  AllProductsQueries,
 } from '@/products/dto/product-queries.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { JwtPayload } from '@jwt/models/models';
+import { WithPagination } from '@/common/types/pagination';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -74,14 +74,14 @@ export class ProductsController {
     description: 'Products found',
     type: ProductWithQueriesArrayResponse,
   })
-  @SerializeResponse(ProductPaginationResponseDto)
+  @SerializeResponse(ProductWithQueries)
   @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
-    @Query() queries: ProductQueriesWithCategoryDto,
+    @Query() queries: AllProductsQueries,
     @TokenPayload('role') role: JwtPayload['role'],
-  ): Promise<ProductPaginationResponseDto> {
+  ): Promise<WithPagination<ProductWithQueries>> {
     return await this.productsService.findAll(queries, role);
   }
 
@@ -101,7 +101,7 @@ export class ProductsController {
   @Get(':id')
   async findOne(
     @Param('id') id: string,
-    @Query() queries: ProductQueriesDto,
+    @Query() queries: ProductQueries,
   ): Promise<ProductWithQueries> {
     return await this.productsService.findOne(id, queries);
   }

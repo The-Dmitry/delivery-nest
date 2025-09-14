@@ -48,31 +48,35 @@ export class UsersService {
     page = 1,
   }: AllUsersQueriesDto): Promise<WithPagination<UserResponseDto>> {
     const where = { name, email, phone, role };
-    const [data, total] = await Promise.all([
-      this.prisma.user.findMany({
-        where,
-        take: limit,
-        skip: (page - 1) * limit,
-        include: {
-          _count: count && {
-            select: {
-              orders: true,
+    try {
+      const [data, total] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          take: limit,
+          skip: (page - 1) * limit,
+          include: {
+            _count: count && {
+              select: {
+                orders: true,
+              },
             },
           },
+        }),
+        this.prisma.user.count({
+          where,
+        }),
+      ]);
+      return {
+        data,
+        pagination: {
+          limit,
+          page,
+          total,
         },
-      }),
-      this.prisma.user.count({
-        where,
-      }),
-    ]);
-    return {
-      data,
-      pagination: {
-        limit,
-        page,
-        total,
-      },
-    };
+      };
+    } catch {
+      throw new BadRequestException('Failed to get users');
+    }
   }
 
   async findByEmail(email: string): Promise<UserResponseDto> {

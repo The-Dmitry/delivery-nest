@@ -46,6 +46,8 @@ export class OrdersService {
     items,
     product,
     variant,
+    limit,
+    page,
   }: ManyOrdersQueryDto): Promise<OrderWithItemsResponseDto[]> {
     const showItems = items || product || variant;
     return await this.prisma.order.findMany({

@@ -1,8 +1,9 @@
 import { IsOptional, IsString, IsEnum, IsDate } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 import { OrderStatus } from 'generated/prisma';
-import { ApiPropertyOptional } from '@nestjs/swagger';
+import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { ToBoolean } from '@/common/decorators/to-boolean.decorator';
+import { PaginationQueriesDto } from '@/common/dto/pagination-queries.dto';
 
 export class OneOrderQueryDto {
   @ApiPropertyOptional({
@@ -33,7 +34,10 @@ export class OneOrderQueryDto {
   product?: boolean;
 }
 
-export class ManyOrdersQueryDto extends OneOrderQueryDto {
+export class ManyOrdersQueryDto extends IntersectionType(
+  OneOrderQueryDto,
+  PaginationQueriesDto,
+) {
   @ApiPropertyOptional({
     name: 'show_all',
     description: 'Show all orders (default: false, true is only for admin)',

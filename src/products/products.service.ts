@@ -8,17 +8,17 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PrismaService } from '@prisma/prisma.service';
 import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library';
 import {
-  ProductPaginationResponseDto,
   ProductResponseDto,
   ProductWithQueries,
 } from '@/products/dto/response/product-response.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import {
-  ProductQueriesDto,
-  ProductQueriesWithCategoryDto,
+  ProductQueries,
+  AllProductsQueries,
 } from '@/products/dto/product-queries.dto';
 import { JwtPayload } from '@jwt/models/models';
 import { Prisma } from 'generated/prisma';
+import { WithPagination } from '@/common/types/pagination';
 
 @Injectable()
 export class ProductsService {
@@ -60,16 +60,16 @@ export class ProductsService {
 
   async findAll(
     {
-      _count,
+      count,
       category,
       variants,
       categoryId,
       showAll,
       page = 1,
       limit = 20,
-    }: ProductQueriesWithCategoryDto,
+    }: AllProductsQueries,
     role?: JwtPayload['role'],
-  ): Promise<ProductPaginationResponseDto> {
+  ): Promise<WithPagination<ProductWithQueries>> {
     const isShowAll = showAll && role === 'ADMIN';
     const options = {
       where: {
@@ -83,44 +83,53 @@ export class ProductsService {
       take: limit,
       skip: (page - 1) * limit,
     } satisfies Prisma.ProductFindManyArgs;
-    const [data, total] = await Promise.all([
-      this.prisma.product.findMany({
-        ...options,
-        include: {
-          _count: _count ? { select: { variants: true } } : undefined,
-          variants,
-          category,
+    try {
+      const [data, total] = await Promise.all([
+        this.prisma.product.findMany({
+          ...options,
+          include: {
+            _count: count && { select: { variants: true } },
+            variants,
+            category,
+          },
+        }),
+        this.prisma.product.count(options),
+      ]);
+      return {
+        data,
+        pagination: {
+          page,
+          limit,
+          total,
         },
-      }),
-      this.prisma.product.count(options),
-    ]);
-    return {
-      data,
-      pagination: {
-        page,
-        limit,
-        total,
-      },
-    };
+      };
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === 'P2003') {
+          throw new NotFoundException(
+            `Category with id '${categoryId}' not found.`,
+          );
+        }
+      }
+      throw new BadRequestException('Failed to find products.');
+    }
   }
 
   async findOne(
     id: string,
-    { _count, category, variants }: ProductQueriesDto,
+    { count, category, variants }: ProductQueries,
   ): Promise<ProductWithQueries> {
     try {
       return await this.prisma.product.findUniqueOrThrow({
         where: { id },
         include: {
-          _count: _count
-            ? {
-                select: {
-                  variants: {
-                    where: { available: true },
-                  },
-                },
-              }
-            : undefined,
+          _count: count && {
+            select: {
+              variants: {
+                where: { available: true },
+              },
+            },
+          },
           variants,
           category,
         },
