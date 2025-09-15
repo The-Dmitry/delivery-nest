@@ -20,7 +20,9 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "prisma:init": "npx prisma migrate dev && npx prisma generate"
+    "prisma:init": "npx prisma migrate dev && npx prisma generate",
+    "swagger:schema": "ts-node -r tsconfig-paths/register src/generate-swagger.ts",
+    "swagger:types": "npx openapi-typescript http://localhost:3000/docs-json --output src/types.ts"
   },
   "dependencies": {
     "@nestjs/common": "^11.0.1",

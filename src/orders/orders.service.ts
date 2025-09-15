@@ -78,18 +78,23 @@ export class OrdersService {
         },
       },
     } satisfies Prisma.OrderFindManyArgs;
-    const [data, total] = await Promise.all([
-      this.prisma.order.findMany(options),
-      this.prisma.order.count({ where: options.where }),
-    ]);
-    return {
-      data,
-      pagination: {
-        total,
-        limit,
-        page,
-      },
-    };
+    try {
+      const [data, total] = await Promise.all([
+        this.prisma.order.findMany(options),
+        this.prisma.order.count({ where: options.where }),
+      ]);
+      return {
+        data,
+        pagination: {
+          total,
+          limit,
+          page,
+        },
+      };
+    } catch (error) {
+      console.error('Error finding orders:', error);
+      throw new BadRequestException('Failed to find orders');
+    }
   }
 
   async findOneOrder(
