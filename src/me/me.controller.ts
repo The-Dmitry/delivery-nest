@@ -24,11 +24,11 @@ import {
 } from '@/me/dto/response/change-password-response.dto';
 import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
 import {
+  OrderArrayResponse,
   OrderResponse,
-  OrderWithItemsArrayResponse,
-  OrderWithItemsResponseDto,
   ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
+import { WithPagination } from '@/common/types/pagination';
 
 @ApiBearerAuth('access-token')
 @JwtAuthorization('USER')
@@ -80,15 +80,15 @@ export class MeController {
   })
   @ApiOkResponse({
     description: 'List of orders',
-    type: OrderWithItemsArrayResponse,
+    type: OrderArrayResponse,
   })
-  @SerializeResponse(OrderWithItemsResponseDto)
+  @SerializeResponse(ResponseOrderDto)
   @HttpCode(HttpStatus.OK)
   @Get('orders')
   async meOrders(
     @TokenPayload('id') id: string,
     queries: MeOrdersQueryDto,
-  ): Promise<OrderWithItemsResponseDto[]> {
+  ): Promise<WithPagination<ResponseOrderDto>> {
     return await this.meService.getMyOrders(id, queries);
   }
 

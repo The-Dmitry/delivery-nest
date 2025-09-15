@@ -1,10 +1,8 @@
+import { WithPagination } from '@/common/types/pagination';
 import { MeChangePasswordDto } from '@/me/dto/me-change-password.dto';
 import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
 import { MeUpdateDto } from '@/me/dto/me-update.dto';
-import {
-  OrderWithItemsResponseDto,
-  ResponseOrderDto,
-} from '@/orders/dto/response/response-order.dto';
+import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { OrdersService } from '@/orders/orders.service';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
 import { UsersService } from '@/users/users.service';
@@ -50,7 +48,7 @@ export class MeService {
   async getMyOrders(
     id: string,
     queries: MeOrdersQueryDto,
-  ): Promise<OrderWithItemsResponseDto[]> {
+  ): Promise<WithPagination<ResponseOrderDto>> {
     return await this.ordersService.findManyOrders({ userId: id, ...queries });
   }
 

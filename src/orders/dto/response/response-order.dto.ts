@@ -97,11 +97,10 @@ export class ResponseOrderDto implements Order {
   })
   @Expose({ name: 'created_at', toPlainOnly: true })
   createdAt: Date;
-}
 
-export class OrderWithItemsResponseDto extends ResponseOrderDto {
   @ApiPropertyOptional({
-    description: 'The items included in the order',
+    description:
+      'The items included in the order (if query parameter "items" is true)',
     type: [ResponseOrderItemDto],
   })
   @Type(() => ResponseOrderItemDto)
@@ -111,7 +110,5 @@ export class OrderWithItemsResponseDto extends ResponseOrderDto {
 export const { OrderResponse, OrderArrayResponse } = createResponseDto(
   ResponseOrderDto,
   'Order',
+  true,
 );
-
-export const { OrderWithItemsResponse, OrderWithItemsArrayResponse } =
-  createResponseDto(OrderWithItemsResponseDto, 'OrderWithItems');

@@ -1,14 +1,12 @@
 import { CartService } from '@/cart/cart.service';
+import { WithPagination } from '@/common/types/pagination';
 import { CreateOrderDto } from '@/orders/dto/create-order.dto';
 import {
   ManyOrdersQueryDto,
   OneOrderQueryDto,
 } from '@/orders/dto/orders-queries.dto';
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
-import {
-  OrderWithItemsResponseDto,
-  ResponseOrderDto,
-} from '@/orders/dto/response/response-order.dto';
+import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import { JwtPayload } from '@jwt/models/models';
@@ -46,9 +44,11 @@ export class OrdersService {
     items,
     product,
     variant,
-  }: ManyOrdersQueryDto): Promise<OrderWithItemsResponseDto[]> {
+    limit = 20,
+    page = 1,
+  }: ManyOrdersQueryDto): Promise<WithPagination<ResponseOrderDto>> {
     const showItems = items || product || variant;
-    return await this.prisma.order.findMany({
+    const options = {
       where: {
         userId,
         name: name && {
@@ -77,13 +77,25 @@ export class OrdersService {
           },
         },
       },
-    });
+    } satisfies Prisma.OrderFindManyArgs;
+    const [data, total] = await Promise.all([
+      this.prisma.order.findMany(options),
+      this.prisma.order.count({ where: options.where }),
+    ]);
+    return {
+      data,
+      pagination: {
+        total,
+        limit,
+        page,
+      },
+    };
   }
 
   async findOneOrder(
     orderId: string,
     { items, product, variant }: OneOrderQueryDto,
-  ): Promise<OrderWithItemsResponseDto> {
+  ): Promise<ResponseOrderDto> {
     try {
       return await this.prisma.order.findUniqueOrThrow({
         where: { id: String(orderId) },
