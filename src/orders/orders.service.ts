@@ -46,19 +46,15 @@ export class OrdersService {
     items,
     product,
     variant,
-    limit,
-    page,
   }: ManyOrdersQueryDto): Promise<OrderWithItemsResponseDto[]> {
     const showItems = items || product || variant;
     return await this.prisma.order.findMany({
       where: {
         userId,
-        name: name
-          ? {
-              contains: name,
-              mode: 'insensitive',
-            }
-          : undefined,
+        name: name && {
+          contains: name,
+          mode: 'insensitive',
+        },
         phone,
         status: showAll
           ? undefined
@@ -75,13 +71,11 @@ export class OrdersService {
         },
       },
       include: {
-        items: showItems
-          ? {
-              include: {
-                productVariant: variant ? { include: { product } } : undefined,
-              },
-            }
-          : undefined,
+        items: showItems && {
+          include: {
+            productVariant: variant && { include: { product } },
+          },
+        },
       },
     });
   }

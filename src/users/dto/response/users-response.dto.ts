@@ -61,4 +61,5 @@ export class UserResponseDto implements User {
 export const { UserResponse, UserArrayResponse } = createResponseDto(
   UserResponseDto,
   'User',
+  true,
 );

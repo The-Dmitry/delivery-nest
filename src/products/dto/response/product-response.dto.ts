@@ -101,4 +101,4 @@ export const { ProductResponse } = createResponseDto(
   'Product',
 );
 export const { ProductWithQueriesResponse, ProductWithQueriesArrayResponse } =
-  createResponseDto(ProductWithQueries, 'ProductWithQueries');
+  createResponseDto(ProductWithQueries, 'ProductWithQueries', true);
