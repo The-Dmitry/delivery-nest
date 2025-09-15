@@ -10,7 +10,8 @@ import { map } from 'rxjs/operators';
 
 interface ModifiedResponse<T> {
   status: string;
-  data: T;
+  status_code: number;
+  result: T;
 }
 
 @Injectable()
@@ -26,11 +27,11 @@ export class BaseInterceptor<T = unknown>
       .getResponse<Response>().statusCode;
 
     return next.handle().pipe(
-      map((data: T) => {
+      map((result: T) => {
         return {
           status: 'ok',
           status_code: statusCode,
-          data,
+          result,
         };
       }),
     );

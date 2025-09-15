@@ -10,8 +10,10 @@ import { PrismaClientKnownRequestError } from 'generated/prisma/runtime/library'
 import { hash } from 'argon2';
 import { UserResponseDto } from '@/users/dto/response/users-response.dto';
 import { UpdateUserDto } from '@/users/dto/update-user.dto';
-import { UsersQueriesDto } from '@/users/dto/users-queries.dto';
+import { AllUsersQueriesDto } from '@/users/dto/all-users-queries.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
+import { WithPagination } from '@/common/types/pagination';
+import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
 
 @Injectable()
 export class UsersService {
@@ -41,10 +43,40 @@ export class UsersService {
     email,
     phone,
     role,
-  }: UsersQueriesDto): Promise<UserResponseDto[]> {
-    return await this.prisma.user.findMany({
-      where: { name, email, phone, role },
-    });
+    count,
+    limit = 20,
+    page = 1,
+  }: AllUsersQueriesDto): Promise<WithPagination<UserResponseDto>> {
+    const where = { name, email, phone, role };
+    try {
+      const [data, total] = await Promise.all([
+        this.prisma.user.findMany({
+          where,
+          take: limit,
+          skip: (page - 1) * limit,
+          include: {
+            _count: count && {
+              select: {
+                orders: true,
+              },
+            },
+          },
+        }),
+        this.prisma.user.count({
+          where,
+        }),
+      ]);
+      return {
+        data,
+        pagination: {
+          limit,
+          page,
+          total,
+        },
+      };
+    } catch {
+      throw new BadRequestException('Failed to get users');
+    }
   }
 
   async findByEmail(email: string): Promise<UserResponseDto> {
@@ -61,9 +93,21 @@ export class UsersService {
     }
   }
 
-  async findById(id: string): Promise<UserResponseDto> {
+  async findById(
+    id: string,
+    queries?: SingleUserQueriesDto,
+  ): Promise<UserResponseDto> {
     try {
-      return this.prisma.user.findUniqueOrThrow({ where: { id } });
+      return this.prisma.user.findUniqueOrThrow({
+        where: { id },
+        include: {
+          _count: queries?.count && {
+            select: {
+              orders: true,
+            },
+          },
+        },
+      });
     } catch (error) {
       if (error instanceof PrismaClientKnownRequestError) {
         if (error.code === 'P2025') {
@@ -79,7 +123,9 @@ export class UsersService {
     { address, name, password, phone, role }: UpdateUserDto,
     adminId?: string,
   ): Promise<UserResponseDto> {
-    this.adminCantChangeHimself(id, adminId);
+    if (role) {
+      this.adminCantChangeHimself(id, adminId);
+    }
     try {
       return await this.prisma.user.update({
         where: { id },
@@ -120,10 +166,12 @@ export class UsersService {
   }
 
   private adminCantChangeHimself(id: string, adminId?: string) {
-    if (id === adminId) {
-      throw new UnauthorizedException(
-        'You cannot delete yourself or change your role',
-      );
+    if (id && adminId) {
+      if (id === adminId) {
+        throw new UnauthorizedException(
+          'You cannot delete yourself or change your role',
+        );
+      }
     }
   }
 }

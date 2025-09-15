@@ -24,9 +24,9 @@ import {
 import {
   ProductResponse,
   ProductResponseDto,
-  ProductWithCategoryAndVariantsCountDto,
-  ProductWithQueriesArrayResponse,
   ProductWithQueriesResponse,
+  ProductWithQueriesArrayResponse,
+  ProductWithQueries,
 } from '@/products/dto/response/product-response.dto';
 import {
   DeleteResponse,
@@ -35,12 +35,13 @@ import {
 import { SerializeResponse } from '@/common/decorators/serialize-response.decorator';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import {
-  ProductQueriesDto,
-  ProductQueriesWithCategoryDto,
+  ProductQueries,
+  AllProductsQueries,
 } from '@/products/dto/product-queries.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { JwtPayload } from '@jwt/models/models';
+import { WithPagination } from '@/common/types/pagination';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -73,14 +74,14 @@ export class ProductsController {
     description: 'Products found',
     type: ProductWithQueriesArrayResponse,
   })
-  @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
+  @SerializeResponse(ProductWithQueries)
   @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
-    @Query() queries: ProductQueriesWithCategoryDto,
+    @Query() queries: AllProductsQueries,
     @TokenPayload('role') role: JwtPayload['role'],
-  ): Promise<ProductWithCategoryAndVariantsCountDto[]> {
+  ): Promise<WithPagination<ProductWithQueries>> {
     return await this.productsService.findAll(queries, role);
   }
 
@@ -96,12 +97,12 @@ export class ProductsController {
     description: 'Product not found',
     type: ErrorResponseDto,
   })
-  @SerializeResponse(ProductWithCategoryAndVariantsCountDto)
+  @SerializeResponse(ProductWithQueries)
   @Get(':id')
   async findOne(
     @Param('id') id: string,
-    @Query() queries: ProductQueriesDto,
-  ): Promise<ProductResponseDto> {
+    @Query() queries: ProductQueries,
+  ): Promise<ProductWithQueries> {
     return await this.productsService.findOne(id, queries);
   }
 

@@ -1,6 +1,6 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
-import { Exclude } from 'class-transformer';
+import { Exclude, Expose, Transform } from 'class-transformer';
 import { Role, User } from 'generated/prisma';
 
 export class UserResponseDto implements User {
@@ -43,9 +43,23 @@ export class UserResponseDto implements User {
     enum: Role,
   })
   role: Role;
+
+  @ApiPropertyOptional({
+    name: 'orders_count',
+    description: 'Number of orders made by the user',
+    example: 5,
+  })
+  @Expose({ name: 'orders_count', toPlainOnly: true })
+  @Transform(({ value }) => (value as { orders: number })?.orders, {
+    toPlainOnly: true,
+  })
+  _count?: {
+    orders: number;
+  };
 }
 
 export const { UserResponse, UserArrayResponse } = createResponseDto(
   UserResponseDto,
   'User',
+  true,
 );

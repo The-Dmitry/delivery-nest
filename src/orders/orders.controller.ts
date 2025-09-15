@@ -17,12 +17,13 @@ import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import {
   OrderResponse,
-  OrderWithItemsArrayResponse,
-  OrderWithItemsResponse,
-  OrderWithItemsResponseDto,
+  OrderArrayResponse,
   ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
-import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
+import {
+  OrderItemResponse,
+  ResponseOrderItemDto,
+} from '@/orders/dto/response/response-order-item.dto';
 import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 import {
   ApiBadRequestResponse,
@@ -39,6 +40,7 @@ import {
   OneOrderQueryDto,
 } from '@/orders/dto/orders-queries.dto';
 import { UpdateOrderQueriesDto } from '@/orders/dto/update-order-queries.dto';
+import { WithPagination } from '@/common/types/pagination';
 
 @ApiBadRequestResponse({
   description: 'Bad request',
@@ -77,15 +79,15 @@ export class OrdersController {
   })
   @ApiOkResponse({
     description: 'List of orders',
-    type: OrderWithItemsArrayResponse,
+    type: OrderArrayResponse,
   })
-  @SerializeResponse(OrderWithItemsResponseDto)
+  @SerializeResponse(ResponseOrderDto)
   @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findMany(
     @Query() queries: ManyOrdersQueryDto,
-  ): Promise<OrderWithItemsResponseDto[]> {
+  ): Promise<WithPagination<ResponseOrderDto>> {
     return await this.ordersService.findManyOrders(queries);
   }
 
@@ -95,20 +97,20 @@ export class OrdersController {
   })
   @ApiOkResponse({
     description: 'Order details',
-    type: OrderWithItemsResponse,
+    type: OrderResponse,
   })
   @ApiNotFoundResponse({
     description: 'Order not found',
     type: ErrorResponseDto,
   })
-  @SerializeResponse(OrderWithItemsResponseDto)
+  @SerializeResponse(ResponseOrderDto)
   @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(
     @Param('id') orderId: string,
     @Query() queries: OneOrderQueryDto,
-  ): Promise<OrderWithItemsResponseDto> {
+  ): Promise<ResponseOrderDto> {
     return await this.ordersService.findOneOrder(orderId, queries);
   }
 
@@ -146,7 +148,7 @@ export class OrdersController {
   })
   @ApiOkResponse({
     description: 'Updated order item details',
-    type: ResponseOrderItemDto,
+    type: OrderItemResponse,
   })
   @ApiNotFoundResponse({
     description: 'Order item not found',

@@ -72,7 +72,7 @@ export class ProductResponseDto implements Product {
   active: boolean;
 }
 
-export class ProductWithCategoryAndVariantsCountDto extends ProductResponseDto {
+export class ProductWithQueries extends ProductResponseDto {
   @ApiPropertyOptional({ type: () => ResponseCategoryDto })
   @Type(() => ResponseCategoryDto)
   category?: ResponseCategoryDto;
@@ -96,12 +96,9 @@ export class ProductWithCategoryAndVariantsCountDto extends ProductResponseDto {
   };
 }
 
-export const { ProductResponse, ProductArrayResponse } = createResponseDto(
+export const { ProductResponse } = createResponseDto(
   ProductResponseDto,
   'Product',
 );
 export const { ProductWithQueriesResponse, ProductWithQueriesArrayResponse } =
-  createResponseDto(
-    ProductWithCategoryAndVariantsCountDto,
-    'ProductWithQueries',
-  );
+  createResponseDto(ProductWithQueries, 'ProductWithQueries', true);

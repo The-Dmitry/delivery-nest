@@ -24,9 +24,11 @@ import {
 } from '@/me/dto/response/change-password-response.dto';
 import { MeOrdersQueryDto } from '@/me/dto/me-orders-queries.dto';
 import {
-  OrderWithItemsArrayResponse,
-  OrderWithItemsResponseDto,
+  OrderArrayResponse,
+  OrderResponse,
+  ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
+import { WithPagination } from '@/common/types/pagination';
 
 @ApiBearerAuth('access-token')
 @JwtAuthorization('USER')
@@ -78,29 +80,29 @@ export class MeController {
   })
   @ApiOkResponse({
     description: 'List of orders',
-    type: OrderWithItemsArrayResponse,
+    type: OrderArrayResponse,
   })
-  @SerializeResponse(OrderWithItemsResponseDto)
+  @SerializeResponse(ResponseOrderDto)
   @HttpCode(HttpStatus.OK)
   @Get('orders')
   async meOrders(
     @TokenPayload('id') id: string,
     queries: MeOrdersQueryDto,
-  ): Promise<OrderWithItemsResponseDto[]> {
+  ): Promise<WithPagination<ResponseOrderDto>> {
     return await this.meService.getMyOrders(id, queries);
   }
 
   @ApiOperation({
     summary: 'Cancel own order',
   })
-  @ApiOkResponse({ type: OrderWithItemsResponseDto })
-  @SerializeResponse(OrderWithItemsResponseDto)
+  @ApiOkResponse({ type: OrderResponse })
+  @SerializeResponse(ResponseOrderDto)
   @HttpCode(HttpStatus.OK)
   @Patch('orders/:id')
   async cancelOrder(
     @TokenPayload('id') id: string,
     @Param('id') orderId: string,
-  ) {
+  ): Promise<ResponseOrderDto> {
     return await this.meService.cancelOrder(id, orderId);
   }
 }

@@ -1,14 +1,12 @@
 import { CartService } from '@/cart/cart.service';
+import { WithPagination } from '@/common/types/pagination';
 import { CreateOrderDto } from '@/orders/dto/create-order.dto';
 import {
   ManyOrdersQueryDto,
   OneOrderQueryDto,
 } from '@/orders/dto/orders-queries.dto';
 import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.dto';
-import {
-  OrderWithItemsResponseDto,
-  ResponseOrderDto,
-} from '@/orders/dto/response/response-order.dto';
+import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
 import { JwtPayload } from '@jwt/models/models';
@@ -46,17 +44,17 @@ export class OrdersService {
     items,
     product,
     variant,
-  }: ManyOrdersQueryDto): Promise<OrderWithItemsResponseDto[]> {
+    limit = 20,
+    page = 1,
+  }: ManyOrdersQueryDto): Promise<WithPagination<ResponseOrderDto>> {
     const showItems = items || product || variant;
-    return await this.prisma.order.findMany({
+    const options = {
       where: {
         userId,
-        name: name
-          ? {
-              contains: name,
-              mode: 'insensitive',
-            }
-          : undefined,
+        name: name && {
+          contains: name,
+          mode: 'insensitive',
+        },
         phone,
         status: showAll
           ? undefined
@@ -73,21 +71,36 @@ export class OrdersService {
         },
       },
       include: {
-        items: showItems
-          ? {
-              include: {
-                productVariant: variant ? { include: { product } } : undefined,
-              },
-            }
-          : undefined,
+        items: showItems && {
+          include: {
+            productVariant: variant && { include: { product } },
+          },
+        },
       },
-    });
+    } satisfies Prisma.OrderFindManyArgs;
+    try {
+      const [data, total] = await Promise.all([
+        this.prisma.order.findMany(options),
+        this.prisma.order.count({ where: options.where }),
+      ]);
+      return {
+        data,
+        pagination: {
+          total,
+          limit,
+          page,
+        },
+      };
+    } catch (error) {
+      console.error('Error finding orders:', error);
+      throw new BadRequestException('Failed to find orders');
+    }
   }
 
   async findOneOrder(
     orderId: string,
     { items, product, variant }: OneOrderQueryDto,
-  ): Promise<OrderWithItemsResponseDto> {
+  ): Promise<ResponseOrderDto> {
     try {
       return await this.prisma.order.findUniqueOrThrow({
         where: { id: String(orderId) },
@@ -183,25 +196,39 @@ export class OrdersService {
     { status, phone, address, canceledByUser }: UpdateOrderDto,
     updateItems = false,
   ): Promise<ResponseOrderDto> {
-    return await this.prisma.order.update({
-      where: { id: orderId },
-      data: {
-        status,
-        phone,
-        address,
-        canceledByUser,
-        items: updateItems
-          ? {
-              updateMany: {
-                where: {
-                  orderId,
+    try {
+      return await this.prisma.order.update({
+        where: { id: orderId },
+        data: {
+          status,
+          phone,
+          address,
+          canceledByUser,
+          items: updateItems
+            ? {
+                updateMany: {
+                  where: {
+                    orderId,
+                  },
+                  data: { status },
                 },
-                data: { status },
-              },
-            }
-          : undefined,
-      },
-    });
+              }
+            : undefined,
+        },
+      });
+    } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      if (
+        error instanceof PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        throw new NotFoundException('Order not found');
+      }
+      console.error('Error updating order:', error);
+      throw new BadRequestException('Failed to update order');
+    }
   }
 
   async updateOrderItem(
