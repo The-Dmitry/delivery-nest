@@ -12,6 +12,7 @@ import { CartModule } from './cart/cart.module';
 import { OrdersModule } from './orders/orders.module';
 import { UsersModule } from './users/users.module';
 import { MeModule } from '@/me/me.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -31,6 +32,7 @@ import { MeModule } from '@/me/me.module';
     OrdersModule,
     UsersModule,
     MeModule,
+    StatisticsModule,
   ],
   providers: [AppService],
 })

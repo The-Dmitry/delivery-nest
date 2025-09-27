@@ -25,7 +25,7 @@ export function createResponseDto<T, Name extends string>(
 
   class SuccessDto extends BaseResponse {
     @ApiProperty({ type: () => dto, description: 'Response data' })
-    data: T;
+    result: T;
   }
 
   if (pagination) {
@@ -47,7 +47,6 @@ export function createResponseDto<T, Name extends string>(
       @ApiProperty({
         type: () => PaginationResponse,
         description: 'Response data',
-        isArray: true,
       })
       @Type(() => PaginationResponse)
       result: PaginationResponse;
