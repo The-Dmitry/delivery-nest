@@ -1,6 +1,6 @@
 import { ApiProperty } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
-import { Expose } from 'class-transformer';
+import { Exclude, Expose } from 'class-transformer';
 import { $Enums } from 'generated/prisma';
 
 export class AuthResponseDto {
@@ -12,12 +12,14 @@ export class AuthResponseDto {
   @Expose({ name: 'access_token', toPlainOnly: true })
   accessToken: string;
 
-  @ApiProperty({
-    name: 'refresh_token',
-    example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
-    description: 'Refresh token',
-  })
-  @Expose({ name: 'refresh_token', toPlainOnly: true })
+  // @ApiProperty({
+  //   name: 'refresh_token',
+  //   example: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...',
+  //   description: 'Refresh token',
+
+  // })
+  // @Expose({ name: 'refresh_token', toPlainOnly: true })
+  @Exclude()
   refreshToken: string;
 
   @ApiProperty({
