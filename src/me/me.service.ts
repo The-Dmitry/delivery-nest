@@ -52,6 +52,14 @@ export class MeService {
     return await this.ordersService.findManyOrders({ userId: id, ...queries });
   }
 
+  async getOrderById(orderId: string): Promise<ResponseOrderDto> {
+    return await this.ordersService.findOneOrder(orderId, {
+      items: true,
+      variant: true,
+      product: true,
+    });
+  }
+
   async cancelOrder(
     userId: string,
     orderId: string,
