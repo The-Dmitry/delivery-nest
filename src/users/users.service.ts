@@ -47,11 +47,18 @@ export class UsersService {
     limit = 20,
     page = 1,
   }: AllUsersQueriesDto): Promise<WithPagination<UserResponseDto>> {
-    const where = { name, email, phone, role };
+    const where = {
+      email,
+      phone,
+      role,
+    };
     try {
       const [data, total] = await Promise.all([
         this.prisma.user.findMany({
-          where,
+          where: {
+            ...where,
+            name: name && { contains: name, mode: 'insensitive' },
+          },
           take: limit,
           skip: (page - 1) * limit,
           include: {
@@ -63,7 +70,10 @@ export class UsersService {
           },
         }),
         this.prisma.user.count({
-          where,
+          where: {
+            ...where,
+            name: name && { contains: name, mode: 'insensitive' },
+          },
         }),
       ]);
       return {

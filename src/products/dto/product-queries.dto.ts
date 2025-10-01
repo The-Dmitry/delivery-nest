@@ -61,4 +61,14 @@ export class AllProductsQueries extends IntersectionType(
   @IsOptional()
   @Expose({ name: 'show_all' })
   showAll?: boolean;
+
+  @ApiPropertyOptional({
+    name: 'name',
+    description: 'Filter products by name (case-insensitive, partial match)',
+    type: String,
+    example: 'Sample Product',
+    required: false,
+  })
+  @IsOptional()
+  name?: string;
 }

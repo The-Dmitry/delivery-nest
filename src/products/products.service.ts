@@ -67,12 +67,17 @@ export class ProductsService {
       showAll,
       page = 1,
       limit = 20,
+      name,
     }: AllProductsQueries,
     role?: JwtPayload['role'],
   ): Promise<WithPagination<ProductWithQueries>> {
     const isShowAll = showAll && role === 'ADMIN';
     const options = {
       where: {
+        name: name && {
+          contains: name,
+          mode: 'insensitive',
+        },
         categoryId,
         active: isShowAll
           ? undefined
