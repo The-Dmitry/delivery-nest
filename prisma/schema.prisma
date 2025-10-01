@@ -24,6 +24,7 @@ enum OrderStatus {
 enum Role {
   USER
   ADMIN
+  ROOT
 }
 
 model User {
