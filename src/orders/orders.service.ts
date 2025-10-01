@@ -9,15 +9,13 @@ import { ResponseOrderItemDto } from '@/orders/dto/response/response-order-item.
 import { ResponseOrderDto } from '@/orders/dto/response/response-order.dto';
 import { UpdateOrderItemDto } from '@/orders/dto/update-order-item.dto';
 import { UpdateOrderDto } from '@/orders/dto/update-order.dto';
+import { WsEventName, WsOrdersGateway } from '@/ws-orders/ws-orders.gateway';
 import { JwtPayload } from '@jwt/models/models';
 import {
   BadRequestException,
-  HttpCode,
   HttpException,
-  HttpStatus,
   Injectable,
   NotFoundException,
-  Post,
 } from '@nestjs/common';
 import { PrismaService } from '@prisma/prisma.service';
 import { $Enums, Order, Prisma } from 'generated/prisma';
@@ -31,6 +29,7 @@ export class OrdersService {
   constructor(
     private readonly prisma: PrismaService,
     private readonly cartService: CartService,
+    private readonly websocket: WsOrdersGateway,
   ) {}
 
   async findManyOrders({
@@ -128,8 +127,6 @@ export class OrdersService {
     }
   }
 
-  @HttpCode(HttpStatus.CREATED)
-  @Post()
   async createOrder(
     payload: JwtPayload,
     { name, address, phone, comment }: CreateOrderDto,
@@ -185,6 +182,7 @@ export class OrdersService {
         },
       });
       await this.cartService.deleteCart(payload);
+      this.sendWebSocketMessage('new', newOrder);
       return newOrder;
     } catch {
       throw new BadRequestException('Failed to create order');
@@ -197,7 +195,7 @@ export class OrdersService {
     updateItems = false,
   ): Promise<ResponseOrderDto> {
     try {
-      return await this.prisma.order.update({
+      const updatedOrder = await this.prisma.order.update({
         where: { id: orderId },
         data: {
           status,
@@ -216,6 +214,8 @@ export class OrdersService {
             : undefined,
         },
       });
+      this.sendWebSocketMessage('update', updatedOrder);
+      return updatedOrder;
     } catch (error) {
       if (error instanceof HttpException) {
         throw error;
@@ -275,7 +275,9 @@ export class OrdersService {
     }
   }
 
-  private async recalculateOrderTotalPrice(orderId: Order['id']) {
+  private async recalculateOrderTotalPrice(
+    orderId: Order['id'],
+  ): Promise<ResponseOrderDto> {
     const { items } = await this.prisma.order.findUniqueOrThrow({
       where: { id: orderId },
       select: {
@@ -294,9 +296,15 @@ export class OrdersService {
           : sum.plus(item.total),
       new Decimal(0),
     );
-    return await this.prisma.order.update({
+    const updatedOrder = await this.prisma.order.update({
       where: { id: orderId },
       data: { total },
     });
+    this.sendWebSocketMessage('update', updatedOrder);
+    return updatedOrder;
+  }
+
+  private sendWebSocketMessage(event: WsEventName, order: ResponseOrderDto) {
+    this.websocket.sendMessage(event, order);
   }
 }

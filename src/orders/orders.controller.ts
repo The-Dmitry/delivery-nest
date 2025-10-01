@@ -156,6 +156,7 @@ export class OrdersController {
   })
   @SerializeResponse(ResponseOrderItemDto)
   @JwtAuthorization('ADMIN')
+  @HttpCode(HttpStatus.OK)
   @Patch('item/:id')
   async updateItem(
     @Param('id') itemId: string,

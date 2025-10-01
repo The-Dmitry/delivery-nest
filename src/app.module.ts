@@ -13,6 +13,7 @@ import { OrdersModule } from './orders/orders.module';
 import { UsersModule } from './users/users.module';
 import { MeModule } from '@/me/me.module';
 import { StatisticsModule } from './statistics/statistics.module';
+import { WsOrdersModule } from './ws-orders/ws-orders.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { StatisticsModule } from './statistics/statistics.module';
     UsersModule,
     MeModule,
     StatisticsModule,
+    WsOrdersModule,
   ],
   providers: [AppService],
 })

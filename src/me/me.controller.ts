@@ -10,7 +10,12 @@ import {
 import { MeService } from './me.service';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
 import { TokenPayload } from '@/common/decorators/token-payload.decorator';
-import { ApiBearerAuth, ApiOkResponse, ApiOperation } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+} from '@nestjs/swagger';
 import {
   MeUserResponse,
   MeUserResponseDto,
@@ -29,6 +34,7 @@ import {
   ResponseOrderDto,
 } from '@/orders/dto/response/response-order.dto';
 import { WithPagination } from '@/common/types/pagination';
+import { ErrorResponseDto } from '@/common/dto/error-response.dto';
 
 @ApiBearerAuth('access-token')
 @JwtAuthorization('USER')
@@ -90,6 +96,26 @@ export class MeController {
     queries: MeOrdersQueryDto,
   ): Promise<WithPagination<ResponseOrderDto>> {
     return await this.meService.getMyOrders(id, queries);
+  }
+
+  @ApiOperation({
+    summary: "Get user's order by ID",
+    description: "Retrieve a specific user's order by its ID",
+  })
+  @ApiOkResponse({
+    description: 'Order details',
+    type: OrderResponse,
+  })
+  @ApiNotFoundResponse({
+    description: 'Order not found',
+    type: ErrorResponseDto,
+  })
+  @SerializeResponse(ResponseOrderDto)
+  @JwtAuthorization()
+  @HttpCode(HttpStatus.OK)
+  @Get('orders/:id')
+  async meOrder(@Param('id') orderId: string): Promise<ResponseOrderDto> {
+    return await this.meService.getOrderById(orderId);
   }
 
   @ApiOperation({

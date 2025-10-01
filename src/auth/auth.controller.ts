@@ -36,8 +36,9 @@ import {
   description: 'Bad request',
   type: ErrorResponseDto,
 })
-@SerializeResponse(AuthResponseDto)
+// SEQUENCE MATTERS - Interceptor must be before SerializeResponse
 @UseInterceptors(TokenInterceptor)
+@SerializeResponse(AuthResponseDto)
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
