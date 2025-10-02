@@ -3,7 +3,7 @@ import { UsersService } from '@/users/users.service';
 import { JwtPayload } from '@jwt/models/models';
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Role } from 'generated/prisma';
+import { isAdmin } from '@utils/isAdmin';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
@@ -28,7 +28,7 @@ export class JwtAccessStrategy extends PassportStrategy(Strategy, 'jwt') {
     ) {
       throw new BadRequestException('Invalid token type');
     }
-    if (payload.role === Role.ADMIN) {
+    if (isAdmin(payload.role)) {
       const { role } = await this.userService.findById(payload.id);
       return { ...payload, role };
     }

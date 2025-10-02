@@ -31,6 +31,7 @@ import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { WithPagination } from '@/common/types/pagination';
 import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
+import { JwtPayload } from '@jwt/models/models';
 
 @ApiBadRequestResponse({
   description: 'Bad Request',
@@ -38,7 +39,7 @@ import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
 })
 @SerializeResponse(UserResponseDto)
 @ApiBearerAuth('access-token')
-@JwtAuthorization('ADMIN')
+@JwtAuthorization()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -99,9 +100,9 @@ export class UsersController {
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @TokenPayload('id') adminId: string,
+    @TokenPayload() payload: JwtPayload,
   ): Promise<UserResponseDto> {
-    return await this.usersService.update(id, updateUserDto, adminId);
+    return await this.usersService.update(id, updateUserDto, payload);
   }
 
   @ApiOperation({

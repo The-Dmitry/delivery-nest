@@ -7,7 +7,7 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Role } from 'generated/prisma';
+import { isAdmin } from '@utils/isAdmin';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
@@ -33,11 +33,11 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'jwt-admin') {
       throw new BadRequestException('Invalid token type');
     }
     try {
-      if (payload.role !== Role.ADMIN) {
+      if (!isAdmin(payload.role)) {
         throw new UnauthorizedException();
       }
       const { role } = await this.userService.findById(payload.id);
-      if (role !== Role.ADMIN) {
+      if (!isAdmin(role)) {
         throw new UnauthorizedException();
       }
     } catch (error) {

@@ -78,5 +78,5 @@ export class UpdateUserDto implements Partial<User> {
   )
   @IsEnum(Role, { message: 'Role must be either USER or ADMIN' })
   @IsOptional()
-  role?: Role;
+  role?: Exclude<Role, 'ROOT'>;
 }

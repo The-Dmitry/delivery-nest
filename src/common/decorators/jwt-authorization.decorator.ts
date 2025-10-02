@@ -3,7 +3,9 @@ import { JwtAdminGuard } from '@/common/guards/jwt-admin.guard';
 import { applyDecorators, UseGuards } from '@nestjs/common';
 import { Role } from 'generated/prisma';
 
-export function JwtAuthorization(role: Role = 'USER') {
+type AdminRoles = Extract<Role, 'ADMIN' | 'USER'>;
+
+export function JwtAuthorization(role: AdminRoles = Role.USER) {
   const guards = {
     ADMIN: JwtAdminGuard,
     USER: JwtAccessGuard,

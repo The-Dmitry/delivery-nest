@@ -14,6 +14,8 @@ import { AllUsersQueriesDto } from '@/users/dto/all-users-queries.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { WithPagination } from '@/common/types/pagination';
 import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
+import { JwtPayload } from '@jwt/models/models';
+import { Role } from 'generated/prisma';
 
 @Injectable()
 export class UsersService {
@@ -131,10 +133,16 @@ export class UsersService {
   async update(
     id: string,
     { address, name, password, phone, role }: UpdateUserDto,
-    adminId?: string,
+    tokenPayload?: JwtPayload,
   ): Promise<UserResponseDto> {
     if (role) {
-      this.adminCantChangeHimself(id, adminId);
+      if (tokenPayload?.role !== Role.ROOT) {
+        throw new UnauthorizedException('Only root can change user roles');
+      }
+      if (role?.toUpperCase() === Role.ROOT) {
+        throw new BadRequestException('Cannot assign ROOT role');
+      }
+      this.adminCantChangeHimself(id, tokenPayload.id);
     }
     try {
       return await this.prisma.user.update({
@@ -178,7 +186,7 @@ export class UsersService {
   private adminCantChangeHimself(id: string, adminId?: string) {
     if (id && adminId) {
       if (id === adminId) {
-        throw new UnauthorizedException(
+        throw new BadRequestException(
           'You cannot delete yourself or change your role',
         );
       }
