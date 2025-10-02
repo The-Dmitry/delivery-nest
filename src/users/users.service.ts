@@ -133,16 +133,16 @@ export class UsersService {
   async update(
     id: string,
     { address, name, password, phone, role }: UpdateUserDto,
-    tokenPayload?: JwtPayload,
+    admin?: JwtPayload,
   ): Promise<UserResponseDto> {
     if (role) {
-      if (tokenPayload?.role !== Role.ROOT) {
+      if (admin?.role !== Role.ROOT) {
         throw new UnauthorizedException('Only root can change user roles');
       }
       if (role?.toUpperCase() === Role.ROOT) {
         throw new BadRequestException('Cannot assign ROOT role');
       }
-      this.adminCantChangeHimself(id, tokenPayload.id);
+      this.adminCantChangeHimself(id, admin.id);
     }
     try {
       return await this.prisma.user.update({
@@ -165,8 +165,11 @@ export class UsersService {
     }
   }
 
-  async delete(id: string, adminId: string): Promise<DeleteResponseDto> {
-    this.adminCantChangeHimself(id, adminId);
+  async delete(id: string, admin: JwtPayload): Promise<DeleteResponseDto> {
+    if (admin.role !== Role.ROOT) {
+      throw new UnauthorizedException('Only ROOT admin can delete users');
+    }
+    this.adminCantChangeHimself(id, admin.id);
     try {
       await this.prisma.user.delete({ where: { id } });
       return {

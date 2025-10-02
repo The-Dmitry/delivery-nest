@@ -39,7 +39,6 @@ import { JwtPayload } from '@jwt/models/models';
 })
 @SerializeResponse(UserResponseDto)
 @ApiBearerAuth('access-token')
-@JwtAuthorization()
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -52,6 +51,7 @@ export class UsersController {
     description: 'List of users retrieved successfully',
     type: UserArrayResponse,
   })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -72,6 +72,7 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findById(
@@ -95,6 +96,7 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
@@ -112,11 +114,12 @@ export class UsersController {
     description: 'User deleted successfully',
     type: DeleteResponseDto,
   })
+  @JwtAuthorization('ADMIN')
   @Delete(':id')
   async delete(
     @Param('id') id: string,
-    @TokenPayload('id') adminId: string,
+    @TokenPayload() admin: JwtPayload,
   ): Promise<DeleteResponseDto> {
-    return await this.usersService.delete(id, adminId);
+    return await this.usersService.delete(id, admin);
   }
 }
