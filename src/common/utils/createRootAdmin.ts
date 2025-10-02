@@ -3,8 +3,7 @@ import { PrismaService } from '@prisma/prisma.service';
 import { hash } from 'argon2';
 import { Role } from 'generated/prisma';
 
-export async function createRootUser(app: INestApplication) {
-  const prisma = app.get(PrismaService);
+export async function createRootAdmin(app: INestApplication) {
   const rootEmail = process.env.ROOT_EMAIL;
   const rootPassword = process.env.ROOT_PASSWORD;
   if (!rootEmail || !rootPassword) {
@@ -13,6 +12,7 @@ export async function createRootUser(app: INestApplication) {
     );
     return;
   }
+  const prisma = app.get(PrismaService);
   const existingAdmin = await prisma.user.findUnique({
     where: { email: rootEmail },
   });
