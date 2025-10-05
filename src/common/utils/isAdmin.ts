@@ -1,6 +1,6 @@
 import { Role } from 'generated/prisma';
 
-const admins: Role[] = [Role.ADMIN, Role.ROOT];
+const admins: Role[] = [Role.ADMIN, Role.ROOT] as const;
 
 export function isAdmin(role: Role, shouldBeEqualTo?: Role) {
   if (shouldBeEqualTo) {

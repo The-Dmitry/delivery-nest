@@ -8,6 +8,7 @@ import {
 } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { isAdmin } from '@utils/isAdmin';
+import IsNotBot from '@utils/isNotBot';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
 @Injectable()
@@ -32,6 +33,7 @@ export class JwtAdminStrategy extends PassportStrategy(Strategy, 'jwt-admin') {
     ) {
       throw new BadRequestException('Invalid token type');
     }
+    IsNotBot(payload);
     try {
       if (!isAdmin(payload.role)) {
         throw new UnauthorizedException();
