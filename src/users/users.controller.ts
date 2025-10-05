@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   Delete,
+  Post,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -32,6 +33,7 @@ import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { WithPagination } from '@/common/types/pagination';
 import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
 import { JwtPayload } from '@jwt/models/models';
+import { CreateUserDto, CreateUserResponse } from '@/users/dto/create-user.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad Request',
@@ -42,6 +44,22 @@ import { JwtPayload } from '@jwt/models/models';
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiOperation({
+    summary: 'Create user (admin only)',
+    description: 'Creates a new user (for dashboard use only)',
+  })
+  @ApiOkResponse({
+    description: 'User created successfully',
+    type: CreateUserResponse,
+  })
+  @SerializeResponse(UserResponseDto)
+  @JwtAuthorization('ADMIN')
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
+    return this.usersService.create(dto);
+  }
 
   @ApiOperation({
     summary: 'Get array of users (admin only)',
