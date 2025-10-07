@@ -14,6 +14,8 @@ import { AllUsersQueriesDto } from '@/users/dto/all-users-queries.dto';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { WithPagination } from '@/common/types/pagination';
 import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
+import { JwtPayload } from '@jwt/models/models';
+import { Role } from 'generated/prisma';
 
 @Injectable()
 export class UsersService {
@@ -47,11 +49,18 @@ export class UsersService {
     limit = 20,
     page = 1,
   }: AllUsersQueriesDto): Promise<WithPagination<UserResponseDto>> {
-    const where = { name, email, phone, role };
+    const where = {
+      email,
+      phone,
+      role,
+    };
     try {
       const [data, total] = await Promise.all([
         this.prisma.user.findMany({
-          where,
+          where: {
+            ...where,
+            name: name && { contains: name, mode: 'insensitive' },
+          },
           take: limit,
           skip: (page - 1) * limit,
           include: {
@@ -63,7 +72,10 @@ export class UsersService {
           },
         }),
         this.prisma.user.count({
-          where,
+          where: {
+            ...where,
+            name: name && { contains: name, mode: 'insensitive' },
+          },
         }),
       ]);
       return {
@@ -121,10 +133,16 @@ export class UsersService {
   async update(
     id: string,
     { address, name, password, phone, role }: UpdateUserDto,
-    adminId?: string,
+    admin?: JwtPayload,
   ): Promise<UserResponseDto> {
     if (role) {
-      this.adminCantChangeHimself(id, adminId);
+      if (admin?.role !== Role.ROOT) {
+        throw new UnauthorizedException('Only root can change user roles');
+      }
+      if (role?.toUpperCase() === Role.ROOT) {
+        throw new BadRequestException('Cannot assign ROOT role');
+      }
+      this.adminCantChangeHimself(id, admin.id);
     }
     try {
       return await this.prisma.user.update({
@@ -147,8 +165,11 @@ export class UsersService {
     }
   }
 
-  async delete(id: string, adminId: string): Promise<DeleteResponseDto> {
-    this.adminCantChangeHimself(id, adminId);
+  async delete(id: string, admin: JwtPayload): Promise<DeleteResponseDto> {
+    if (admin.role !== Role.ROOT) {
+      throw new UnauthorizedException('Only ROOT admin can delete users');
+    }
+    this.adminCantChangeHimself(id, admin.id);
     try {
       await this.prisma.user.delete({ where: { id } });
       return {
@@ -168,7 +189,7 @@ export class UsersService {
   private adminCantChangeHimself(id: string, adminId?: string) {
     if (id && adminId) {
       if (id === adminId) {
-        throw new UnauthorizedException(
+        throw new BadRequestException(
           'You cannot delete yourself or change your role',
         );
       }

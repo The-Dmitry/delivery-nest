@@ -2,7 +2,7 @@ import { ToBoolean } from '@/common/decorators/to-boolean.decorator';
 import { PaginationQueriesDto } from '@/common/dto/pagination-queries.dto';
 import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
-import { IsOptional, IsUUID } from 'class-validator';
+import { IsOptional, IsString, IsUUID } from 'class-validator';
 
 export class ProductQueries {
   @ApiPropertyOptional({
@@ -61,4 +61,15 @@ export class AllProductsQueries extends IntersectionType(
   @IsOptional()
   @Expose({ name: 'show_all' })
   showAll?: boolean;
+
+  @ApiPropertyOptional({
+    name: 'name',
+    description: 'Filter products by name (case-insensitive, partial match)',
+    type: String,
+    example: 'Sample Product',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  name?: string;
 }

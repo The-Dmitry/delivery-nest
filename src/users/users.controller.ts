@@ -8,6 +8,7 @@ import {
   HttpCode,
   HttpStatus,
   Delete,
+  Post,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import {
@@ -31,6 +32,8 @@ import { TokenPayload } from '@/common/decorators/token-payload.decorator';
 import { DeleteResponseDto } from '@/common/dto/delete-response.dto';
 import { WithPagination } from '@/common/types/pagination';
 import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
+import { JwtPayload } from '@jwt/models/models';
+import { CreateUserDto, CreateUserResponse } from '@/users/dto/create-user.dto';
 
 @ApiBadRequestResponse({
   description: 'Bad Request',
@@ -38,10 +41,25 @@ import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
 })
 @SerializeResponse(UserResponseDto)
 @ApiBearerAuth('access-token')
-@JwtAuthorization('ADMIN')
 @Controller('users')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
+
+  @ApiOperation({
+    summary: 'Create user (admin only)',
+    description: 'Creates a new user (for dashboard use only)',
+  })
+  @ApiOkResponse({
+    description: 'User created successfully',
+    type: CreateUserResponse,
+  })
+  @SerializeResponse(UserResponseDto)
+  @JwtAuthorization('ADMIN')
+  @HttpCode(HttpStatus.CREATED)
+  @Post()
+  async create(@Body() dto: CreateUserDto): Promise<UserResponseDto> {
+    return this.usersService.create(dto);
+  }
 
   @ApiOperation({
     summary: 'Get array of users (admin only)',
@@ -51,6 +69,7 @@ export class UsersController {
     description: 'List of users retrieved successfully',
     type: UserArrayResponse,
   })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
@@ -71,6 +90,7 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findById(
@@ -94,14 +114,15 @@ export class UsersController {
     description: 'User not found',
     type: ErrorResponseDto,
   })
+  @JwtAuthorization('ADMIN')
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async update(
     @Param('id') id: string,
     @Body() updateUserDto: UpdateUserDto,
-    @TokenPayload('id') adminId: string,
+    @TokenPayload() payload: JwtPayload,
   ): Promise<UserResponseDto> {
-    return await this.usersService.update(id, updateUserDto, adminId);
+    return await this.usersService.update(id, updateUserDto, payload);
   }
 
   @ApiOperation({
@@ -111,11 +132,12 @@ export class UsersController {
     description: 'User deleted successfully',
     type: DeleteResponseDto,
   })
+  @JwtAuthorization('ADMIN')
   @Delete(':id')
   async delete(
     @Param('id') id: string,
-    @TokenPayload('id') adminId: string,
+    @TokenPayload() admin: JwtPayload,
   ): Promise<DeleteResponseDto> {
-    return await this.usersService.delete(id, adminId);
+    return await this.usersService.delete(id, admin);
   }
 }

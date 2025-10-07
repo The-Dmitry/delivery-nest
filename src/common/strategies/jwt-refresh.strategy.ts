@@ -4,6 +4,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { Request } from 'express';
 import { EnvService } from '@/env/env.service';
+import IsNotBot from '@utils/isNotBot';
 
 @Injectable()
 export class JwtRefreshStrategy extends PassportStrategy(
@@ -26,6 +27,7 @@ export class JwtRefreshStrategy extends PassportStrategy(
   }
 
   validate(payload: JwtPayload): JwtPayload {
+    IsNotBot(payload);
     if (
       payload.tokenType !== 'refresh' ||
       !payload.id ||

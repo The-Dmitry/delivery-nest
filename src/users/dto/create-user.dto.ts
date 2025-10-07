@@ -1,4 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
+import { createResponseDto } from '@utils/createResponseDto';
 import {
   IsString,
   IsNotEmpty,
@@ -6,8 +7,11 @@ import {
   MaxLength,
   IsEmail,
 } from 'class-validator';
+import { User } from 'generated/prisma';
 
-export class CreateUserDto {
+export class CreateUserDto
+  implements Pick<User, 'name' | 'email' | 'password'>
+{
   @ApiProperty({
     example: 'John Doe',
     description: 'User full name for registration',
@@ -44,3 +48,8 @@ export class CreateUserDto {
   })
   password: string;
 }
+
+export const { CreateUserResponse } = createResponseDto(
+  CreateUserDto,
+  'CreateUser',
+);
