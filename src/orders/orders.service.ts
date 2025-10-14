@@ -43,6 +43,7 @@ export class OrdersService {
     items,
     product,
     variant,
+    number,
     limit = 20,
     page = 1,
   }: ManyOrdersQueryDto): Promise<WithPagination<ResponseOrderDto>> {
@@ -54,6 +55,7 @@ export class OrdersService {
           contains: name,
           mode: 'insensitive',
         },
+        orderNumber: number,
         phone,
         status: showAll
           ? undefined

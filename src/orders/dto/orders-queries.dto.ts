@@ -1,4 +1,4 @@
-import { IsOptional, IsString, IsEnum, IsDate } from 'class-validator';
+import { IsOptional, IsString, IsEnum, IsDate, IsInt } from 'class-validator';
 import { Expose, Transform, Type } from 'class-transformer';
 import { OrderStatus } from 'generated/prisma';
 import { ApiPropertyOptional, IntersectionType } from '@nestjs/swagger';
@@ -70,6 +70,16 @@ export class ManyOrdersQueryDto extends IntersectionType(
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({
+    description: 'Filter by order number',
+    example: '100500',
+    required: false,
+    type: Number,
+  })
+  @IsOptional()
+  @IsInt()
+  number?: number;
 
   @ApiPropertyOptional({
     description: 'Filter by phone number',
