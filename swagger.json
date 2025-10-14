@@ -49,7 +49,9 @@
           }
         },
         "summary": "User registration",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/auth/login": {
@@ -110,7 +112,9 @@
           }
         },
         "summary": "User login",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/auth/anonymous": {
@@ -141,7 +145,9 @@
           }
         },
         "summary": "Anonymous login",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/auth/refresh": {
@@ -187,7 +193,9 @@
           }
         ],
         "summary": "Refresh token",
-        "tags": ["Auth"]
+        "tags": [
+          "Auth"
+        ]
       }
     },
     "/cart": {
@@ -242,7 +250,9 @@
           }
         ],
         "summary": "Add item to cart",
-        "tags": ["Cart"]
+        "tags": [
+          "Cart"
+        ]
       },
       "get": {
         "operationId": "CartController_getCart",
@@ -285,7 +295,9 @@
           }
         ],
         "summary": "Get cart",
-        "tags": ["Cart"]
+        "tags": [
+          "Cart"
+        ]
       },
       "delete": {
         "operationId": "CartController_deleteCart",
@@ -328,7 +340,9 @@
           }
         ],
         "summary": "Delete cart",
-        "tags": ["Cart"]
+        "tags": [
+          "Cart"
+        ]
       }
     },
     "/cart/item/{id}": {
@@ -392,7 +406,9 @@
           }
         ],
         "summary": "Update item in cart",
-        "tags": ["Cart"]
+        "tags": [
+          "Cart"
+        ]
       },
       "delete": {
         "operationId": "CartController_deleteCartItem",
@@ -444,7 +460,9 @@
           }
         ],
         "summary": "Delete item from cart",
-        "tags": ["Cart"]
+        "tags": [
+          "Cart"
+        ]
       }
     },
     "/cart/inactive": {
@@ -511,7 +529,9 @@
           }
         ],
         "summary": "Delete inactive items (admin only)",
-        "tags": ["Cart"]
+        "tags": [
+          "Cart"
+        ]
       }
     },
     "/orders": {
@@ -557,7 +577,9 @@
           }
         ],
         "summary": "Create a new order",
-        "tags": ["Orders"]
+        "tags": [
+          "Orders"
+        ]
       },
       "get": {
         "description": "Retrieve a list of orders",
@@ -644,6 +666,16 @@
             }
           },
           {
+            "name": "number",
+            "required": false,
+            "in": "query",
+            "description": "Filter by order number",
+            "schema": {
+              "example": "100500",
+              "type": "number"
+            }
+          },
+          {
             "name": "phone",
             "required": false,
             "in": "query",
@@ -661,7 +693,12 @@
             "schema": {
               "example": "PENDING",
               "type": "string",
-              "enum": ["NEW", "PROCESSING", "DELIVERED", "CANCELED"]
+              "enum": [
+                "NEW",
+                "PROCESSING",
+                "DELIVERED",
+                "CANCELED"
+              ]
             }
           },
           {
@@ -715,7 +752,9 @@
           }
         ],
         "summary": "Get list of orders",
-        "tags": ["Orders"]
+        "tags": [
+          "Orders"
+        ]
       }
     },
     "/orders/{id}": {
@@ -800,7 +839,9 @@
           }
         ],
         "summary": "Get order by ID",
-        "tags": ["Orders"]
+        "tags": [
+          "Orders"
+        ]
       },
       "patch": {
         "description": "Update order details. Optionally update order items.",
@@ -873,7 +914,9 @@
           }
         ],
         "summary": "Update an order (admin only)",
-        "tags": ["Orders"]
+        "tags": [
+          "Orders"
+        ]
       }
     },
     "/orders/item/{id}": {
@@ -938,7 +981,9 @@
           }
         ],
         "summary": "Update an order item (admin only)",
-        "tags": ["Orders"]
+        "tags": [
+          "Orders"
+        ]
       }
     },
     "/users": {
@@ -984,7 +1029,9 @@
           }
         ],
         "summary": "Create user (admin only)",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       },
       "get": {
         "description": "Retrieves a list of all users",
@@ -1054,7 +1101,12 @@
             "description": "Filter by role",
             "schema": {
               "type": "string",
-              "enum": ["USER", "ADMIN", "ROOT", "BOT"]
+              "enum": [
+                "USER",
+                "ADMIN",
+                "ROOT",
+                "BOT"
+              ]
             }
           }
         ],
@@ -1086,7 +1138,9 @@
           }
         ],
         "summary": "Get array of users (admin only)",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/users/{id}": {
@@ -1151,7 +1205,9 @@
           }
         ],
         "summary": "Get user by ID (admin only)",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       },
       "patch": {
         "description": "Updates user details based on their unique ID",
@@ -1214,7 +1270,9 @@
           }
         ],
         "summary": "Update user by ID (admin only)",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       },
       "delete": {
         "operationId": "UsersController_delete",
@@ -1256,7 +1314,9 @@
           }
         ],
         "summary": "Delete user by ID (admin only)",
-        "tags": ["Users"]
+        "tags": [
+          "Users"
+        ]
       }
     },
     "/me": {
@@ -1281,7 +1341,9 @@
           }
         ],
         "summary": "Get own user information",
-        "tags": ["Me"]
+        "tags": [
+          "Me"
+        ]
       },
       "patch": {
         "operationId": "MeController_updateMe",
@@ -1314,7 +1376,9 @@
           }
         ],
         "summary": "Update own user information",
-        "tags": ["Me"]
+        "tags": [
+          "Me"
+        ]
       }
     },
     "/me/password": {
@@ -1349,7 +1413,9 @@
           }
         ],
         "summary": "Change own user password",
-        "tags": ["Me"]
+        "tags": [
+          "Me"
+        ]
       }
     },
     "/me/orders": {
@@ -1374,7 +1440,9 @@
           }
         ],
         "summary": "Get own orders",
-        "tags": ["Me"]
+        "tags": [
+          "Me"
+        ]
       }
     },
     "/me/orders/{id}": {
@@ -1419,7 +1487,9 @@
           }
         ],
         "summary": "Get user's order by ID",
-        "tags": ["Me"]
+        "tags": [
+          "Me"
+        ]
       },
       "patch": {
         "operationId": "MeController_cancelOrder",
@@ -1451,7 +1521,9 @@
           }
         ],
         "summary": "Cancel own order",
-        "tags": ["Me"]
+        "tags": [
+          "Me"
+        ]
       }
     },
     "/categories": {
@@ -1506,7 +1578,9 @@
           }
         ],
         "summary": "Create a new category (admin only)",
-        "tags": ["Category"]
+        "tags": [
+          "Category"
+        ]
       },
       "get": {
         "operationId": "CategoryController_findAll",
@@ -1570,7 +1644,9 @@
           }
         ],
         "summary": "Get array of categories",
-        "tags": ["Category"]
+        "tags": [
+          "Category"
+        ]
       }
     },
     "/categories/{id}": {
@@ -1654,7 +1730,9 @@
           }
         ],
         "summary": "Get a category by ID",
-        "tags": ["Category"]
+        "tags": [
+          "Category"
+        ]
       },
       "patch": {
         "operationId": "CategoryController_update",
@@ -1726,7 +1804,9 @@
           }
         ],
         "summary": "Update a category by ID (admin only)",
-        "tags": ["Category"]
+        "tags": [
+          "Category"
+        ]
       },
       "delete": {
         "operationId": "CategoryController_delete",
@@ -1778,7 +1858,9 @@
           }
         ],
         "summary": "Delete a category by ID (admin only)",
-        "tags": ["Category"]
+        "tags": [
+          "Category"
+        ]
       }
     },
     "/products": {
@@ -1823,7 +1905,9 @@
           }
         ],
         "summary": "Create product (admin only)",
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       },
       "get": {
         "operationId": "ProductsController_findAll",
@@ -1937,7 +2021,9 @@
           }
         ],
         "summary": "Get all products",
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       }
     },
     "/products/{id}": {
@@ -2022,7 +2108,9 @@
           }
         ],
         "summary": "Get product by id",
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       },
       "patch": {
         "operationId": "ProductsController_update",
@@ -2084,7 +2172,9 @@
           }
         ],
         "summary": "Update product by id (admin only)",
-        "tags": ["Products"]
+        "tags": [
+          "Products"
+        ]
       },
       "delete": {
         "operationId": "ProductsController_delete",
@@ -2136,97 +2226,9 @@
           }
         ],
         "summary": "Delete product by id (admin only)",
-        "tags": ["Products"]
-      }
-    },
-    "/statistics/orders": {
-      "post": {
-        "operationId": "StatisticsController_getOrders",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StatisticsBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatisticsOrdersResponse"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get orders statistics",
-        "tags": ["Statistics"]
-      }
-    },
-    "/statistics/revenue": {
-      "post": {
-        "operationId": "StatisticsController_getRevenue",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StatisticsBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatisticsRevenueResponse"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get revenue statistics",
-        "tags": ["Statistics"]
-      }
-    },
-    "/statistics/categories": {
-      "post": {
-        "operationId": "StatisticsController_getCategories",
-        "parameters": [],
-        "requestBody": {
-          "required": true,
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/StatisticsBodyDto"
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/StatisticsCategoriesArrayResponse"
-                }
-              }
-            }
-          }
-        },
-        "summary": "Get categories statistics",
-        "tags": ["Statistics"]
+        "tags": [
+          "Products"
+        ]
       }
     }
   },
@@ -2261,7 +2263,10 @@
             "description": "HTTP status code"
           },
           "message": {
-            "example": ["Not found", "An error occurred"],
+            "example": [
+              "Not found",
+              "An error occurred"
+            ],
             "description": "Error message",
             "type": "array",
             "items": {
@@ -2274,7 +2279,12 @@
             "description": "Error type"
           }
         },
-        "required": ["status", "status_code", "message", "error"]
+        "required": [
+          "status",
+          "status_code",
+          "message",
+          "error"
+        ]
       },
       "CreateRegistrationDto": {
         "type": "object",
@@ -2297,7 +2307,11 @@
             "maxLength": 20
           }
         },
-        "required": ["name", "email", "password"]
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
       },
       "AuthResponseDto": {
         "type": "object",
@@ -2316,7 +2330,12 @@
             "type": "string",
             "example": "USER",
             "description": "Role of the user",
-            "enum": ["USER", "ADMIN", "ROOT", "BOT"]
+            "enum": [
+              "USER",
+              "ADMIN",
+              "ROOT",
+              "BOT"
+            ]
           },
           "access_token_expires_at": {
             "type": "string",
@@ -2353,7 +2372,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "CreateLoginDto": {
         "type": "object",
@@ -2371,7 +2394,10 @@
             "maxLength": 20
           }
         },
-        "required": ["email", "password"]
+        "required": [
+          "email",
+          "password"
+        ]
       },
       "CreateCartItemDto": {
         "type": "object",
@@ -2387,7 +2413,10 @@
             "description": "Quantity of the product to add to the cart"
           }
         },
-        "required": ["variantId", "quantity"]
+        "required": [
+          "variantId",
+          "quantity"
+        ]
       },
       "i": {
         "type": "object",
@@ -2546,7 +2575,11 @@
             ]
           }
         },
-        "required": ["id", "quantity", "product_variant"]
+        "required": [
+          "id",
+          "quantity",
+          "product_variant"
+        ]
       },
       "CartItemResponse": {
         "type": "object",
@@ -2570,7 +2603,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "CartResponseDto": {
         "type": "object",
@@ -2651,7 +2688,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UpdateCartItemDto": {
         "type": "object",
@@ -2662,7 +2703,9 @@
             "description": "Quantity of the product to add to the cart"
           }
         },
-        "required": ["quantity"]
+        "required": [
+          "quantity"
+        ]
       },
       "DeleteResponseDto": {
         "type": "object",
@@ -2678,7 +2721,10 @@
             "description": "Unique identifier of the deleted product"
           }
         },
-        "required": ["message", "deleted_id"]
+        "required": [
+          "message",
+          "deleted_id"
+        ]
       },
       "DeleteInactiveItemsDto": {
         "type": "object",
@@ -2914,7 +2960,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "PaginationResponseDto": {
         "type": "object",
@@ -2935,7 +2985,11 @@
             "example": 10
           }
         },
-        "required": ["page", "limit", "total"]
+        "required": [
+          "page",
+          "limit",
+          "total"
+        ]
       },
       "OrderPaginationResponse": {
         "type": "object",
@@ -2956,7 +3010,10 @@
             }
           }
         },
-        "required": ["pagination", "data"]
+        "required": [
+          "pagination",
+          "data"
+        ]
       },
       "OrderArrayResponse": {
         "type": "object",
@@ -2980,7 +3037,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UpdateOrderDto": {
         "type": "object",
@@ -3006,7 +3067,12 @@
             "example": "375441122333"
           }
         },
-        "required": ["status", "canceledByUser", "address", "phone"]
+        "required": [
+          "status",
+          "canceledByUser",
+          "address",
+          "phone"
+        ]
       },
       "UpdateOrderItemDto": {
         "type": "object",
@@ -3031,7 +3097,11 @@
             ]
           }
         },
-        "required": ["quantity", "status", "singleItemPrice"]
+        "required": [
+          "quantity",
+          "status",
+          "singleItemPrice"
+        ]
       },
       "OrderItemResponse": {
         "type": "object",
@@ -3055,7 +3125,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "CreateUserDto": {
         "type": "object",
@@ -3078,7 +3152,11 @@
             "maxLength": 20
           }
         },
-        "required": ["name", "email", "password"]
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
       },
       "CreateUserResponse": {
         "type": "object",
@@ -3102,7 +3180,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UserResponseDto": {
         "type": "object",
@@ -3136,7 +3218,12 @@
             "type": "string",
             "description": "Role of the user",
             "example": "USER",
-            "enum": ["USER", "ADMIN", "ROOT", "BOT"]
+            "enum": [
+              "USER",
+              "ADMIN",
+              "ROOT",
+              "BOT"
+            ]
           },
           "orders_count": {
             "type": "object",
@@ -3144,7 +3231,14 @@
             "example": 5
           }
         },
-        "required": ["id", "name", "email", "address", "phone", "role"]
+        "required": [
+          "id",
+          "name",
+          "email",
+          "address",
+          "phone",
+          "role"
+        ]
       },
       "UserPaginationResponse": {
         "type": "object",
@@ -3165,7 +3259,10 @@
             }
           }
         },
-        "required": ["pagination", "data"]
+        "required": [
+          "pagination",
+          "data"
+        ]
       },
       "UserArrayResponse": {
         "type": "object",
@@ -3189,7 +3286,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UserResponse": {
         "type": "object",
@@ -3213,7 +3314,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UpdateUserDto": {
         "type": "object",
@@ -3246,7 +3351,12 @@
           "role": {
             "type": "string",
             "description": "User role",
-            "enum": ["USER", "ADMIN", "ROOT", "BOT"]
+            "enum": [
+              "USER",
+              "ADMIN",
+              "ROOT",
+              "BOT"
+            ]
           }
         }
       },
@@ -3274,7 +3384,12 @@
             "example": "1234567890"
           }
         },
-        "required": ["name", "email", "address", "phone"]
+        "required": [
+          "name",
+          "email",
+          "address",
+          "phone"
+        ]
       },
       "MeUserResponse": {
         "type": "object",
@@ -3298,7 +3413,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "MeUpdateDto": {
         "type": "object",
@@ -3353,7 +3472,10 @@
             "description": "Password changed successfully"
           }
         },
-        "required": ["message", "password_changed"]
+        "required": [
+          "message",
+          "password_changed"
+        ]
       },
       "ChangePasswordResponse": {
         "type": "object",
@@ -3377,7 +3499,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "CreateCategoryDto": {
         "type": "object",
@@ -3393,7 +3519,10 @@
             "description": "Link name of the category"
           }
         },
-        "required": ["name", "linkName"]
+        "required": [
+          "name",
+          "linkName"
+        ]
       },
       "ResponseCategoryDto": {
         "type": "object",
@@ -3462,7 +3591,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "ResponseCategoryWithQueries": {
         "type": "object",
@@ -3542,7 +3675,11 @@
             }
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "CategoryWithQueriesResponse": {
         "type": "object",
@@ -3566,7 +3703,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UpdateCategoryDto": {
         "type": "object",
@@ -3610,7 +3751,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "CreateProductDto": {
         "type": "object",
@@ -3642,7 +3787,12 @@
             }
           }
         },
-        "required": ["name", "description", "categoryId", "images"]
+        "required": [
+          "name",
+          "description",
+          "categoryId",
+          "images"
+        ]
       },
       "ProductResponse": {
         "type": "object",
@@ -3666,7 +3816,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "VariantResponseDto": {
         "type": "object",
@@ -3823,7 +3977,10 @@
             }
           }
         },
-        "required": ["pagination", "data"]
+        "required": [
+          "pagination",
+          "data"
+        ]
       },
       "ProductWithQueriesArrayResponse": {
         "type": "object",
@@ -3847,7 +4004,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "ProductWithQueriesResponse": {
         "type": "object",
@@ -3871,7 +4032,11 @@
             ]
           }
         },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
       },
       "UpdateProductDto": {
         "type": "object",
@@ -3908,185 +4073,9 @@
             "description": "Active status of the product"
           }
         },
-        "required": ["active"]
-      },
-      "StatisticsBodyDto": {
-        "type": "object",
-        "properties": {
-          "timezoneOffset": {
-            "type": "number",
-            "description": "Timezone offset in minutes",
-            "example": -180
-          },
-          "daysCount": {
-            "type": "number",
-            "description": "Number of days to include in the statistics",
-            "example": 30
-          },
-          "completed": {
-            "type": "boolean",
-            "description": "Include only completed orders info in the statistics",
-            "example": true
-          }
-        }
-      },
-      "DailyOrders": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "example": "2023-10-01",
-            "description": "Date in YYYY-MM-DD format (client timezone if timezoneOffset provided in request body)"
-          },
-          "count": {
-            "type": "number",
-            "example": 15,
-            "description": "Number of orders on that date"
-          }
-        },
-        "required": ["date", "count"]
-      },
-      "StatisticsOrdersResponseDto": {
-        "type": "object",
-        "properties": {
-          "total": {
-            "type": "number",
-            "example": 450,
-            "description": "Total number of orders in the specified period"
-          },
-          "days": {
-            "$ref": "#/components/schemas/DailyOrders"
-          }
-        },
-        "required": ["total", "days"]
-      },
-      "StatisticsOrdersResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "ok",
-            "description": "Response status"
-          },
-          "status_code": {
-            "type": "number",
-            "example": 200,
-            "description": "HTTP status code"
-          },
-          "result": {
-            "description": "Response data",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StatisticsOrdersResponseDto"
-              }
-            ]
-          }
-        },
-        "required": ["status", "status_code", "result"]
-      },
-      "DailyRevenue": {
-        "type": "object",
-        "properties": {
-          "date": {
-            "type": "string",
-            "example": "2023-10-01",
-            "description": "Date in YYYY-MM-DD format (client timezone if timezoneOffset provided in request body)"
-          },
-          "revenue": {
-            "example": 15,
-            "description": "Number (Decimal) of orders on that date",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
-          }
-        },
-        "required": ["date", "revenue"]
-      },
-      "StatisticsRevenueResponseDto": {
-        "type": "object",
-        "properties": {
-          "total": {
-            "example": 450,
-            "description": "Total number of orders in the specified period",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
-          },
-          "days": {
-            "$ref": "#/components/schemas/DailyRevenue"
-          }
-        },
-        "required": ["total", "days"]
-      },
-      "StatisticsRevenueResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "ok",
-            "description": "Response status"
-          },
-          "status_code": {
-            "type": "number",
-            "example": 200,
-            "description": "HTTP status code"
-          },
-          "result": {
-            "description": "Response data",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/StatisticsRevenueResponseDto"
-              }
-            ]
-          }
-        },
-        "required": ["status", "status_code", "result"]
-      },
-      "StatisticsCategoriesResponseDto": {
-        "type": "object",
-        "properties": {
-          "data": {
-            "type": "object",
-            "example": "2023-10-01",
-            "additionalProperties": {
-              "type": "number"
-            },
-            "description": "Date in YYYY-MM-DD format (client timezone if timezoneOffset provided in request body)",
-            "examples": {
-              "Beverages": 150,
-              "Snacks": 200,
-              "Desserts": 75
-            }
-          }
-        },
-        "required": ["data"]
-      },
-      "StatisticsCategoriesArrayResponse": {
-        "type": "object",
-        "properties": {
-          "status": {
-            "type": "string",
-            "example": "ok",
-            "description": "Response status"
-          },
-          "status_code": {
-            "type": "number",
-            "example": 200,
-            "description": "HTTP status code"
-          },
-          "result": {
-            "description": "Response data",
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/StatisticsCategoriesResponseDto"
-            }
-          }
-        },
-        "required": ["status", "status_code", "result"]
+        "required": [
+          "active"
+        ]
       }
     }
   }
