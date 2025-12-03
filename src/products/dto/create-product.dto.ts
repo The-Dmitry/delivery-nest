@@ -16,6 +16,8 @@ export class CreateProductDto
   @ApiProperty({
     example: 'Description of the product',
     description: 'Description of the product',
+    type: String,
+    nullable: true,
   })
   @IsString()
   description: string | null;

@@ -17,6 +17,7 @@ import { CategoryService } from './category/category.service';
 import { ProductsService } from './products/products.service';
 import { VariantsService } from './variants/variants.service';
 import { JwtService } from '@nestjs/jwt';
+import { VariantsController } from './variants/variants.controller';
 
 @Module({
   controllers: [
@@ -26,6 +27,7 @@ import { JwtService } from '@nestjs/jwt';
     UsersController,
     MeController,
     CategoryController,
+    VariantsController,
     ProductsController,
   ],
   providers: [
@@ -35,8 +37,8 @@ import { JwtService } from '@nestjs/jwt';
     { provide: UsersService, useValue: {} },
     { provide: MeService, useValue: {} },
     { provide: CategoryService, useValue: {} },
-    { provide: ProductsService, useValue: {} },
     { provide: VariantsService, useValue: {} },
+    { provide: ProductsService, useValue: {} },
     {
       provide: JwtService,
       useValue: { sign: () => 'mock', verify: () => ({}) },

@@ -37,7 +37,7 @@ export class ResponseOrderItemDto implements OrderItem {
   @ApiProperty({
     description: 'The price per single item of the product variant',
     example: '29.99',
-    type: Decimal,
+    type: String,
     name: 'single_item_price',
   })
   @Expose({ name: 'single_item_price', toPlainOnly: true })
@@ -48,6 +48,7 @@ export class ResponseOrderItemDto implements OrderItem {
     description:
       'The total price for this order item (singleItemPrice * quantity)',
     example: '59.98',
+    type: String,
   })
   @Type(() => String)
   total: Decimal;

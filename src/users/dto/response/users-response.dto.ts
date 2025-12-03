@@ -25,6 +25,8 @@ export class UserResponseDto implements User {
   @ApiProperty({
     description: 'Address of the user',
     example: '123 Main St, Anytown, USA',
+    type: String,
+    nullable: true,
   })
   address: string | null;
 
@@ -34,6 +36,8 @@ export class UserResponseDto implements User {
   @ApiProperty({
     description: 'Phone number of the user',
     example: '1234567890',
+    type: String,
+    nullable: true,
   })
   phone: string | null;
 
@@ -47,6 +51,8 @@ export class UserResponseDto implements User {
   @ApiPropertyOptional({
     name: 'orders_count',
     description: 'Number of orders made by the user',
+    type: Number,
+    nullable: true,
     example: 5,
   })
   @Expose({ name: 'orders_count', toPlainOnly: true })

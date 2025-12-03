@@ -20,6 +20,8 @@ import { ProductsService } from './products/products.service';
 import { VariantsService } from './variants/variants.service';
 import { JwtService } from '@nestjs/jwt';
 import { OptionalJwtGuard } from './common/guards/jwt-option.guard';
+import { JwtAdminGuard } from './common/guards/jwt-admin.guard';
+import { JwtAccessGuard } from './common/guards/jwt-access.guard';
 
 @Injectable()
 class MockOptionalJwtGuard implements CanActivate {
@@ -57,6 +59,10 @@ async function generateSwagger() {
     })
     .overrideGuard(OptionalJwtGuard)
     .useClass(MockOptionalJwtGuard)
+    .overrideGuard(JwtAdminGuard)
+    .useClass(MockOptionalJwtGuard)
+    .overrideGuard(JwtAccessGuard)
+    .useClass(MockOptionalJwtGuard)
     .compile();
 
   const app: INestApplication = moduleRef.createNestApplication();
@@ -70,7 +76,7 @@ async function generateSwagger() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  fs.writeFileSync('./src/swagger.json', JSON.stringify(document, null, 2));
+  fs.writeFileSync('./src/scheme.json', JSON.stringify(document, null, 2));
   console.log('✅ Swagger JSON has been generated: swagger.json');
 
   await app.close();

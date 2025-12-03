@@ -20,6 +20,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import {
   VariantResponse,
@@ -41,6 +42,7 @@ import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
   description: 'Bad request',
   type: DeleteResponse,
 })
+@ApiTags('variants')
 @Controller('variants')
 export class VariantsController {
   constructor(private readonly variantsService: VariantsService) {}
