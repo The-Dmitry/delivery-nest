@@ -70,7 +70,7 @@ async function generateSwagger() {
 
   const document = SwaggerModule.createDocument(app, config);
 
-  fs.writeFileSync('./src/swagger.json', JSON.stringify(document, null, 2));
+  fs.writeFileSync('./src/scheme.json', JSON.stringify(document, null, 2));
   console.log('✅ Swagger JSON has been generated: swagger.json');
 
   await app.close();

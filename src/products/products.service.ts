@@ -71,7 +71,7 @@ export class ProductsService {
     }: AllProductsQueries,
     role?: JwtPayload['role'],
   ): Promise<WithPagination<ProductWithQueries>> {
-    const isShowAll = showAll && role === 'ADMIN';
+    const isShowAll = showAll && (role === 'ADMIN' || role === 'ROOT');
     const options = {
       where: {
         name: name && {

@@ -3,7 +3,7 @@ import { VariantResponseDto } from '@/variants/dto/response/variants-response.dt
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
 import { Expose, Transform, Type } from 'class-transformer';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { IsString } from 'class-validator';
 import { Product } from 'generated/prisma';
 
 export class ProductResponseDto implements Product {
@@ -16,9 +16,8 @@ export class ProductResponseDto implements Product {
   @ApiProperty({
     example: 'Pizza',
     description: 'Name of the product',
+    type: String,
   })
-  @IsString()
-  @IsNotEmpty()
   name: string;
 
   @ApiProperty({
@@ -26,17 +25,17 @@ export class ProductResponseDto implements Product {
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description:
       'Unique identifier of the category to which the product belongs',
+    type: String,
   })
   @Expose({ name: 'category_id', toPlainOnly: true })
-  @IsString()
-  @IsNotEmpty()
   categoryId: string;
 
   @ApiProperty({
     example: 'Description of the product',
     description: 'Description of the product',
+    type: String,
+    nullable: true,
   })
-  @IsString()
   description: string | null;
 
   @ApiProperty({
@@ -86,6 +85,8 @@ export class ProductWithQueries extends ProductResponseDto {
     example: 2,
     description:
       'Variants count for each product (present only if ?count=true)',
+    type: Number,
+    nullable: true,
   })
   @Expose({ name: 'variants_count', toPlainOnly: true })
   @Transform(({ value }) => (value as { variants: number })?.variants, {

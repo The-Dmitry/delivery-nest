@@ -666,6 +666,16 @@
             }
           },
           {
+            "name": "number",
+            "required": false,
+            "in": "query",
+            "description": "Filter by order number",
+            "schema": {
+              "example": "100500",
+              "type": "number"
+            }
+          },
+          {
             "name": "phone",
             "required": false,
             "in": "query",
@@ -977,6 +987,52 @@
       }
     },
     "/users": {
+      "post": {
+        "description": "Creates a new user (for dashboard use only)",
+        "operationId": "UsersController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "User created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateUserResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad Request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create user (admin only)",
+        "tags": [
+          "Users"
+        ]
+      },
       "get": {
         "description": "Retrieves a list of all users",
         "operationId": "UsersController_findAll",
@@ -1047,7 +1103,9 @@
               "type": "string",
               "enum": [
                 "USER",
-                "ADMIN"
+                "ADMIN",
+                "ROOT",
+                "BOT"
               ]
             }
           }
@@ -1923,6 +1981,16 @@
               "example": true,
               "type": "boolean"
             }
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "description": "Filter products by name (case-insensitive, partial match)",
+            "schema": {
+              "example": "Sample Product",
+              "type": "string"
+            }
           }
         ],
         "responses": {
@@ -2264,7 +2332,9 @@
             "description": "Role of the user",
             "enum": [
               "USER",
-              "ADMIN"
+              "ADMIN",
+              "ROOT",
+              "BOT"
             ]
           },
           "access_token_expires_at": {
@@ -2333,12 +2403,12 @@
         "type": "object",
         "properties": {
           "variantId": {
-            "type": "object",
+            "type": "string",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
             "description": "Unique identifier of the product to which the variant belongs"
           },
           "quantity": {
-            "type": "object",
+            "type": "number",
             "example": 1,
             "description": "Quantity of the product to add to the cart"
           }
@@ -2347,10 +2417,6 @@
           "variantId",
           "quantity"
         ]
-      },
-      "i": {
-        "type": "object",
-        "properties": {}
       },
       "ProductResponseDto": {
         "type": "object",
@@ -2371,9 +2437,10 @@
             "description": "Unique identifier of the category to which the product belongs"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "images": {
             "example": [
@@ -2434,28 +2501,27 @@
             "description": "Name of the variant"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the variant",
-            "description": "Description of the variant"
+            "description": "Description of the variant",
+            "nullable": true
           },
           "size": {
-            "type": "object",
+            "type": "number",
             "example": 30,
-            "description": "Size of the variant"
+            "description": "Size of the variant",
+            "nullable": true
           },
           "weight": {
-            "type": "object",
+            "type": "number",
             "example": 300,
-            "description": "Weight of the variant in grams"
+            "description": "Weight of the variant in grams",
+            "nullable": true
           },
           "price": {
+            "type": "string",
             "example": "\"10.99\"",
-            "description": "Price of the variant",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "description": "Price of the variant"
           },
           "available": {
             "type": "boolean",
@@ -2548,23 +2614,21 @@
             "description": "Unique identifier of the cart"
           },
           "userId": {
-            "type": "object",
+            "type": "string",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-            "description": "Unique identifier of the user to which the cart belongs"
+            "description": "Unique identifier of the user to which the cart belongs",
+            "nullable": true
           },
           "anonymousUserId": {
-            "type": "object",
+            "type": "string",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-            "description": "Unique identifier of the anonymous user to which the cart belongs"
+            "description": "Unique identifier of the anonymous user to which the cart belongs",
+            "nullable": true
           },
           "total": {
+            "type": "string",
             "example": "10.99",
-            "description": "The total amount of the cart",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "description": "The total amount of the cart"
           },
           "createdAt": {
             "format": "date-time",
@@ -2628,7 +2692,7 @@
         "type": "object",
         "properties": {
           "quantity": {
-            "type": "object",
+            "type": "number",
             "example": 1,
             "description": "Quantity of the product to add to the cart"
           }
@@ -2727,22 +2791,14 @@
             "example": 2
           },
           "single_item_price": {
+            "type": "string",
             "description": "The price per single item of the product variant",
-            "example": "29.99",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "29.99"
           },
           "total": {
+            "type": "string",
             "description": "The total price for this order item (singleItemPrice * quantity)",
-            "example": "59.98",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "59.98"
           },
           "status": {
             "type": "string",
@@ -2777,7 +2833,7 @@
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7"
           },
           "user_id": {
-            "type": "object",
+            "type": "string",
             "description": "The ID of the user who placed the order",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
             "nullable": true
@@ -2788,9 +2844,10 @@
             "example": "123 Main St, Springfield, IL 62701"
           },
           "comment": {
-            "type": "object",
+            "type": "string",
             "description": "The comment for the order",
-            "example": "Please deliver it asap"
+            "example": "Please deliver it asap",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -2803,7 +2860,7 @@
             "example": "555-555-5555"
           },
           "anonymous_user_id": {
-            "type": "object",
+            "type": "string",
             "description": "The ID of the anonymous user who placed the order",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
             "nullable": true
@@ -2824,13 +2881,9 @@
             "example": true
           },
           "total": {
+            "type": "string",
             "description": "The total amount for the order",
-            "example": "59.99",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "59.99"
           },
           "updated_at": {
             "format": "date-time",
@@ -3018,13 +3071,9 @@
             "example": "PENDING"
           },
           "singleItemPrice": {
+            "type": "string",
             "description": "The price of a single item",
-            "example": "19.99",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "19.99"
           }
         },
         "required": [
@@ -3061,6 +3110,61 @@
           "result"
         ]
       },
+      "CreateUserDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "John Doe",
+            "description": "User full name for registration"
+          },
+          "email": {
+            "type": "string",
+            "example": "tDf0N@example.com",
+            "description": "User email for registration"
+          },
+          "password": {
+            "type": "string",
+            "example": "password123",
+            "description": "User password for registration",
+            "minLength": 3,
+            "maxLength": 20
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "password"
+        ]
+      },
+      "CreateUserResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok",
+            "description": "Response status"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 200,
+            "description": "HTTP status code"
+          },
+          "result": {
+            "description": "Response data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/CreateUserDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
+      },
       "UserResponseDto": {
         "type": "object",
         "properties": {
@@ -3080,14 +3184,16 @@
             "example": "tDf0N@example.com"
           },
           "address": {
-            "type": "object",
+            "type": "string",
             "description": "Address of the user",
-            "example": "123 Main St, Anytown, USA"
+            "example": "123 Main St, Anytown, USA",
+            "nullable": true
           },
           "phone": {
-            "type": "object",
+            "type": "string",
             "description": "Phone number of the user",
-            "example": "1234567890"
+            "example": "1234567890",
+            "nullable": true
           },
           "role": {
             "type": "string",
@@ -3095,12 +3201,15 @@
             "example": "USER",
             "enum": [
               "USER",
-              "ADMIN"
+              "ADMIN",
+              "ROOT",
+              "BOT"
             ]
           },
           "orders_count": {
-            "type": "object",
+            "type": "number",
             "description": "Number of orders made by the user",
+            "nullable": true,
             "example": 5
           }
         },
@@ -3226,7 +3335,9 @@
             "description": "User role",
             "enum": [
               "USER",
-              "ADMIN"
+              "ADMIN",
+              "ROOT",
+              "BOT"
             ]
           }
         }
@@ -3245,14 +3356,16 @@
             "example": "tDf0N@example.com"
           },
           "address": {
-            "type": "object",
+            "type": "string",
             "description": "Address of the user",
-            "example": "123 Main St, Anytown, USA"
+            "example": "123 Main St, Anytown, USA",
+            "nullable": true
           },
           "phone": {
-            "type": "object",
+            "type": "string",
             "description": "Phone number of the user",
-            "example": "1234567890"
+            "example": "1234567890",
+            "nullable": true
           }
         },
         "required": [
@@ -3504,9 +3617,10 @@
             "description": "The date and time when the category was last updated"
           },
           "products_count": {
-            "type": "object",
+            "type": "number",
             "example": 42,
-            "description": "Products count (present only if ?count=true)"
+            "description": "Products count (present only if ?count=true)",
+            "nullable": true
           },
           "products": {
             "description": "List of products in this category (present only if ?products=true)",
@@ -3637,9 +3751,10 @@
             "description": "Name of the product"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "categoryId": {
             "type": "string",
@@ -3712,28 +3827,27 @@
             "description": "Name of the variant"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the variant",
-            "description": "Description of the variant"
+            "description": "Description of the variant",
+            "nullable": true
           },
           "size": {
-            "type": "object",
+            "type": "number",
             "example": 30,
-            "description": "Size of the variant"
+            "description": "Size of the variant",
+            "nullable": true
           },
           "weight": {
-            "type": "object",
+            "type": "number",
             "example": 300,
-            "description": "Weight of the variant in grams"
+            "description": "Weight of the variant in grams",
+            "nullable": true
           },
           "price": {
+            "type": "string",
             "example": "\"10.99\"",
-            "description": "Price of the variant",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "description": "Price of the variant"
           },
           "available": {
             "type": "boolean",
@@ -3771,9 +3885,10 @@
             "description": "Unique identifier of the category to which the product belongs"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "images": {
             "example": [
@@ -3813,9 +3928,10 @@
             }
           },
           "variants_count": {
-            "type": "object",
+            "type": "number",
             "example": 2,
-            "description": "Variants count for each product (present only if ?count=true)"
+            "description": "Variants count for each product (present only if ?count=true)",
+            "nullable": true
           }
         },
         "required": [
@@ -3918,9 +4034,10 @@
             "description": "Name of the product"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "categoryId": {
             "type": "string",

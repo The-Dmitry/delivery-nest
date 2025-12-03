@@ -32,7 +32,7 @@ export class UpdateOrderItemDto
   @ApiProperty({
     description: 'The price of a single item',
     example: '19.99',
-    type: Decimal,
+    type: String,
   })
   @IsDecimal()
   @IsOptional()

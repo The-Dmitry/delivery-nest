@@ -15,6 +15,8 @@ export class CartResponseDto implements Cart {
   @ApiProperty({
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description: 'Unique identifier of the user to which the cart belongs',
+    type: String,
+    nullable: true,
   })
   @Expose({ name: 'user_id', toPlainOnly: true })
   userId: string | null;
@@ -23,6 +25,8 @@ export class CartResponseDto implements Cart {
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
     description:
       'Unique identifier of the anonymous user to which the cart belongs',
+    type: String,
+    nullable: true,
   })
   @Expose({ name: 'anonymous_user_id', toPlainOnly: true })
   anonymousUserId: string | null;
@@ -30,6 +34,7 @@ export class CartResponseDto implements Cart {
   @ApiProperty({
     example: '10.99',
     description: 'The total amount of the cart',
+    type: String,
   })
   @Type(() => String)
   total: Decimal;

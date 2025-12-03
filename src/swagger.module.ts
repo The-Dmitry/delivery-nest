@@ -17,6 +17,7 @@ import { CategoryService } from './category/category.service';
 import { ProductsService } from './products/products.service';
 import { VariantsService } from './variants/variants.service';
 import { JwtService } from '@nestjs/jwt';
+import { VariantsController } from './variants/variants.controller';
 
 @Module({
   controllers: [
@@ -27,6 +28,7 @@ import { JwtService } from '@nestjs/jwt';
     MeController,
     CategoryController,
     ProductsController,
+    VariantsController,
   ],
   providers: [
     { provide: AuthService, useValue: {} },

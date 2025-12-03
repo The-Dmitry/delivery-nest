@@ -45,6 +45,7 @@ export class CreateVariantDto
   @ApiProperty({
     example: '"10.99"',
     description: 'Price of the variant',
+    type: String,
   })
   @IsDecimal()
   price: Decimal;

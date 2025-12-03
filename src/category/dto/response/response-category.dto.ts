@@ -51,6 +51,8 @@ export class ResponseCategoryWithQueries extends ResponseCategoryDto {
     name: 'products_count',
     example: 42,
     description: 'Products count (present only if ?count=true)',
+    type: Number,
+    nullable: true,
   })
   @Expose({ name: 'products_count', toPlainOnly: true })
   @Transform(({ value }) => (value as { products: number })?.products, {
