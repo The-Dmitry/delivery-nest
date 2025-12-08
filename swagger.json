@@ -1863,6 +1863,293 @@
         ]
       }
     },
+    "/variants": {
+      "post": {
+        "operationId": "VariantsController_create",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateVariantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Variant created successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Product with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Create a new variant (admin only)",
+        "tags": [
+          "variants"
+        ]
+      },
+      "get": {
+        "operationId": "VariantsController_findAll",
+        "parameters": [
+          {
+            "name": "product_id",
+            "required": false,
+            "in": "query",
+            "description": "Filter variants by product ID",
+            "schema": {
+              "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
+              "type": "string"
+            }
+          },
+          {
+            "name": "show_all",
+            "required": false,
+            "in": "query",
+            "description": "Show all variants (default: false, true is only for admin)",
+            "schema": {
+              "example": true,
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variants found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantArrayResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get array of variants",
+        "tags": [
+          "variants"
+        ]
+      }
+    },
+    "/variants/{id}": {
+      "get": {
+        "operationId": "VariantsController_findOne",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant found successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Variant with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Get a variant by id",
+        "tags": [
+          "variants"
+        ]
+      },
+      "patch": {
+        "operationId": "VariantsController_update",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateVariantDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Variant updated successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VariantResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Variant with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Update a variant by id (admin only)",
+        "tags": [
+          "variants"
+        ]
+      },
+      "delete": {
+        "operationId": "VariantsController_remove",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Variant deleted successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Variant with id not found",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeleteResponse"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "access-token": []
+          }
+        ],
+        "summary": "Delete a variant by id (admin only)",
+        "tags": [
+          "variants"
+        ]
+      }
+    },
     "/products": {
       "post": {
         "operationId": "ProductsController_create",
@@ -2403,12 +2690,12 @@
         "type": "object",
         "properties": {
           "variantId": {
-            "type": "object",
+            "type": "string",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
             "description": "Unique identifier of the product to which the variant belongs"
           },
           "quantity": {
-            "type": "object",
+            "type": "number",
             "example": 1,
             "description": "Quantity of the product to add to the cart"
           }
@@ -2417,10 +2704,6 @@
           "variantId",
           "quantity"
         ]
-      },
-      "i": {
-        "type": "object",
-        "properties": {}
       },
       "ProductResponseDto": {
         "type": "object",
@@ -2441,9 +2724,10 @@
             "description": "Unique identifier of the category to which the product belongs"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "images": {
             "example": [
@@ -2504,28 +2788,27 @@
             "description": "Name of the variant"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the variant",
-            "description": "Description of the variant"
+            "description": "Description of the variant",
+            "nullable": true
           },
           "size": {
-            "type": "object",
+            "type": "number",
             "example": 30,
-            "description": "Size of the variant"
+            "description": "Size of the variant",
+            "nullable": true
           },
           "weight": {
-            "type": "object",
+            "type": "number",
             "example": 300,
-            "description": "Weight of the variant in grams"
+            "description": "Weight of the variant in grams",
+            "nullable": true
           },
           "price": {
+            "type": "string",
             "example": "\"10.99\"",
-            "description": "Price of the variant",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "description": "Price of the variant"
           },
           "available": {
             "type": "boolean",
@@ -2618,23 +2901,21 @@
             "description": "Unique identifier of the cart"
           },
           "userId": {
-            "type": "object",
+            "type": "string",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-            "description": "Unique identifier of the user to which the cart belongs"
+            "description": "Unique identifier of the user to which the cart belongs",
+            "nullable": true
           },
           "anonymousUserId": {
-            "type": "object",
+            "type": "string",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-            "description": "Unique identifier of the anonymous user to which the cart belongs"
+            "description": "Unique identifier of the anonymous user to which the cart belongs",
+            "nullable": true
           },
           "total": {
+            "type": "string",
             "example": "10.99",
-            "description": "The total amount of the cart",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "description": "The total amount of the cart"
           },
           "createdAt": {
             "format": "date-time",
@@ -2698,7 +2979,7 @@
         "type": "object",
         "properties": {
           "quantity": {
-            "type": "object",
+            "type": "number",
             "example": 1,
             "description": "Quantity of the product to add to the cart"
           }
@@ -2797,22 +3078,14 @@
             "example": 2
           },
           "single_item_price": {
+            "type": "string",
             "description": "The price per single item of the product variant",
-            "example": "29.99",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "29.99"
           },
           "total": {
+            "type": "string",
             "description": "The total price for this order item (singleItemPrice * quantity)",
-            "example": "59.98",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "59.98"
           },
           "status": {
             "type": "string",
@@ -2847,7 +3120,7 @@
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7"
           },
           "user_id": {
-            "type": "object",
+            "type": "string",
             "description": "The ID of the user who placed the order",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
             "nullable": true
@@ -2858,9 +3131,10 @@
             "example": "123 Main St, Springfield, IL 62701"
           },
           "comment": {
-            "type": "object",
+            "type": "string",
             "description": "The comment for the order",
-            "example": "Please deliver it asap"
+            "example": "Please deliver it asap",
+            "nullable": true
           },
           "name": {
             "type": "string",
@@ -2873,7 +3147,7 @@
             "example": "555-555-5555"
           },
           "anonymous_user_id": {
-            "type": "object",
+            "type": "string",
             "description": "The ID of the anonymous user who placed the order",
             "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
             "nullable": true
@@ -2894,13 +3168,9 @@
             "example": true
           },
           "total": {
+            "type": "string",
             "description": "The total amount for the order",
-            "example": "59.99",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "59.99"
           },
           "updated_at": {
             "format": "date-time",
@@ -3088,13 +3358,9 @@
             "example": "PENDING"
           },
           "singleItemPrice": {
+            "type": "string",
             "description": "The price of a single item",
-            "example": "19.99",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
+            "example": "19.99"
           }
         },
         "required": [
@@ -3205,14 +3471,16 @@
             "example": "tDf0N@example.com"
           },
           "address": {
-            "type": "object",
+            "type": "string",
             "description": "Address of the user",
-            "example": "123 Main St, Anytown, USA"
+            "example": "123 Main St, Anytown, USA",
+            "nullable": true
           },
           "phone": {
-            "type": "object",
+            "type": "string",
             "description": "Phone number of the user",
-            "example": "1234567890"
+            "example": "1234567890",
+            "nullable": true
           },
           "role": {
             "type": "string",
@@ -3226,8 +3494,9 @@
             ]
           },
           "orders_count": {
-            "type": "object",
+            "type": "number",
             "description": "Number of orders made by the user",
+            "nullable": true,
             "example": 5
           }
         },
@@ -3374,14 +3643,16 @@
             "example": "tDf0N@example.com"
           },
           "address": {
-            "type": "object",
+            "type": "string",
             "description": "Address of the user",
-            "example": "123 Main St, Anytown, USA"
+            "example": "123 Main St, Anytown, USA",
+            "nullable": true
           },
           "phone": {
-            "type": "object",
+            "type": "string",
             "description": "Phone number of the user",
-            "example": "1234567890"
+            "example": "1234567890",
+            "nullable": true
           }
         },
         "required": [
@@ -3633,9 +3904,10 @@
             "description": "The date and time when the category was last updated"
           },
           "products_count": {
-            "type": "object",
+            "type": "number",
             "example": 42,
-            "description": "Products count (present only if ?count=true)"
+            "description": "Products count (present only if ?count=true)",
+            "nullable": true
           },
           "products": {
             "description": "List of products in this category (present only if ?products=true)",
@@ -3757,6 +4029,205 @@
           "result"
         ]
       },
+      "CreateVariantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Pizza",
+            "description": "Name of the variant"
+          },
+          "description": {
+            "type": "object",
+            "example": "Description of the variant",
+            "description": "Description of the variant"
+          },
+          "productId": {
+            "type": "string",
+            "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
+            "description": "Unique identifier of the product to which the variant belongs"
+          },
+          "size": {
+            "type": "object",
+            "example": 30,
+            "description": "Size of the variant"
+          },
+          "weight": {
+            "type": "object",
+            "example": 300,
+            "description": "Weight of the variant in grams"
+          },
+          "price": {
+            "type": "string",
+            "example": "\"10.99\"",
+            "description": "Price of the variant"
+          }
+        },
+        "required": [
+          "name",
+          "description",
+          "productId",
+          "size",
+          "weight",
+          "price"
+        ]
+      },
+      "VariantResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
+            "description": "Unique identifier of the variant"
+          },
+          "product_id": {
+            "type": "string",
+            "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
+            "description": "Unique identifier of the product to which the variant belongs"
+          },
+          "name": {
+            "type": "string",
+            "example": "Pizza",
+            "description": "Name of the variant"
+          },
+          "description": {
+            "type": "string",
+            "example": "Description of the variant",
+            "description": "Description of the variant",
+            "nullable": true
+          },
+          "size": {
+            "type": "number",
+            "example": 30,
+            "description": "Size of the variant",
+            "nullable": true
+          },
+          "weight": {
+            "type": "number",
+            "example": 300,
+            "description": "Weight of the variant in grams",
+            "nullable": true
+          },
+          "price": {
+            "type": "string",
+            "example": "\"10.99\"",
+            "description": "Price of the variant"
+          },
+          "available": {
+            "type": "boolean",
+            "example": true,
+            "description": "Indicates if the variant is available or not"
+          }
+        },
+        "required": [
+          "id",
+          "product_id",
+          "name",
+          "description",
+          "size",
+          "weight",
+          "price",
+          "available"
+        ]
+      },
+      "VariantResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok",
+            "description": "Response status"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 200,
+            "description": "HTTP status code"
+          },
+          "result": {
+            "description": "Response data",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/VariantResponseDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
+      },
+      "VariantArrayResponse": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "example": "ok",
+            "description": "Response status"
+          },
+          "status_code": {
+            "type": "number",
+            "example": 200,
+            "description": "HTTP status code"
+          },
+          "result": {
+            "description": "Response data",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VariantResponseDto"
+            }
+          }
+        },
+        "required": [
+          "status",
+          "status_code",
+          "result"
+        ]
+      },
+      "UpdateVariantDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "example": "Pizza",
+            "description": "Name of the variant"
+          },
+          "description": {
+            "type": "object",
+            "example": "Description of the variant",
+            "description": "Description of the variant"
+          },
+          "productId": {
+            "type": "string",
+            "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
+            "description": "Unique identifier of the product to which the variant belongs"
+          },
+          "size": {
+            "type": "object",
+            "example": 30,
+            "description": "Size of the variant"
+          },
+          "weight": {
+            "type": "object",
+            "example": 300,
+            "description": "Weight of the variant in grams"
+          },
+          "price": {
+            "type": "string",
+            "example": "\"10.99\"",
+            "description": "Price of the variant"
+          },
+          "available": {
+            "type": "boolean",
+            "example": true,
+            "description": "Price of the variant"
+          }
+        },
+        "required": [
+          "available"
+        ]
+      },
       "CreateProductDto": {
         "type": "object",
         "properties": {
@@ -3766,9 +4237,10 @@
             "description": "Name of the product"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "categoryId": {
             "type": "string",
@@ -3822,65 +4294,6 @@
           "result"
         ]
       },
-      "VariantResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string",
-            "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-            "description": "Unique identifier of the variant"
-          },
-          "product_id": {
-            "type": "string",
-            "example": "2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7",
-            "description": "Unique identifier of the product to which the variant belongs"
-          },
-          "name": {
-            "type": "string",
-            "example": "Pizza",
-            "description": "Name of the variant"
-          },
-          "description": {
-            "type": "object",
-            "example": "Description of the variant",
-            "description": "Description of the variant"
-          },
-          "size": {
-            "type": "object",
-            "example": 30,
-            "description": "Size of the variant"
-          },
-          "weight": {
-            "type": "object",
-            "example": 300,
-            "description": "Weight of the variant in grams"
-          },
-          "price": {
-            "example": "\"10.99\"",
-            "description": "Price of the variant",
-            "allOf": [
-              {
-                "$ref": "#/components/schemas/i"
-              }
-            ]
-          },
-          "available": {
-            "type": "boolean",
-            "example": true,
-            "description": "Indicates if the variant is available or not"
-          }
-        },
-        "required": [
-          "id",
-          "product_id",
-          "name",
-          "description",
-          "size",
-          "weight",
-          "price",
-          "available"
-        ]
-      },
       "ProductWithQueries": {
         "type": "object",
         "properties": {
@@ -3900,9 +4313,10 @@
             "description": "Unique identifier of the category to which the product belongs"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "images": {
             "example": [
@@ -3942,9 +4356,10 @@
             }
           },
           "variants_count": {
-            "type": "object",
+            "type": "number",
             "example": 2,
-            "description": "Variants count for each product (present only if ?count=true)"
+            "description": "Variants count for each product (present only if ?count=true)",
+            "nullable": true
           }
         },
         "required": [
@@ -4047,9 +4462,10 @@
             "description": "Name of the product"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the product",
-            "description": "Description of the product"
+            "description": "Description of the product",
+            "nullable": true
           },
           "categoryId": {
             "type": "string",
