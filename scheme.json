@@ -1916,7 +1916,7 @@
         ],
         "summary": "Create a new variant (admin only)",
         "tags": [
-          "Variants"
+          "variants"
         ]
       },
       "get": {
@@ -1972,7 +1972,7 @@
         ],
         "summary": "Get array of variants",
         "tags": [
-          "Variants"
+          "variants"
         ]
       }
     },
@@ -2028,7 +2028,7 @@
         ],
         "summary": "Get a variant by id",
         "tags": [
-          "Variants"
+          "variants"
         ]
       },
       "patch": {
@@ -2092,7 +2092,7 @@
         ],
         "summary": "Update a variant by id (admin only)",
         "tags": [
-          "Variants"
+          "variants"
         ]
       },
       "delete": {
@@ -2146,7 +2146,7 @@
         ],
         "summary": "Delete a variant by id (admin only)",
         "tags": [
-          "Variants"
+          "variants"
         ]
       }
     },
