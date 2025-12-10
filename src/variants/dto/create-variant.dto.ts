@@ -16,6 +16,8 @@ export class CreateVariantDto
   @ApiProperty({
     example: 'Description of the variant',
     description: 'Description of the variant',
+    type: String,
+    nullable: true,
   })
   @IsString()
   description: string | null;
@@ -31,6 +33,8 @@ export class CreateVariantDto
   @ApiProperty({
     example: 30,
     description: 'Size of the variant',
+    nullable: true,
+    type: Number,
   })
   @IsNumber()
   size: number | null;
@@ -38,6 +42,8 @@ export class CreateVariantDto
   @ApiProperty({
     example: 300,
     description: 'Weight of the variant in grams',
+    nullable: true,
+    type: Number,
   })
   @IsNumber()
   weight: number | null;

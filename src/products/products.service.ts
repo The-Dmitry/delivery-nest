@@ -19,6 +19,7 @@ import {
 import { JwtPayload } from '@jwt/models/models';
 import { Prisma } from 'generated/prisma';
 import { WithPagination } from '@/common/types/pagination';
+import isOnlyForAdmin from '@utils/isOnlyForAdmin';
 
 @Injectable()
 export class ProductsService {
@@ -71,7 +72,7 @@ export class ProductsService {
     }: AllProductsQueries,
     role?: JwtPayload['role'],
   ): Promise<WithPagination<ProductWithQueries>> {
-    const isShowAll = showAll && (role === 'ADMIN' || role === 'ROOT');
+    const isShowAll = isOnlyForAdmin(role, showAll);
     const options = {
       where: {
         name: name && {
