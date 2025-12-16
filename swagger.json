@@ -2260,6 +2260,16 @@
             }
           },
           {
+            "name": "category_name",
+            "required": false,
+            "in": "query",
+            "description": "Filter products by category name (link name)",
+            "schema": {
+              "example": "pizza",
+              "type": "string"
+            }
+          },
+          {
             "name": "show_all",
             "required": false,
             "in": "query",
@@ -3493,6 +3503,18 @@
               "BOT"
             ]
           },
+          "created_at": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-10-01T12:00:00Z",
+            "description": "The date and time when the user was created"
+          },
+          "updated_at": {
+            "format": "date-time",
+            "type": "string",
+            "example": "2023-10-01T12:00:00Z",
+            "description": "The date and time when the user was last updated"
+          },
           "orders_count": {
             "type": "number",
             "description": "Number of orders made by the user",
@@ -3506,7 +3528,9 @@
           "email",
           "address",
           "phone",
-          "role"
+          "role",
+          "created_at",
+          "updated_at"
         ]
       },
       "UserPaginationResponse": {
@@ -4038,9 +4062,10 @@
             "description": "Name of the variant"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the variant",
-            "description": "Description of the variant"
+            "description": "Description of the variant",
+            "nullable": true
           },
           "productId": {
             "type": "string",
@@ -4048,14 +4073,16 @@
             "description": "Unique identifier of the product to which the variant belongs"
           },
           "size": {
-            "type": "object",
+            "type": "number",
             "example": 30,
-            "description": "Size of the variant"
+            "description": "Size of the variant",
+            "nullable": true
           },
           "weight": {
-            "type": "object",
+            "type": "number",
             "example": 300,
-            "description": "Weight of the variant in grams"
+            "description": "Weight of the variant in grams",
+            "nullable": true
           },
           "price": {
             "type": "string",
@@ -4194,9 +4221,10 @@
             "description": "Name of the variant"
           },
           "description": {
-            "type": "object",
+            "type": "string",
             "example": "Description of the variant",
-            "description": "Description of the variant"
+            "description": "Description of the variant",
+            "nullable": true
           },
           "productId": {
             "type": "string",
@@ -4204,14 +4232,16 @@
             "description": "Unique identifier of the product to which the variant belongs"
           },
           "size": {
-            "type": "object",
+            "type": "number",
             "example": 30,
-            "description": "Size of the variant"
+            "description": "Size of the variant",
+            "nullable": true
           },
           "weight": {
-            "type": "object",
+            "type": "number",
             "example": 300,
-            "description": "Weight of the variant in grams"
+            "description": "Weight of the variant in grams",
+            "nullable": true
           },
           "price": {
             "type": "string",
