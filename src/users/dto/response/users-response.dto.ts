@@ -48,6 +48,22 @@ export class UserResponseDto implements User {
   })
   role: Role;
 
+  @ApiProperty({
+    name: 'created_at',
+    example: '2023-10-01T12:00:00Z',
+    description: 'The date and time when the user was created',
+  })
+  @Expose({ name: 'created_at', toPlainOnly: true })
+  createdAt: Date;
+
+  @ApiProperty({
+    name: 'updated_at',
+    example: '2023-10-01T12:00:00Z',
+    description: 'The date and time when the user was last updated',
+  })
+  @Expose({ name: 'updated_at', toPlainOnly: true })
+  updatedAt: Date;
+
   @ApiPropertyOptional({
     name: 'orders_count',
     description: 'Number of orders made by the user',

@@ -38,6 +38,8 @@ model User {
   cart Cart?
   orders Order[]
   role Role @default(USER)
+  createdAt DateTime   @default(now()) @map("created_at") 
+  updatedAt DateTime   @updatedAt @map("updated_at")
 }
 
 model Cart {
@@ -64,8 +66,8 @@ model CartItem {
 }
 model Category {
   id        String     @id @default(uuid())
-  name      String     @unique
-  linkName String @map("link_name")
+  name      String     
+  linkName String @unique @map("link_name")
   active Boolean @default(false)
   products  Product[] 
   createdAt DateTime   @default(now()) @map("created_at") 

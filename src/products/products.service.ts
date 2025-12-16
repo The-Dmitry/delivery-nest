@@ -65,6 +65,7 @@ export class ProductsService {
       category,
       variants,
       categoryId,
+      categoryName,
       showAll,
       page = 1,
       limit = 20,
@@ -80,6 +81,7 @@ export class ProductsService {
           mode: 'insensitive',
         },
         categoryId,
+        category: categoryName ? { linkName: categoryName } : undefined,
         active: isShowAll
           ? undefined
           : {

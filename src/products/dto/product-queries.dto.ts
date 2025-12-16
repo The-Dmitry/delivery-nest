@@ -50,6 +50,17 @@ export class AllProductsQueries extends IntersectionType(
   categoryId?: string;
 
   @ApiPropertyOptional({
+    name: 'category_name',
+    description: 'Filter products by category name (link name)',
+    type: String,
+    example: 'pizza',
+  })
+  @IsString()
+  @IsOptional()
+  @Expose({ name: 'category_name' })
+  categoryName?: string;
+
+  @ApiPropertyOptional({
     name: 'show_all',
     description:
       'Show all products (inactive as well) (default: false, true is only for admin)',
