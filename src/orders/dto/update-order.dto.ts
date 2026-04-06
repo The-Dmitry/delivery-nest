@@ -1,5 +1,5 @@
 import { ToBoolean } from '@/common/decorators/to-boolean.decorator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { IsEnum, IsOptional, IsString } from 'class-validator';
 import { Order, OrderStatus } from 'generated/prisma';
 
@@ -7,7 +7,7 @@ export class UpdateOrderDto
   implements
     Partial<Pick<Order, 'status' | 'address' | 'phone' | 'canceledByUser'>>
 {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The status of the order',
     example: 'PENDING',
   })
@@ -15,7 +15,7 @@ export class UpdateOrderDto
   @IsOptional()
   status?: OrderStatus;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The status of the order',
     example: 'true',
   })
@@ -23,7 +23,7 @@ export class UpdateOrderDto
   @ToBoolean({ includeNegative: true })
   canceledByUser?: boolean;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The delivery address for the order',
     example: '123 Main St, Springfield, IL 62701',
   })
@@ -31,7 +31,7 @@ export class UpdateOrderDto
   @IsString()
   address?: string;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The phone number for the order',
     example: '375441122333',
   })

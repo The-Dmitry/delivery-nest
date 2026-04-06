@@ -1,10 +1,10 @@
 import { ToBoolean } from '@/common/decorators/to-boolean.decorator';
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Expose } from 'class-transformer';
 import { IsOptional } from 'class-validator';
 
 export class UpdateOrderQueriesDto {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'Update order items',
     example: true,
   })

@@ -17,6 +17,7 @@
     "noImplicitAny": false,
     "strictBindCallApply": false,
     "noFallthroughCasesInSwitch": false,
+    "strictPropertyInitialization": false,
     "paths": {
       "@interceptors/*": ["./src/common/interceptors/*"],
       "@filters/*": ["./src/common/filters/*"],
