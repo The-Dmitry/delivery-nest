@@ -29,6 +29,14 @@ export class ResponseCategoryDto implements Category {
   })
   active: boolean;
 
+  @ApiPropertyOptional({
+    example: 'https://example.com/images/pizza.jpg',
+    description: 'Image URL for the category',
+    type: String,
+    nullable: true,
+  })
+  image: string | null;
+
   @ApiProperty({
     name: 'created_at',
     example: '2023-10-01T12:00:00Z',

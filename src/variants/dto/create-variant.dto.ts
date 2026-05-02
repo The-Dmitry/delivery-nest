@@ -4,7 +4,8 @@ import { ProductVariant } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
 
 export class CreateVariantDto
-  implements Omit<ProductVariant, 'id' | 'available'>
+  implements
+    Omit<ProductVariant, 'id' | 'available' | 'createdAt' | 'updatedAt'>
 {
   @ApiProperty({
     example: 'Pizza',

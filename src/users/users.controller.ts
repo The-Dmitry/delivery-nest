@@ -74,8 +74,9 @@ export class UsersController {
   @Get()
   async findAll(
     @Query() queries: AllUsersQueriesDto,
+    @TokenPayload() jwtPayload: JwtPayload,
   ): Promise<WithPagination<UserResponseDto>> {
-    return this.usersService.findMany(queries);
+    return this.usersService.findMany(queries, jwtPayload);
   }
 
   @ApiOperation({
