@@ -10,6 +10,7 @@ export class UpdateOrderDto
   @ApiPropertyOptional({
     description: 'The status of the order',
     example: 'PENDING',
+    enum: OrderStatus,
   })
   @IsEnum(OrderStatus)
   @IsOptional()

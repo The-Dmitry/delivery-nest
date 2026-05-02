@@ -56,6 +56,7 @@ export class ResponseOrderItemDto implements OrderItem {
   @ApiProperty({
     description: 'The current status of the order item',
     example: '2023-10-02T12:34:56.789Z',
+    enum: OrderStatus,
   })
   status: OrderStatus;
 

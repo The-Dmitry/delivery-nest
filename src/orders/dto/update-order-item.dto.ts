@@ -24,6 +24,7 @@ export class UpdateOrderItemDto
   @ApiPropertyOptional({
     description: 'The status of the item',
     example: 'PENDING',
+    enum: OrderStatus,
   })
   @IsString()
   @IsOptional()

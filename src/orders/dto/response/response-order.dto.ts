@@ -69,6 +69,7 @@ export class ResponseOrderDto implements Order {
   @ApiProperty({
     description: 'The current status of the order',
     example: 'PENDING',
+    enum: OrderStatus,
   })
   status: OrderStatus;
 
