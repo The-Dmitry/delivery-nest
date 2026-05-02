@@ -221,10 +221,13 @@ export class CartService {
     }
   }
 
-  async deleteCart({ id, anonymous }: JwtPayload): Promise<DeleteResponseDto> {
+  async deleteCart(
+    { id, anonymous }: JwtPayload,
+    prisma: Prisma.TransactionClient | PrismaService = this.prisma,
+  ): Promise<DeleteResponseDto> {
     const user = anonymous ? { anonymousUserId: id } : { userId: id };
     try {
-      const cart = await this.prisma.cart.delete({
+      const cart = await prisma.cart.delete({
         where: user,
       });
       return {

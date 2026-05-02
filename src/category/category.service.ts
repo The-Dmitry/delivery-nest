@@ -43,12 +43,8 @@ export class CategoryService {
   async findAll({
     _count,
     products,
-    showAll,
   }: CategoryQueriesDto): Promise<ResponseCategoryWithQueries[]> {
     return await this.prisma.category.findMany({
-      where: {
-        active: showAll ? undefined : { equals: true },
-      },
       include: {
         _count: _count && {
           select: {

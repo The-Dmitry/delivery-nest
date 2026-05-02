@@ -37,6 +37,7 @@ model User {
   password String
   cart Cart?
   orders Order[]
+  totalSum Decimal @default(0) @map("total_sum")
   role Role @default(USER)
   createdAt DateTime   @default(now()) @map("created_at") 
   updatedAt DateTime   @updatedAt @map("updated_at")

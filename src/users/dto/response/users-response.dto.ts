@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import { createResponseDto } from '@utils/createResponseDto';
 import { Exclude, Expose, Transform } from 'class-transformer';
 import { Role, User } from 'generated/prisma';
+import { Decimal } from 'generated/prisma/runtime/library';
 
 export class UserResponseDto implements User {
   @ApiProperty({
@@ -40,6 +41,14 @@ export class UserResponseDto implements User {
     nullable: true,
   })
   phone: string | null;
+
+  @ApiProperty({
+    name: 'total_sum',
+    description: 'Total sum of all orders made by the user',
+    example: '"150.00"',
+    type: String,
+  })
+  totalSum: Decimal;
 
   @ApiProperty({
     description: 'Role of the user',

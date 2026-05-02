@@ -16,10 +16,8 @@ import {
   ProductQueries,
   AllProductsQueries,
 } from '@/products/dto/product-queries.dto';
-import { JwtPayload } from '@jwt/models/models';
 import { Prisma } from 'generated/prisma';
 import { WithPagination } from '@/common/types/pagination';
-import isOnlyForAdmin from '@utils/isOnlyForAdmin';
 
 @Injectable()
 export class ProductsService {
@@ -59,21 +57,16 @@ export class ProductsService {
     }
   }
 
-  async findAll(
-    {
-      count,
-      category,
-      variants,
-      categoryId,
-      categoryName,
-      showAll,
-      page = 1,
-      limit = 20,
-      name,
-    }: AllProductsQueries,
-    role?: JwtPayload['role'],
-  ): Promise<WithPagination<ProductWithQueries>> {
-    const isShowAll = isOnlyForAdmin(role, showAll);
+  async findAll({
+    count,
+    category,
+    variants,
+    categoryId,
+    categoryName,
+    page = 1,
+    limit = 20,
+    name,
+  }: AllProductsQueries): Promise<WithPagination<ProductWithQueries>> {
     const options = {
       where: {
         name: name && {
@@ -82,11 +75,6 @@ export class ProductsService {
         },
         categoryId,
         category: categoryName ? { linkName: categoryName } : undefined,
-        active: isShowAll
-          ? undefined
-          : {
-              equals: true,
-            },
       },
       take: limit,
       skip: (page - 1) * limit,

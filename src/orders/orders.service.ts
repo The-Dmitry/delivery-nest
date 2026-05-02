@@ -37,7 +37,6 @@ export class OrdersService {
     name,
     phone,
     status,
-    showAll,
     from,
     to,
     items,
@@ -57,15 +56,7 @@ export class OrdersService {
         },
         orderNumber: number,
         phone,
-        status: showAll
-          ? undefined
-          : status
-            ? status
-            : {
-                not: {
-                  equals: 'CANCELED',
-                },
-              },
+        status,
         createdAt: {
           gte: from,
           lte: to,
@@ -170,22 +161,37 @@ export class OrdersService {
       return sum.plus(itemTotal);
     }, new Decimal(0));
     try {
-      const newOrder = await this.prisma.order.create({
-        data: {
-          total,
-          ...userId,
-          comment,
-          name: cart.user?.name ?? name ?? 'Anonymous',
-          address: cart.user?.address ?? address ?? 'No address',
-          phone: cart.user?.phone ?? phone ?? 'No phone',
-          items: {
-            create: orderItems,
+      const result = await this.prisma.$transaction(async (prisma) => {
+        const newOrder = await prisma.order.create({
+          data: {
+            total,
+            ...userId,
+            comment,
+            name: cart.user?.name ?? name ?? 'Anonymous',
+            address: cart.user?.address ?? address ?? 'No address',
+            phone: cart.user?.phone ?? phone ?? 'No phone',
+            items: {
+              create: orderItems,
+            },
           },
-        },
+        });
+        if (!anonymous) {
+          await prisma.user.update({
+            where: {
+              id,
+            },
+            data: {
+              totalSum: {
+                increment: new Prisma.Decimal(total),
+              },
+            },
+          });
+        }
+        await this.cartService.deleteCart(payload, prisma);
+        return newOrder;
       });
-      await this.cartService.deleteCart(payload);
-      this.sendWebSocketMessage('new', newOrder);
-      return newOrder;
+      this.sendWebSocketMessage('new', result);
+      return result;
     } catch {
       throw new BadRequestException('Failed to create order');
     }
