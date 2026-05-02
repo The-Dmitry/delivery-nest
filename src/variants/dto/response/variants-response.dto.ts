@@ -64,6 +64,22 @@ export class VariantResponseDto implements ProductVariant {
     description: 'Indicates if the variant is available or not',
   })
   available: boolean;
+
+  @ApiProperty({
+    name: 'created_at',
+    example: '2023-10-01T12:00:00Z',
+    description: 'The date and time when the product variant was created',
+  })
+  @Expose({ name: 'created_at', toPlainOnly: true })
+  createdAt: Date;
+
+  @ApiProperty({
+    name: 'updated_at',
+    example: '2023-10-01T12:00:00Z',
+    description: 'The date and time when the product variant was last updated',
+  })
+  @Expose({ name: 'updated_at', toPlainOnly: true })
+  updatedAt: Date;
 }
 
 export class VariantWithProduct extends VariantResponseDto {

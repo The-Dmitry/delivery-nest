@@ -33,8 +33,6 @@ import {
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
-import { TokenPayload } from '@/common/decorators/token-payload.decorator';
-import { Role } from 'generated/prisma';
 import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
 
 @ApiBearerAuth('access-token')
@@ -80,10 +78,9 @@ export class VariantsController {
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
-    @TokenPayload('role') role: Role,
     @Query() queries: VariantsQueriesDto,
   ): Promise<VariantResponseDto[]> {
-    return await this.variantsService.findAll(queries, role);
+    return await this.variantsService.findAll(queries);
   }
 
   @ApiOperation({

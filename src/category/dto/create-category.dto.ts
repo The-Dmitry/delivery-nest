@@ -1,8 +1,10 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsNotEmpty, IsString } from 'class-validator';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsNotEmpty, IsOptional, IsString } from 'class-validator';
 import { Category } from 'generated/prisma';
 
-export class CreateCategoryDto implements Pick<Category, 'name' | 'linkName'> {
+export class CreateCategoryDto
+  implements Pick<Category, 'name' | 'linkName' | 'image'>
+{
   @ApiProperty({
     example: 'Pizza',
     description: 'Name of the category',
@@ -18,4 +20,12 @@ export class CreateCategoryDto implements Pick<Category, 'name' | 'linkName'> {
   @IsString()
   @IsNotEmpty()
   linkName: string;
+
+  @ApiPropertyOptional({
+    example: 'https://example.com/images/pizza.jpg',
+    description: 'Image URL for the category',
+  })
+  @IsString()
+  @IsOptional()
+  image: string | null;
 }

@@ -68,6 +68,7 @@ model Category {
   id        String     @id @default(uuid())
   name      String     
   linkName String @unique @map("link_name")
+  image String?
   active Boolean @default(false)
   products  Product[] 
   createdAt DateTime   @default(now()) @map("created_at") 
@@ -99,6 +100,8 @@ model ProductVariant {
   available Boolean  @default(false)
   cartItems CartItem[] 
 
+  createdAt DateTime   @default(now()) @map("created_at") 
+  updatedAt DateTime   @updatedAt @map("updated_at")
   OrderItem OrderItem[]
 }
 
