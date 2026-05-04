@@ -61,19 +61,6 @@ export class AllProductsQueries extends IntersectionType(
   categoryName?: string;
 
   @ApiPropertyOptional({
-    name: 'show_all',
-    description:
-      'Show all products (inactive as well) (default: false, true is only for admin)',
-    type: Boolean,
-    example: true,
-    required: false,
-  })
-  @ToBoolean()
-  @IsOptional()
-  @Expose({ name: 'show_all' })
-  showAll?: boolean;
-
-  @ApiPropertyOptional({
     name: 'name',
     description: 'Filter products by name (case-insensitive, partial match)',
     type: String,

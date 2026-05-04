@@ -24,6 +24,8 @@ export class CreateCategoryDto
   @ApiPropertyOptional({
     example: 'https://example.com/images/pizza.jpg',
     description: 'Image URL for the category',
+    type: String,
+    nullable: true,
   })
   @IsString()
   @IsOptional()

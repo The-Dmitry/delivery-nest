@@ -23,16 +23,4 @@ export class CategoryQueriesDto {
   @IsOptional()
   @ToBoolean()
   products?: boolean;
-
-  @ApiPropertyOptional({
-    name: 'show_all',
-    description: 'Show all categories (default: false, true is only for admin)',
-    type: Boolean,
-    example: true,
-    required: false,
-  })
-  @ToBoolean()
-  @IsOptional()
-  @Expose({ name: 'show_all' })
-  showAll?: boolean;
 }
