@@ -41,6 +41,8 @@ model User {
   role Role @default(USER)
   createdAt DateTime   @default(now()) @map("created_at") 
   updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@index([createdAt])
 }
 
 model Cart {
@@ -51,8 +53,6 @@ model Cart {
   items CartItem[]
   createdAt DateTime   @default(now()) @map("created_at") 
   updatedAt DateTime   @updatedAt @map("updated_at")
-
-  @@unique([userId, anonymousUserId], name: "cart_identifier")
 }
 
 model CartItem {
@@ -65,6 +65,7 @@ model CartItem {
 
   @@unique([cartId, productVariantId])
 }
+
 model Category {
   id        String     @id @default(uuid())
   name      String     
@@ -74,6 +75,8 @@ model Category {
   products  Product[] 
   createdAt DateTime   @default(now()) @map("created_at") 
   updatedAt DateTime   @updatedAt @map("updated_at")
+
+  @@index([createdAt])
 }
 
 model Product {
@@ -87,6 +90,8 @@ model Product {
   createdAt DateTime   @default(now()) @map("created_at") 
   updatedAt DateTime   @updatedAt @map("updated_at")
   active Boolean @default(false)
+
+  @@index([createdAt])
 }
 
 model ProductVariant {
@@ -104,6 +109,8 @@ model ProductVariant {
   createdAt DateTime   @default(now()) @map("created_at") 
   updatedAt DateTime   @updatedAt @map("updated_at")
   OrderItem OrderItem[]
+
+  @@index([productId, createdAt])
 }
 
 model Order {
@@ -111,7 +118,7 @@ model Order {
   orderNumber Int @unique @default(autoincrement()) @map("order_number")
   userId  String?  @map("user_id")
   user      User?         @relation(fields: [userId], references: [id])
-  anonymousUserId String? @unique @map("anonymous_user_id")
+  anonymousUserId String?  @map("anonymous_user_id")
   status    OrderStatus  @default(NEW)
   canceledByUser Boolean @default(false) @map("canceled_by_user")
   comment   String?
@@ -122,6 +129,9 @@ model Order {
   items     OrderItem[]
   createdAt DateTime     @default(now()) @map("created_at")
   updatedAt DateTime     @updatedAt @map("updated_at")
+
+  @@index([createdAt])
+  @@index([userId, createdAt])
 }
 
 model OrderItem {
@@ -134,4 +144,5 @@ model OrderItem {
   productVariant   ProductVariant @relation(fields: [productVariantId], references: [id])
   quantity         Int
   singleItemPrice  Decimal        @map("price_at_purchase")
+
 }

@@ -76,6 +76,9 @@ export class ProductsService {
         categoryId,
         category: categoryName ? { linkName: categoryName } : undefined,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
       take: limit,
       skip: (page - 1) * limit,
     } satisfies Prisma.ProductFindManyArgs;

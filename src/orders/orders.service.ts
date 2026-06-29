@@ -62,6 +62,8 @@ export class OrdersService {
           lte: to,
         },
       },
+      take: limit,
+      skip: (page - 1) * limit,
       orderBy: { createdAt: 'desc' },
       include: {
         items: showItems && {

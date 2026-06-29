@@ -68,6 +68,9 @@ export class UsersService {
             name: name && { contains: name, mode: 'insensitive' },
             role: isAdmin ? role : Role.BOT,
           },
+          orderBy: {
+            createdAt: 'desc',
+          },
           take: limit,
           skip: (page - 1) * limit,
           include: {

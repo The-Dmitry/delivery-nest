@@ -53,6 +53,9 @@ export class CategoryService {
         },
         products,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
