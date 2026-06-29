@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -108,10 +109,10 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(
-    @Param('id') orderId: string,
+    @Param('id', ParseIntPipe) orderNumber: number,
     @Query() queries: OneOrderQueryDto,
   ): Promise<ResponseOrderDto> {
-    return await this.ordersService.findOneOrder(orderId, queries);
+    return await this.ordersService.findOneOrder(orderNumber, queries);
   }
 
   @ApiOperation({

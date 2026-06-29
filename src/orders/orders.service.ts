@@ -62,6 +62,7 @@ export class OrdersService {
           lte: to,
         },
       },
+      orderBy: { createdAt: 'desc' },
       include: {
         items: showItems && {
           include: {
@@ -90,12 +91,12 @@ export class OrdersService {
   }
 
   async findOneOrder(
-    orderId: string,
+    orderNumber: number,
     { items, product, variant }: OneOrderQueryDto,
   ): Promise<ResponseOrderDto> {
     try {
       return await this.prisma.order.findUniqueOrThrow({
-        where: { id: String(orderId) },
+        where: { orderNumber },
         include: {
           items: items
             ? {
