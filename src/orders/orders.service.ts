@@ -201,28 +201,17 @@ export class OrdersService {
   }
 
   async updateOrder(
-    orderId: string,
+    orderNumber: number,
     { status, phone, address, canceledByUser }: UpdateOrderDto,
-    updateItems = false,
   ): Promise<ResponseOrderDto> {
     try {
       const updatedOrder = await this.prisma.order.update({
-        where: { id: orderId },
+        where: { orderNumber },
         data: {
           status,
           phone,
           address,
           canceledByUser,
-          items: updateItems
-            ? {
-                updateMany: {
-                  where: {
-                    orderId,
-                  },
-                  data: { status },
-                },
-              }
-            : undefined,
         },
       });
       this.sendWebSocketMessage('update', updatedOrder);
@@ -254,11 +243,10 @@ export class OrdersService {
           singleItemPrice: true,
         },
       });
-      const {
-        quantity = currentItem.quantity,
-        singleItemPrice = currentItem.singleItemPrice,
-        status,
-      } = dto;
+      const singleItemPrice = dto.singleItemPrice
+        ? new Prisma.Decimal(dto.singleItemPrice)
+        : currentItem.singleItemPrice;
+      const { quantity = currentItem.quantity, status } = dto;
       const total = singleItemPrice.times(quantity);
       const result = await this.prisma.orderItem.update({
         where: { id: itemId },

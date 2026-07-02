@@ -37,11 +37,13 @@ export class VariantsService {
 
   async findAll({
     productId,
+    showAll,
   }: VariantsQueriesDto): Promise<VariantResponseDto[]> {
     try {
       return await this.prisma.productVariant.findMany({
         where: {
           productId,
+          available: showAll ? undefined : { equals: true },
         },
         orderBy: {
           createdAt: 'desc',

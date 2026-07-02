@@ -70,4 +70,17 @@ export class AllProductsQueries extends IntersectionType(
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({
+    name: 'show_all',
+    description:
+      'Show all products (inactive as well) (default: false, true is only for admin)',
+    type: Boolean,
+    example: true,
+    required: false,
+  })
+  @ToBoolean()
+  @IsOptional()
+  @Expose({ name: 'show_all' })
+  showAll?: boolean;
 }

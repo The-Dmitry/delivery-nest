@@ -66,6 +66,7 @@ export class ProductsService {
     page = 1,
     limit = 20,
     name,
+    showAll,
   }: AllProductsQueries): Promise<WithPagination<ProductWithQueries>> {
     const options = {
       where: {
@@ -74,6 +75,7 @@ export class ProductsService {
           mode: 'insensitive',
         },
         categoryId,
+        active: showAll ? undefined : { equals: true },
         category: categoryName ? { linkName: categoryName } : undefined,
       },
       orderBy: {

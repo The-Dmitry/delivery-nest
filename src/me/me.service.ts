@@ -52,8 +52,8 @@ export class MeService {
     return await this.ordersService.findManyOrders({ userId: id, ...queries });
   }
 
-  async getOrderById(orderId: string): Promise<ResponseOrderDto> {
-    return await this.ordersService.findOneOrder(orderId, {
+  async getOrderById(orderNumber: number): Promise<ResponseOrderDto> {
+    return await this.ordersService.findOneOrder(orderNumber, {
       items: true,
       variant: true,
       product: true,
@@ -62,21 +62,17 @@ export class MeService {
 
   async cancelOrder(
     userId: string,
-    orderId: string,
+    orderNumber: number,
   ): Promise<ResponseOrderDto> {
-    const order = await this.ordersService.findOneOrder(orderId, {});
+    const order = await this.ordersService.findOneOrder(orderNumber, {});
     if (order.status !== 'NEW') {
       throw new BadRequestException('Order is in progress or already canceled');
     }
     if (order.userId !== userId) {
       throw new BadRequestException('You are not allowed to cancel this order');
     }
-    return await this.ordersService.updateOrder(
-      orderId,
-      {
-        canceledByUser: true,
-      },
-      true,
-    );
+    return await this.ordersService.updateOrder(orderNumber, {
+      canceledByUser: true,
+    });
   }
 }
