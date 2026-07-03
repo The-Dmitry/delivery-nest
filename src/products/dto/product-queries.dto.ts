@@ -50,17 +50,15 @@ export class AllProductsQueries extends IntersectionType(
   categoryId?: string;
 
   @ApiPropertyOptional({
-    name: 'show_all',
-    description:
-      'Show all products (inactive as well) (default: false, true is only for admin)',
-    type: Boolean,
-    example: true,
-    required: false,
+    name: 'category_name',
+    description: 'Filter products by category name (link name)',
+    type: String,
+    example: 'pizza',
   })
-  @ToBoolean()
+  @IsString()
   @IsOptional()
-  @Expose({ name: 'show_all' })
-  showAll?: boolean;
+  @Expose({ name: 'category_name' })
+  categoryName?: string;
 
   @ApiPropertyOptional({
     name: 'name',
@@ -72,4 +70,17 @@ export class AllProductsQueries extends IntersectionType(
   @IsOptional()
   @IsString()
   name?: string;
+
+  @ApiPropertyOptional({
+    name: 'show_all',
+    description:
+      'Show all products (inactive as well) (default: false, true is only for admin)',
+    type: Boolean,
+    example: true,
+    required: false,
+  })
+  @ToBoolean()
+  @IsOptional()
+  @Expose({ name: 'show_all' })
+  showAll?: boolean;
 }

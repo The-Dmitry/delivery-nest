@@ -57,6 +57,9 @@ export class CategoryService {
         },
         products,
       },
+      orderBy: {
+        createdAt: 'desc',
+      },
     });
   }
 
@@ -86,12 +89,12 @@ export class CategoryService {
 
   async update(
     id: string,
-    { name, linkName, active }: UpdateCategoryDto,
+    data: UpdateCategoryDto,
   ): Promise<ResponseCategoryDto> {
     try {
       return await this.prisma.category.update({
         where: { id },
-        data: { name, linkName, active },
+        data,
       });
     } catch (error) {
       if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -100,11 +103,11 @@ export class CategoryService {
         }
         if (error.code === 'P2002') {
           throw new ConflictException(
-            `Category with name '${name}' already exists.`,
+            `Category with name '${data.name}' already exists.`,
           );
         }
       }
-      throw new BadRequestException(`Failed to update category: ${name}`);
+      throw new BadRequestException(`Failed to update category: ${data.name}`);
     }
   }
 

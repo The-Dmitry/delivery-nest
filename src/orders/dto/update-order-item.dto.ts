@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsDecimal,
   IsNumber,
@@ -12,7 +12,7 @@ import { Decimal } from 'generated/prisma/runtime/library';
 export class UpdateOrderItemDto
   implements Partial<Pick<OrderItem, 'quantity' | 'status' | 'singleItemPrice'>>
 {
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The quantity of the item to update',
     example: 2,
   })
@@ -21,18 +21,19 @@ export class UpdateOrderItemDto
   @Min(1)
   quantity?: number;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The status of the item',
     example: 'PENDING',
+    enum: OrderStatus,
   })
   @IsString()
   @IsOptional()
   status?: OrderStatus;
 
-  @ApiProperty({
+  @ApiPropertyOptional({
     description: 'The price of a single item',
     example: '19.99',
-    type: Decimal,
+    type: String,
   })
   @IsDecimal()
   @IsOptional()

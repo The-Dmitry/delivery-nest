@@ -16,6 +16,7 @@ import { WithPagination } from '@/common/types/pagination';
 import { SingleUserQueriesDto } from '@/users/dto/single-user-queries.dto';
 import { JwtPayload } from '@jwt/models/models';
 import { Role } from 'generated/prisma';
+import isOnlyForAdmin from '@utils/isOnlyForAdmin';
 
 @Injectable()
 export class UsersService {
@@ -40,26 +41,35 @@ export class UsersService {
     }
   }
 
-  async findMany({
-    name,
-    email,
-    phone,
-    role,
-    count,
-    limit = 20,
-    page = 1,
-  }: AllUsersQueriesDto): Promise<WithPagination<UserResponseDto>> {
+  async findMany(
+    {
+      name,
+      email,
+      phone,
+      role,
+      count,
+      limit = 20,
+      page = 1,
+    }: AllUsersQueriesDto,
+    jwtPayload: JwtPayload,
+  ): Promise<WithPagination<UserResponseDto>> {
+    const isAdmin = isOnlyForAdmin(jwtPayload.role);
     const where = {
       email,
       phone,
       role,
     };
+
     try {
       const [data, total] = await Promise.all([
         this.prisma.user.findMany({
           where: {
             ...where,
             name: name && { contains: name, mode: 'insensitive' },
+            role: isAdmin ? role : Role.BOT,
+          },
+          orderBy: {
+            createdAt: 'desc',
           },
           take: limit,
           skip: (page - 1) * limit,

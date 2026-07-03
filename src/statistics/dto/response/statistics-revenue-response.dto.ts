@@ -14,6 +14,7 @@ export class DailyRevenue {
   @ApiProperty({
     example: 15,
     description: 'Number (Decimal) of orders on that date',
+    type: String,
   })
   @Type(() => String)
   revenue: Decimal;
@@ -23,6 +24,7 @@ export class StatisticsRevenueResponseDto {
   @ApiProperty({
     example: 450,
     description: 'Total number of orders in the specified period',
+    type: String,
   })
   @Type(() => String)
   total: Decimal;

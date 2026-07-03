@@ -15,6 +15,7 @@ export class ResponseOrderDto implements Order {
   @ApiProperty({
     description: 'The ID of the user who placed the order',
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
+    type: String,
     nullable: true,
     name: 'user_id',
   })
@@ -30,6 +31,8 @@ export class ResponseOrderDto implements Order {
   @ApiProperty({
     description: 'The comment for the order',
     example: 'Please deliver it asap',
+    type: String,
+    nullable: true,
   })
   comment: string | null;
 
@@ -48,6 +51,7 @@ export class ResponseOrderDto implements Order {
   @ApiProperty({
     description: 'The ID of the anonymous user who placed the order',
     example: '2b3c4d5e-6f7g-8h9i-j0k1-l2m3n4o5p6q7',
+    type: String,
     nullable: true,
     name: 'anonymous_user_id',
   })
@@ -65,6 +69,7 @@ export class ResponseOrderDto implements Order {
   @ApiProperty({
     description: 'The current status of the order',
     example: 'PENDING',
+    enum: OrderStatus,
   })
   status: OrderStatus;
 
@@ -78,6 +83,7 @@ export class ResponseOrderDto implements Order {
   @ApiProperty({
     description: 'The total amount for the order',
     example: '59.99',
+    type: String,
   })
   @Type(() => String)
   total: Decimal;

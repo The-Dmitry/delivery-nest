@@ -20,6 +20,7 @@ import {
   ApiNotFoundResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 import {
   VariantResponse,
@@ -32,8 +33,6 @@ import {
   DeleteResponseDto,
 } from '@/common/dto/delete-response.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
-import { TokenPayload } from '@/common/decorators/token-payload.decorator';
-import { Role } from 'generated/prisma';
 import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
 
 @ApiBearerAuth('access-token')
@@ -41,6 +40,7 @@ import { VariantsQueriesDto } from '@/variants/dto/variants-queries.dto';
   description: 'Bad request',
   type: DeleteResponse,
 })
+@ApiTags('variants')
 @Controller('variants')
 export class VariantsController {
   constructor(private readonly variantsService: VariantsService) {}
@@ -78,10 +78,9 @@ export class VariantsController {
   @HttpCode(HttpStatus.OK)
   @Get()
   async findAll(
-    @TokenPayload('role') role: Role,
     @Query() queries: VariantsQueriesDto,
   ): Promise<VariantResponseDto[]> {
-    return await this.variantsService.findAll(queries, role);
+    return await this.variantsService.findAll(queries);
   }
 
   @ApiOperation({

@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
   Post,
   Query,
@@ -39,7 +40,6 @@ import {
   ManyOrdersQueryDto,
   OneOrderQueryDto,
 } from '@/orders/dto/orders-queries.dto';
-import { UpdateOrderQueriesDto } from '@/orders/dto/update-order-queries.dto';
 import { WithPagination } from '@/common/types/pagination';
 
 @ApiBadRequestResponse({
@@ -92,8 +92,8 @@ export class OrdersController {
   }
 
   @ApiOperation({
-    summary: 'Get order by ID',
-    description: 'Retrieve a specific order by its ID',
+    summary: 'Get order by its №',
+    description: 'Retrieve a specific order by its №',
   })
   @ApiOkResponse({
     description: 'Order details',
@@ -108,10 +108,10 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   @Get(':id')
   async findOne(
-    @Param('id') orderId: string,
+    @Param('id', ParseIntPipe) orderNumber: number,
     @Query() queries: OneOrderQueryDto,
   ): Promise<ResponseOrderDto> {
-    return await this.ordersService.findOneOrder(orderId, queries);
+    return await this.ordersService.findOneOrder(orderNumber, queries);
   }
 
   @ApiOperation({
@@ -131,15 +131,10 @@ export class OrdersController {
   @HttpCode(HttpStatus.OK)
   @Patch(':id')
   async updateOrder(
-    @Param('id') orderId: string,
+    @Param('id', ParseIntPipe) orderNumber: number,
     @Body() updateOrderDto: UpdateOrderDto,
-    @Query() { updateItems }: UpdateOrderQueriesDto,
   ): Promise<ResponseOrderDto> {
-    return await this.ordersService.updateOrder(
-      orderId,
-      updateOrderDto,
-      updateItems,
-    );
+    return await this.ordersService.updateOrder(orderNumber, updateOrderDto);
   }
 
   @ApiOperation({

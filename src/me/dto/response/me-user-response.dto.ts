@@ -9,6 +9,7 @@ export class MeUserResponseDto extends PickType(UserResponseDto, [
   'name',
   'phone',
   'email',
+  'totalSum',
 ]) {
   @Exclude()
   id?: string;

@@ -39,8 +39,6 @@ import {
   AllProductsQueries,
 } from '@/products/dto/product-queries.dto';
 import { JwtAuthorization } from '@/common/decorators/jwt-authorization.decorator';
-import { TokenPayload } from '@/common/decorators/token-payload.decorator';
-import { JwtPayload } from '@jwt/models/models';
 import { WithPagination } from '@/common/types/pagination';
 
 @ApiBadRequestResponse({
@@ -80,9 +78,8 @@ export class ProductsController {
   @Get()
   async findAll(
     @Query() queries: AllProductsQueries,
-    @TokenPayload('role') role: JwtPayload['role'],
   ): Promise<WithPagination<ProductWithQueries>> {
-    return await this.productsService.findAll(queries, role);
+    return await this.productsService.findAll(queries);
   }
 
   @ApiOperation({

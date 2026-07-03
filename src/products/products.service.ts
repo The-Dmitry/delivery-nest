@@ -16,7 +16,6 @@ import {
   ProductQueries,
   AllProductsQueries,
 } from '@/products/dto/product-queries.dto';
-import { JwtPayload } from '@jwt/models/models';
 import { Prisma } from 'generated/prisma';
 import { WithPagination } from '@/common/types/pagination';
 
@@ -58,20 +57,17 @@ export class ProductsService {
     }
   }
 
-  async findAll(
-    {
-      count,
-      category,
-      variants,
-      categoryId,
-      showAll,
-      page = 1,
-      limit = 20,
-      name,
-    }: AllProductsQueries,
-    role?: JwtPayload['role'],
-  ): Promise<WithPagination<ProductWithQueries>> {
-    const isShowAll = showAll && role === 'ADMIN';
+  async findAll({
+    count,
+    category,
+    variants,
+    categoryId,
+    categoryName,
+    page = 1,
+    limit = 20,
+    name,
+    showAll,
+  }: AllProductsQueries): Promise<WithPagination<ProductWithQueries>> {
     const options = {
       where: {
         name: name && {
@@ -79,11 +75,11 @@ export class ProductsService {
           mode: 'insensitive',
         },
         categoryId,
-        active: isShowAll
-          ? undefined
-          : {
-              equals: true,
-            },
+        active: showAll ? undefined : { equals: true },
+        category: categoryName ? { linkName: categoryName } : undefined,
+      },
+      orderBy: {
+        createdAt: 'desc',
       },
       take: limit,
       skip: (page - 1) * limit,

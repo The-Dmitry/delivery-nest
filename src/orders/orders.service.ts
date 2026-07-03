@@ -37,7 +37,6 @@ export class OrdersService {
     name,
     phone,
     status,
-    showAll,
     from,
     to,
     items,
@@ -57,20 +56,15 @@ export class OrdersService {
         },
         orderNumber: number,
         phone,
-        status: showAll
-          ? undefined
-          : status
-            ? status
-            : {
-                not: {
-                  equals: 'CANCELED',
-                },
-              },
+        status,
         createdAt: {
           gte: from,
           lte: to,
         },
       },
+      take: limit,
+      skip: (page - 1) * limit,
+      orderBy: { createdAt: 'desc' },
       include: {
         items: showItems && {
           include: {
@@ -99,12 +93,12 @@ export class OrdersService {
   }
 
   async findOneOrder(
-    orderId: string,
+    orderNumber: number,
     { items, product, variant }: OneOrderQueryDto,
   ): Promise<ResponseOrderDto> {
     try {
       return await this.prisma.order.findUniqueOrThrow({
-        where: { id: String(orderId) },
+        where: { orderNumber },
         include: {
           items: items
             ? {
@@ -170,50 +164,54 @@ export class OrdersService {
       return sum.plus(itemTotal);
     }, new Decimal(0));
     try {
-      const newOrder = await this.prisma.order.create({
-        data: {
-          total,
-          ...userId,
-          comment,
-          name: cart.user?.name ?? name ?? 'Anonymous',
-          address: cart.user?.address ?? address ?? 'No address',
-          phone: cart.user?.phone ?? phone ?? 'No phone',
-          items: {
-            create: orderItems,
+      const result = await this.prisma.$transaction(async (prisma) => {
+        const newOrder = await prisma.order.create({
+          data: {
+            total,
+            ...userId,
+            comment,
+            name: cart.user?.name ?? name ?? 'Anonymous',
+            address: cart.user?.address ?? address ?? 'No address',
+            phone: cart.user?.phone ?? phone ?? 'No phone',
+            items: {
+              create: orderItems,
+            },
           },
-        },
+        });
+        if (!anonymous) {
+          await prisma.user.update({
+            where: {
+              id,
+            },
+            data: {
+              totalSum: {
+                increment: new Prisma.Decimal(total),
+              },
+            },
+          });
+        }
+        await this.cartService.deleteCart(payload, prisma);
+        return newOrder;
       });
-      await this.cartService.deleteCart(payload);
-      this.sendWebSocketMessage('new', newOrder);
-      return newOrder;
+      this.sendWebSocketMessage('new', result);
+      return result;
     } catch {
       throw new BadRequestException('Failed to create order');
     }
   }
 
   async updateOrder(
-    orderId: string,
+    orderNumber: number,
     { status, phone, address, canceledByUser }: UpdateOrderDto,
-    updateItems = false,
   ): Promise<ResponseOrderDto> {
     try {
       const updatedOrder = await this.prisma.order.update({
-        where: { id: orderId },
+        where: { orderNumber },
         data: {
           status,
           phone,
           address,
           canceledByUser,
-          items: updateItems
-            ? {
-                updateMany: {
-                  where: {
-                    orderId,
-                  },
-                  data: { status },
-                },
-              }
-            : undefined,
         },
       });
       this.sendWebSocketMessage('update', updatedOrder);
@@ -245,11 +243,10 @@ export class OrdersService {
           singleItemPrice: true,
         },
       });
-      const {
-        quantity = currentItem.quantity,
-        singleItemPrice = currentItem.singleItemPrice,
-        status,
-      } = dto;
+      const singleItemPrice = dto.singleItemPrice
+        ? new Prisma.Decimal(dto.singleItemPrice)
+        : currentItem.singleItemPrice;
+      const { quantity = currentItem.quantity, status } = dto;
       const total = singleItemPrice.times(quantity);
       const result = await this.prisma.orderItem.update({
         where: { id: itemId },

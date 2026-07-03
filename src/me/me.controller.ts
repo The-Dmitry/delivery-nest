@@ -5,6 +5,7 @@ import {
   HttpCode,
   HttpStatus,
   Param,
+  ParseIntPipe,
   Patch,
 } from '@nestjs/common';
 import { MeService } from './me.service';
@@ -114,12 +115,14 @@ export class MeController {
   @JwtAuthorization()
   @HttpCode(HttpStatus.OK)
   @Get('orders/:id')
-  async meOrder(@Param('id') orderId: string): Promise<ResponseOrderDto> {
-    return await this.meService.getOrderById(orderId);
+  async meOrder(
+    @Param('id', ParseIntPipe) orderNumber: number,
+  ): Promise<ResponseOrderDto> {
+    return await this.meService.getOrderById(orderNumber);
   }
 
   @ApiOperation({
-    summary: 'Cancel own order',
+    summary: 'Cancel own order by order №',
   })
   @ApiOkResponse({ type: OrderResponse })
   @SerializeResponse(ResponseOrderDto)
@@ -127,8 +130,8 @@ export class MeController {
   @Patch('orders/:id')
   async cancelOrder(
     @TokenPayload('id') id: string,
-    @Param('id') orderId: string,
+    @Param('id', ParseIntPipe) orderNumber: number,
   ): Promise<ResponseOrderDto> {
-    return await this.meService.cancelOrder(id, orderId);
+    return await this.meService.cancelOrder(id, orderNumber);
   }
 }

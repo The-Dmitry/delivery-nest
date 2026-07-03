@@ -4,7 +4,8 @@ import { ProductVariant } from 'generated/prisma';
 import { Decimal } from 'generated/prisma/runtime/library';
 
 export class CreateVariantDto
-  implements Omit<ProductVariant, 'id' | 'available'>
+  implements
+    Omit<ProductVariant, 'id' | 'available' | 'createdAt' | 'updatedAt'>
 {
   @ApiProperty({
     example: 'Pizza',
@@ -16,6 +17,8 @@ export class CreateVariantDto
   @ApiProperty({
     example: 'Description of the variant',
     description: 'Description of the variant',
+    type: String,
+    nullable: true,
   })
   @IsString()
   description: string | null;
@@ -31,6 +34,8 @@ export class CreateVariantDto
   @ApiProperty({
     example: 30,
     description: 'Size of the variant',
+    nullable: true,
+    type: Number,
   })
   @IsNumber()
   size: number | null;
@@ -38,6 +43,8 @@ export class CreateVariantDto
   @ApiProperty({
     example: 300,
     description: 'Weight of the variant in grams',
+    nullable: true,
+    type: Number,
   })
   @IsNumber()
   weight: number | null;
@@ -45,6 +52,7 @@ export class CreateVariantDto
   @ApiProperty({
     example: '"10.99"',
     description: 'Price of the variant',
+    type: String,
   })
   @IsDecimal()
   price: Decimal;
